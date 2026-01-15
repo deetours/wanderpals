@@ -138,6 +138,23 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Smooth scrolling optimization */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Hardware acceleration for smooth scrolling */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Optimize transforms and opacity changes */
+  [class*="transition"],
+  [class*="animate"] {
+    will-change: transform, opacity;
+  }
 }
 
 /* Subtle film grain effect */
@@ -152,6 +169,8 @@
   opacity: 0.03;
   pointer-events: none;
   z-index: 1;
+  will-change: auto;
+  transform: translateZ(0);
 }
 
 /* Cinematic animations */

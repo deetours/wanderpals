@@ -14,17 +14,26 @@ export function LandingPage() {
   const [currentScene, setCurrentScene] = useState(0)
 
   useEffect(() => {
+    let ticking = false
+    
     const handleScroll = () => {
-      const scrollY = window.scrollY
-      // Show navbar after first scroll
-      if (scrollY > 100 && !showNavbar) {
-        setShowNavbar(true)
-      }
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollY = window.scrollY
+          // Show navbar after first scroll
+          if (scrollY > 100 && !showNavbar) {
+            setShowNavbar(true)
+          }
 
-      // Track current scene based on scroll position
-      const vh = window.innerHeight
-      const scene = Math.floor(scrollY / (vh * 0.8))
-      setCurrentScene(scene)
+          // Track current scene based on scroll position
+          const vh = window.innerHeight
+          const scene = Math.floor(scrollY / (vh * 0.8))
+          setCurrentScene(scene)
+          
+          ticking = false
+        })
+        ticking = true
+      }
     }
 
     window.addEventListener("scroll", handleScroll, { passive: true })
