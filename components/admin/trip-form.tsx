@@ -21,7 +21,6 @@ export function TripForm({ trip, onSuccess }: TripFormProps) {
     region: trip?.region || '',
     image_url: trip?.image_url || '',
   })
-  const supabase = createClientComponentClient()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

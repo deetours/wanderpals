@@ -20,7 +20,6 @@ export function StayForm({ stay, onSuccess }: StayFormProps) {
     description: stay?.description || '',
     image_url: stay?.image_url || '',
   })
-  const supabase = createClientComponentClient()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
