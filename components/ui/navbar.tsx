@@ -50,7 +50,7 @@ export function Navbar({ visible }: NavbarProps) {
               About
             </Link>
             <Link
-              href="/return"
+              href="/login"
               className="font-sans text-sm text-primary hover:text-primary/80 transition-colors"
             >
               Return
@@ -104,7 +104,7 @@ export function Navbar({ visible }: NavbarProps) {
             About
           </Link>
           <Link
-            href="/return"
+            href="/login"
             className="font-serif text-3xl text-primary transition-colors hover:text-primary/80"
             onClick={() => setMobileMenuOpen(false)}
           >

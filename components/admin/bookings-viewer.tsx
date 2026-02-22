@@ -1,21 +1,24 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createClientComponentClient } from '@/lib/supabase-client'
 import { CheckCircle, Clock, XCircle } from 'lucide-react'
 
 export function BookingsViewer() {
   const [bookings, setBookings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClientComponentClient> | null>(null)
 
   useEffect(() => {
-    fetchBookings()
+    const client = createClientComponentClient()
+    setSupabase(client)
+    fetchBookings(client)
   }, [])
 
-  const fetchBookings = async () => {
+  const fetchBookings = async (client: typeof supabase) => {
+    if (!client) return
     setLoading(true)
-    const { data } = await supabase
+    const { data } = await client
       .from('bookings')
       .select(`
         *,

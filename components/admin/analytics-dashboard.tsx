@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createClientComponentClient } from '@/lib/supabase-client'
 import { Users, BookOpen, MapPin, TrendingUp } from 'lucide-react'
 
 export function AnalyticsDashboard() {
@@ -12,20 +12,23 @@ export function AnalyticsDashboard() {
     totalStays: 0,
   })
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClientComponentClient> | null>(null)
 
   useEffect(() => {
-    fetchStats()
+    const client = createClientComponentClient()
+    setSupabase(client)
+    fetchStats(client)
   }, [])
 
-  const fetchStats = async () => {
+  const fetchStats = async (client: typeof supabase) => {
+    if (!client) return
     setLoading(true)
     
-    const { count: usersCount } = await supabase
+    const { count: usersCount } = await client
       .from('users')
       .select('*', { count: 'exact', head: true })
     
-    const { count: bookingsCount } = await supabase
+    const { count: bookingsCount } = await client
       .from('bookings')
       .select('*', { count: 'exact', head: true })
     

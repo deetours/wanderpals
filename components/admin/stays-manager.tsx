@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createClientComponentClient } from '@/lib/supabase-client'
 import { Plus, Edit2, Trash2 } from 'lucide-react'
 import { StayForm } from './stay-form'
 
@@ -10,15 +10,18 @@ export function StaysManager() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingStay, setEditingStay] = useState<any>(null)
-  const supabase = createClient()
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClientComponentClient> | null>(null)
 
   useEffect(() => {
-    fetchStays()
+    const client = createClientComponentClient()
+    setSupabase(client)
+    fetchStays(client)
   }, [])
 
-  const fetchStays = async () => {
+  const fetchStays = async (client: typeof supabase) => {
+    if (!client) return
     setLoading(true)
-    const { data } = await supabase
+    const { data } = await client
       .from('stays')
       .select('*')
       .order('created_at', { ascending: false })
@@ -27,9 +30,10 @@ export function StaysManager() {
   }
 
   const handleDelete = async (id: string) => {
+    if (!supabase) return
     if (confirm('Delete this stay? This action cannot be undone.')) {
       await supabase.from('stays').delete().eq('id', id)
-      fetchStays()
+      if (supabase) fetchStays(supabase)
     }
   }
 

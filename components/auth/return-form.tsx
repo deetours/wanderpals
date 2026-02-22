@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { createClientComponentClient } from '@/lib/supabase-client'
 import { Button } from '@/components/ui/button'
 
 export function ReturnForm() {
@@ -10,11 +10,25 @@ export function ReturnForm() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClientComponentClient> | null>(null)
   const router = useRouter()
-  const supabase = createClient()
+
+  useEffect(() => {
+    try {
+      setSupabase(createClientComponentClient())
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to initialize Supabase')
+    }
+  }, [])
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!supabase) {
+      setError('Supabase client not initialized')
+      return
+    }
+
     setLoading(true)
     setError(null)
 
@@ -36,7 +50,7 @@ export function ReturnForm() {
       if (userData?.role === 'admin') {
         router.push('/admin')
       } else {
-        router.push('/memories')
+        router.push('/return')
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign in failed')
@@ -83,7 +97,7 @@ export function ReturnForm() {
 
       <Button
         type="submit"
-        disabled={loading}
+        disabled={loading || !supabase}
         className="w-full bg-primary hover:bg-primary/90 text-background font-sans"
       >
         {loading ? 'Signing in...' : 'Return'}

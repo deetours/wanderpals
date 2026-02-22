@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createClientComponentClient } from '@/lib/supabase-client'
 import { Plus, Edit2, Trash2 } from 'lucide-react'
 import { TripForm } from './trip-form'
 
@@ -10,15 +10,18 @@ export function TripsManager() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingTrip, setEditingTrip] = useState<any>(null)
-  const supabase = createClient()
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClientComponentClient> | null>(null)
 
   useEffect(() => {
-    fetchTrips()
+    const client = createClientComponentClient()
+    setSupabase(client)
+    fetchTrips(client)
   }, [])
 
-  const fetchTrips = async () => {
+  const fetchTrips = async (client: typeof supabase) => {
+    if (!client) return
     setLoading(true)
-    const { data } = await supabase
+    const { data } = await client
       .from('trips')
       .select('*')
       .order('created_at', { ascending: false })
@@ -27,6 +30,7 @@ export function TripsManager() {
   }
 
   const handleDelete = async (id: string) => {
+    if (!supabase) return
     if (confirm('Delete this trip? This action cannot be undone.')) {
       await supabase.from('trips').delete().eq('id', id)
       fetchTrips()

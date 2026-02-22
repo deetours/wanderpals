@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import { WhatsAppPopup } from "@/components/ui/whatsapp-popup"
 import "./globals.css"
 
 const inter = Inter({
@@ -18,10 +19,7 @@ export const metadata: Metadata = {
   title: "Wanderpals | Travel Slower. Stay Longer.",
   description: "A travel and stay experience designed like cinema. For travellers who value people over plans.",
   keywords: ["travel", "hostels", "trips", "India", "backpacking", "slow travel"],
-    generator: 'v0.app',
-  icons: {
-    icon: "/favicon.jpg",
-  },
+    generator: 'v0.app'
 }
 
 export const viewport: Viewport = {
@@ -39,6 +37,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className="font-sans antialiased">
         {children}
+        <WhatsAppPopup />
         <Analytics />
       </body>
     </html>

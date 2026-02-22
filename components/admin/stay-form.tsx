@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useState, useEffect } from 'react'
+import { createClientComponentClient } from '@/lib/supabase-client'
 
 interface StayFormProps {
   stay?: any
@@ -10,7 +10,7 @@ interface StayFormProps {
 
 export function StayForm({ stay, onSuccess }: StayFormProps) {
   const [loading, setLoading] = useState(false)
-  const supabase = createClient()
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClientComponentClient> | null>(null)
   const [formData, setFormData] = useState({
     name: stay?.name || '',
     location: stay?.location || '',
@@ -21,8 +21,18 @@ export function StayForm({ stay, onSuccess }: StayFormProps) {
     image_url: stay?.image_url || '',
   })
 
+  useEffect(() => {
+    setSupabase(createClientComponentClient())
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!supabase) {
+      alert('Supabase not initialized')
+      return
+    }
+
     setLoading(true)
 
     try {

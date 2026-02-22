@@ -13,7 +13,7 @@ const journeys = [
     name: "Spiti Valley",
     tagline: "Silence, altitude, and shared roads",
     duration: "9 Days",
-    images: ["/spiti1.jpg", "/spiti2.jpg", "/spiti3.jpg"],
+    images: ["/trips/spiti-1.jpg", "/trips/spiti-2.jpg", "/trips/spiti-3.jpg"],
     groupSize: "8-10",
   },
   {
@@ -21,7 +21,7 @@ const journeys = [
     name: "Ladakh Circuit",
     tagline: "Where the sky meets the earth",
     duration: "11 Days",
-    images: ["/ladakh1.jpg", "/ladakh2.jpg", "/ladakh3.jpg"],
+    images: ["/trips/ladakh-1.jpg", "/trips/ladakh-2.jpg", "/trips/ladakh-3.jpg"],
     groupSize: "8-10",
   },
   {
@@ -29,7 +29,7 @@ const journeys = [
     name: "Kerala Backwaters",
     tagline: "Slow rivers, slower days",
     duration: "6 Days",
-    images: ["/kerala1.jpg", "/kerala2.jpg", "/kerala3.jpg"],
+    images: ["/trips/kerala-1.jpg", "/trips/kerala-2.jpg", "/trips/kerala-3.jpg"],
     groupSize: "10-12",
   },
   {
@@ -37,7 +37,7 @@ const journeys = [
     name: "Meghalaya Trails",
     tagline: "Clouds below, roots above",
     duration: "7 Days",
-    images: ["/meghalaya1.jpg", "/meghalaya2.jpg", "/meghalaya3.jpg"],
+    images: ["/trips/meghalaya-1.jpg", "/trips/meghalaya-2.jpg", "/trips/meghalaya-3.jpg"],
     groupSize: "8-10",
   },
 ]

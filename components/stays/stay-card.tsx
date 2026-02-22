@@ -14,6 +14,8 @@ interface Stay {
   type: string
   roomType: string
   vibe: string
+  price?: number
+  availability?: string
 }
 
 interface StayCardProps {
@@ -58,16 +60,16 @@ export function StayCard({ stay, index, featured = false }: StayCardProps) {
       <div className={`relative overflow-hidden ${featured ? "aspect-[4/6]" : "aspect-[4/5]"}`}>
         {/* Image */}
         <div
-          className={`absolute inset-0 transition-transform ease-out ${
+          className={`absolute inset-0 bg-cover bg-center transition-transform ease-out ${
             featured ? "duration-900" : "duration-700"
           } ${isHovered ? "scale-[1.02]" : "scale-100"}`}
           style={{
             backgroundImage: `url('${stay.image}')`,
-            backgroundSize: "cover",
-            backgroundPosition: "center center",
-            backgroundRepeat: "no-repeat",
           }}
         />
+
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
 
         {/* Soft glow on hover */}
         <div
@@ -105,6 +107,20 @@ export function StayCard({ stay, index, featured = false }: StayCardProps) {
           >
             "{stay.stayStory}"
           </p>
+
+          {/* Pricing and availability */}
+          <div className="mt-3 flex items-center justify-between pt-3 border-t border-muted-foreground/10">
+            {stay.price && (
+              <span className="font-sans text-xs text-primary">
+                From ₹{stay.price.toLocaleString()}
+              </span>
+            )}
+            {stay.availability && (
+              <span className="font-sans text-xs text-muted-foreground/60">
+                {stay.availability}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </Link>

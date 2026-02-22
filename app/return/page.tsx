@@ -1,36 +1,68 @@
 'use client'
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
-import { ReturnForm } from '@/components/auth/return-form'
+import { useState, useEffect } from 'react'
+import { createClientComponentClient } from '@/lib/supabase-client'
+import { useRouter } from 'next/navigation'
+import { Navbar } from '@/components/ui/navbar'
+import { ExperienceArchive } from '@/components/user/experience-archive'
+import { LogOut } from 'lucide-react'
 
 export default function ReturnPage() {
-  return (
-    <main className="grain min-h-screen bg-background flex items-center justify-center px-6">
-      <div className="w-full max-w-md">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
-          <ArrowLeft className="h-4 w-4" />
-          Back home
-        </Link>
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClientComponentClient> | null>(null)
+  const router = useRouter()
 
-        <div className="mb-8">
-          <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-2">
-            Welcome back
-          </h1>
-          <p className="font-sans text-base text-muted-foreground">
-            Sign in to revisit your memories and book your next journey
-          </p>
+  useEffect(() => {
+    const getUser = async () => {
+      const client = createClientComponentClient()
+      setSupabase(client)
+      const { data: { user } } = await client.auth.getUser()
+      if (!user) {
+        router.push('/login')
+      } else {
+        setUser(user)
+      }
+      setLoading(false)
+    }
+    getUser()
+  }, [])
+
+  const handleLogout = async () => {
+    if (supabase) {
+      await supabase.auth.signOut()
+    }
+    router.push('/')
+  }
+
+  if (loading) return <div className="h-screen bg-background" />
+
+  return (
+    <main className="grain min-h-screen bg-background">
+      <Navbar visible={true} />
+
+      <div className="px-6 md:px-16 lg:px-24 py-16 max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-12">
+          <div>
+            <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-2">
+              Your memories
+            </h1>
+            <p className="font-sans text-muted-foreground">
+              Every journey you've taken with us
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 rounded border border-muted-foreground/20 hover:bg-card transition-colors"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="font-sans text-sm">Logout</span>
+          </button>
         </div>
 
-        <ReturnForm />
-
-        <p className="mt-8 text-center font-sans text-sm text-muted-foreground">
-          First time here?{' '}
-          <Link href="/" className="text-primary hover:underline">
-            Start exploring
-          </Link>
-        </p>
+        {/* Experience Archive */}
+        <ExperienceArchive userId={user?.id} />
       </div>
     </main>
   )

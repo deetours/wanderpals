@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createClientComponentClient } from '@/lib/supabase-client'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { Navbar } from '../ui/navbar'
@@ -18,18 +18,21 @@ export function ExploreStaysDynamic() {
     vibe: 'all',
   })
   const [mounted, setMounted] = useState(false)
-  const supabase = createClient()
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClientComponentClient> | null>(null)
 
   useEffect(() => {
+    const client = createClientComponentClient()
+    setSupabase(client)
     setMounted(true)
-    fetchStays()
+    fetchStays(client)
     const timer = setTimeout(() => setShowFilters(true), 1500)
     return () => clearTimeout(timer)
   }, [])
 
-  const fetchStays = async () => {
+  const fetchStays = async (client: typeof supabase) => {
+    if (!client) return
     setLoading(true)
-    const { data } = await supabase
+    const { data } = await client
       .from('stays')
       .select('*')
       .order('created_at', { ascending: false })

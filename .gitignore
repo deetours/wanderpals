@@ -25,3 +25,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# lockfiles - use npm
+pnpm-lock.yaml
+
+# temp directories
+app/login/
+lib/supabase-client.ts

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createClientComponentClient } from '@/lib/supabase-client'
 import { useRouter } from 'next/navigation'
 import { AdminDashboard } from '@/components/admin/admin-dashboard'
 import { LogOut } from 'lucide-react'
@@ -9,25 +9,27 @@ import { LogOut } from 'lucide-react'
 export default function AdminPage() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClientComponentClient> | null>(null)
   const router = useRouter()
 
   useEffect(() => {
     const checkAdmin = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const client = createClientComponentClient()
+      setSupabase(client)
+      const { data: { user } } = await client.auth.getUser()
       if (!user) {
-        router.push('/return')
+        router.push('/login')
         return
       }
 
-      const { data: userData } = await supabase
+      const { data: userData } = await client
         .from('users')
         .select('role')
         .eq('id', user.id)
         .single()
 
       if (userData?.role !== 'admin') {
-        router.push('/memories')
+        router.push('/return')
         return
       }
 
@@ -38,7 +40,9 @@ export default function AdminPage() {
   }, [])
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
+    if (supabase) {
+      await supabase.auth.signOut()
+    }
     router.push('/')
   }
 

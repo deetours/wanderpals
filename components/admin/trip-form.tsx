@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useState, useEffect } from 'react'
+import { createClientComponentClient } from '@/lib/supabase-client'
 
 interface TripFormProps {
   trip?: any
@@ -10,7 +10,7 @@ interface TripFormProps {
 
 export function TripForm({ trip, onSuccess }: TripFormProps) {
   const [loading, setLoading] = useState(false)
-  const supabase = createClient()
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClientComponentClient> | null>(null)
   const [formData, setFormData] = useState({
     name: trip?.name || '',
     tagline: trip?.tagline || '',
@@ -22,8 +22,18 @@ export function TripForm({ trip, onSuccess }: TripFormProps) {
     image_url: trip?.image_url || '',
   })
 
+  useEffect(() => {
+    setSupabase(createClientComponentClient())
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!supabase) {
+      alert('Supabase not initialized')
+      return
+    }
+    
     setLoading(true)
 
     try {

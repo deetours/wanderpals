@@ -74,19 +74,16 @@ export function SceneChoice() {
             onMouseEnter={() => setHoveredCard("trips")}
             onMouseLeave={() => setHoveredCard(null)}
           >
-            <div className="relative h-96 md:h-full md:min-h-96 overflow-hidden">
+            <div className="relative aspect-[4/5] md:aspect-[16/10] overflow-hidden">
               <div
-                className={`absolute inset-0 transition-transform duration-700 ease-out ${
+                className={`absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out ${
                   hoveredCard === "trips" ? "scale-[1.02]" : "scale-100"
                 }`}
                 style={{
                   backgroundImage: `url('/mountain-road-trip-group-travelers-sunrise-himalay.jpg')`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background/60" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/30 to-transparent" />
 
               <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8">
                 <h3
