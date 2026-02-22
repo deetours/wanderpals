@@ -142,18 +142,20 @@ $$ LANGUAGE sql SECURITY DEFINER;
 
 ## 6️⃣ DevOps & Implementation Order
 
-### Phase 1: Security Hardening (Current Priority)
-1.  Enable RLS on all tables.
-2.  Implement `isAdmin()` helper function.
-3.  Apply strict SELECT policies on `memories` and `bookings`.
+### Phase 1: Security Hardening (COMPLETED)
+1.  Enable RLS on all tables. (Done via `supabase_setup.sql`)
+2.  Implement `isAdmin()` helper function. (Done)
+3.  Apply strict SELECT policies on `memories` and `bookings`. (Done)
 
-### Phase 2: API Refactoring
-1.  Move sensitive logic from frontend to `app/api/`.
-2.  Setup Middleware for `/admin` and `/memories` routes.
+### Phase 2: API Refactoring (COMPLETED)
+1.  Move sensitive logic from frontend to `app/api/`. (Done: Auth, Bookings, Profile APIs created)
+2.  Setup Middleware for `/admin` and `/memories` routes. (Done)
 
-### Phase 3: Automation
-1.  Connect Edge Functions for emails.
-2.  Setup Storage buckets with protected access.
+### Phase 3: Automation (CURRENT FOCUS)
+1.  Connect Edge Functions / API routes for emails (Resend).
+2.  Integrate WhatsApp notification triggers (Interakt/Twilio).
+3.  Setup Storage buckets with protected access.
+
 
 ---
 

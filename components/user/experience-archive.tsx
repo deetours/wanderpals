@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { createClientComponentClient } from '@/lib/supabase-client'
 import { Bookmark, Share2, MessageCircle } from 'lucide-react'
+
 
 interface Experience {
   id: string
@@ -16,7 +18,8 @@ interface Experience {
   saved: boolean
 }
 
-const experiences: Experience[] = [
+// Keep mock data as fallback for now
+const mockExperiences: Experience[] = [
   {
     id: '1',
     type: 'trip',
@@ -46,13 +49,65 @@ interface ExperienceArchiveProps {
 }
 
 export function ExperienceArchive({ userId }: ExperienceArchiveProps) {
+  const [data, setData] = useState<Experience[]>(mockExperiences)
+  const [loading, setLoading] = useState(false)
+  const [saved, setSaved] = useState<Record<string, boolean>>({})
 
-  const [saved, setSaved] = useState<Record<string, boolean>>(
-    experiences.reduce((acc, exp) => ({ ...acc, [exp.id]: exp.saved }), {})
-  )
+  useEffect(() => {
+    if (userId) {
+      fetchMemories()
+    }
+  }, [userId])
+
+  const fetchMemories = async () => {
+    const supabase = createClientComponentClient()
+    if (!supabase || !userId) return
+
+    setLoading(true)
+    try {
+      const { data: dbMemories, error } = await supabase
+        .from('memories')
+        .select(`
+          *,
+          trips (title, duration, max_group_size)
+        `)
+        .eq('user_id', userId)
+
+
+      if (error) throw error
+
+      if (dbMemories && dbMemories.length > 0) {
+        const transformedData: Experience[] = dbMemories.map((m: any) => ({
+          id: m.id,
+          type: 'trip',
+          title: m.trips?.title || 'Unknown Trip',
+          image: m.media_urls?.[0] || '/cozy-hostel-dorm-warm-lights-quiet-evening-mountai.jpg',
+          date: new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+          duration: m.trips?.duration ? `${m.trips.duration} days` : 'TBD',
+          people: m.trips?.max_group_size || 0,
+          memories: m.content ? [m.content] : [],
+          saved: false
+        }))
+        setData(transformedData)
+      }
+    } catch (err) {
+      console.error('Error fetching memories:', err)
+      // Stay with mock data on error
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const toggleSave = (id: string) => {
     setSaved((prev) => ({ ...prev, [id]: !prev[id] }))
+  }
+
+  if (loading) {
+    return (
+      <div className="py-12 text-center">
+        <p className="text-muted-foreground animate-pulse">Gathering your memories...</p>
+      </div>
+    )
   }
 
   return (
@@ -62,7 +117,7 @@ export function ExperienceArchive({ userId }: ExperienceArchiveProps) {
         <p className="font-sans text-muted-foreground mb-8">Revisit your journeys anytime</p>
 
         <div className="grid md:grid-cols-2 gap-8">
-          {experiences.map((exp) => (
+          {data.map((exp) => (
             <div key={exp.id} className="group">
               <div className="relative aspect-square overflow-hidden rounded-lg mb-4 bg-card">
                 <Image
@@ -75,8 +130,8 @@ export function ExperienceArchive({ userId }: ExperienceArchiveProps) {
                   <button
                     onClick={() => toggleSave(exp.id)}
                     className={`p-2 rounded-lg backdrop-blur-sm transition-colors ${saved[exp.id]
-                        ? 'bg-primary/20 text-primary'
-                        : 'bg-background/20 text-foreground/60 hover:bg-background/40'
+                      ? 'bg-primary/20 text-primary'
+                      : 'bg-background/20 text-foreground/60 hover:bg-background/40'
                       }`}
                   >
                     <Bookmark className={`h-4 w-4 ${saved[exp.id] ? 'fill-current' : ''}`} />
@@ -118,3 +173,4 @@ export function ExperienceArchive({ userId }: ExperienceArchiveProps) {
     </section>
   )
 }
+
