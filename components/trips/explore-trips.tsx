@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react"
 import { Navbar } from "../ui/navbar"
 import { TripCard } from "./trip-card"
+import { createClientComponentClient } from "@/lib/supabase-client"
 
-// Sample trips data
-const trips = [
+// Static trips data
+const staticTrips = [
   {
     id: "spiti",
     name: "Spiti Valley",
@@ -46,10 +47,54 @@ const trips = [
 
 export function ExploreTrips() {
   const [mounted, setMounted] = useState(false)
+  const [trips, setTrips] = useState(staticTrips)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    const fetchSupabaseTrips = async () => {
+      try {
+        const supabase = createClientComponentClient()
+        const { data, error } = await supabase
+          .from("trips")
+          .select("id, name, tagline, duration, image_url, terrain, price")
+          .order("created_at", { ascending: false })
+
+        if (error || !data) {
+          setTrips(staticTrips)
+          setLoading(false)
+          return
+        }
+
+        // Convert Supabase trips to card format
+        const supabaseTrips = data.map((trip: any) => ({
+          id: trip.id,
+          name: trip.name,
+          tagline: trip.tagline,
+          duration: trip.duration,
+          images: [trip.image_url || "/placeholder.jpg"],
+          difficulty: trip.terrain || "Moderate",
+          groupSize: "8",
+        }))
+
+        // Combine static and Supabase trips
+        const allTrips = [...staticTrips, ...supabaseTrips]
+        setTrips(allTrips)
+      } catch (error) {
+        console.error("Error fetching trips:", error)
+        setTrips(staticTrips)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (mounted) {
+      fetchSupabaseTrips()
+    }
+  }, [mounted])
 
   return (
     <main className="grain min-h-screen bg-background">
@@ -78,11 +123,17 @@ export function ExploreTrips() {
 
       {/* Trip Cards - vertical storytelling */}
       <section className="px-6 py-12 md:px-16 lg:px-24">
-        <div className="mx-auto max-w-5xl space-y-24">
-          {trips.map((trip, index) => (
-            <TripCard key={trip.id} trip={trip} index={index} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="mx-auto max-w-5xl text-center py-12">
+            <p className="text-muted-foreground">Loading trips...</p>
+          </div>
+        ) : (
+          <div className="mx-auto max-w-5xl space-y-24">
+            {trips.map((trip, index) => (
+              <TripCard key={trip.id} trip={trip} index={index} />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Mid page line */}
