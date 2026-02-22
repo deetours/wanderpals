@@ -209,71 +209,61 @@ export function AllTripsDynamic() {
         </div>
       </section>
 
-      {/* Scene 4: Trip Grid - First Half with rhythm */}
+      {/* Trip Grid with rhythm */}
       <section className="px-6 py-12 md:px-16 lg:px-24">
         <div className="mx-auto max-w-6xl">
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {loading ? (
-              <div className="col-span-full text-center py-12">
-                <p className="text-muted-foreground">Loading journeys...</p>
-              </div>
-            ) : firstHalf.length === 0 ? (
-              <div className="col-span-full text-center py-12">
-                <p className="text-muted-foreground">No trips match your filters</p>
-              </div>
-            ) : (
-              firstHalf.map((trip, index) => {
+          {loading ? (
+            <div className="text-center py-24">
+              <div className="h-8 w-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-muted-foreground font-serif">Loading journeys...</p>
+            </div>
+          ) : filteredTrips.length === 0 ? (
+            <div className="text-center py-24 border border-dashed border-white/10 rounded-3xl">
+              <p className="text-muted-foreground font-serif text-xl">No journeys match your filters.</p>
+              <button
+                onClick={() => {
+                  setFilters({ region: 'all', terrain: 'all', duration: 'all' });
+                  setMoodSearch('');
+                }}
+                className="mt-4 text-primary hover:underline"
+              >
+                Clear all filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {filteredTrips.map((trip, index) => {
+                const isFeatured = index % 6 === 3;
                 const mappedTrip = {
                   ...trip,
                   name: trip.name || trip.title,
                   image: trip.image_url || trip.image || "/placeholder.jpg",
                   groupSize: trip.max_group_size || "8-10"
-                }
-                return (
-                  <div key={trip.id} className={index === 3 ? 'lg:col-span-2' : ''}>
-                    <TripGridCard trip={mappedTrip} index={index} featured={index === 3} />
-                  </div>
-                )
-              })
+                };
 
-            )}
-          </div>
+                return (
+                  <div key={trip.id} className={`${isFeatured ? 'lg:col-span-2' : ''} h-full`}>
+                    <TripGridCard trip={mappedTrip} index={index} featured={isFeatured} />
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Scene 5: Mid-Page Pause */}
-      {secondHalf.length > 0 && (
-        <section ref={midPauseRef} className="px-6 py-24 text-center md:px-16 lg:px-24">
-          <div className="mx-auto max-w-2xl space-y-3">
-            <p className="font-serif text-xl md:text-2xl text-muted-foreground">We don't add journeys often.</p>
-            <p className="font-serif text-xl md:text-2xl text-foreground">Each one earns its place.</p>
+      {/* Aesthetic Pause - only if we have enough trips to justify it */}
+      {filteredTrips.length > 6 && (
+        <section className="px-6 py-32 text-center md:px-16 lg:px-24">
+          <div className="mx-auto max-w-2xl space-y-4 opacity-50">
+            <div className="h-px w-12 bg-primary/40 mx-auto mb-8" />
+            <p className="font-serif text-xl md:text-2xl text-muted-foreground italic">
+              "We don't add journeys often. Each one earns its place."
+            </p>
           </div>
         </section>
       )}
 
-      {/* Scene 6: Trip Grid - Second Half (Lazy loaded) with rhythm */}
-      {secondHalf.length > 0 && showSecondHalf && (
-        <section className="px-6 py-12 md:px-16 lg:px-24">
-          <div className="mx-auto max-w-6xl">
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {secondHalf.map((trip, index) => {
-                const mappedTrip = {
-                  ...trip,
-                  name: trip.name || trip.title,
-                  image: trip.image_url || trip.image || "/placeholder.jpg",
-                  groupSize: trip.max_group_size || "8-10"
-                }
-                return (
-                  <div key={trip.id} className={index === 3 ? 'lg:col-span-2' : ''}>
-                    <TripGridCard trip={mappedTrip} index={index} featured={index === 3} />
-                  </div>
-                )
-              })}
-
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Scene 7: Ending */}
       <section className="px-6 py-24 text-center md:px-16 lg:px-24">
