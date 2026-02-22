@@ -129,8 +129,50 @@ CREATE POLICY "Anyone can view public memories"
 ON public.memories FOR SELECT 
 USING (visibility = 'public');
 
-DROP POLICY IF EXISTS "Admins can view all memories" ON public.memories;
-CREATE POLICY "Admins can view all memories" 
-ON public.memories FOR SELECT 
-USING (public.isAdmin());
+-- 8. Setup Storage for Memories
+-- Note: This creates the bucket if it doesn't exist via SQL if your role has permissions
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('memories', 'memories', false)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage Policies for 'memories' bucket
+
+-- 1. Allow Users to Upload their own memories
+DROP POLICY IF EXISTS "Users can upload their own memories" ON storage.objects;
+CREATE POLICY "Users can upload their own memories"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (
+  bucket_id = 'memories' AND 
+  (storage.foldername(name))[1] = auth.uid()::text
+);
+
+-- 2. Allow Users to view their own private memories
+DROP POLICY IF EXISTS "Users can view their own memories" ON storage.objects;
+CREATE POLICY "Users can view their own memories"
+ON storage.objects FOR SELECT
+TO authenticated
+USING (
+  bucket_id = 'memories' AND 
+  (storage.foldername(name))[1] = auth.uid()::text
+);
+
+-- 3. Allow Users to delete their own memories
+DROP POLICY IF EXISTS "Users can delete their own memories" ON storage.objects;
+CREATE POLICY "Users can delete their own memories"
+ON storage.objects FOR DELETE
+TO authenticated
+USING (
+  bucket_id = 'memories' AND 
+  (storage.foldername(name))[1] = auth.uid()::text
+);
+
+-- 4. Admins can view everything
+DROP POLICY IF EXISTS "Admins can view all storage" ON storage.objects;
+CREATE POLICY "Admins can view all storage"
+ON storage.objects FOR SELECT
+TO authenticated
+USING (
+  public.isAdmin()
+);
 
