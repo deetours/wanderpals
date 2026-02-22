@@ -81,25 +81,41 @@ export function TripDetailsDynamic({ tripId }: TripDetailsDynamicProps) {
   // Parse description for itinerary days
   const parseItinerary = (description: string) => {
     const days: { title: string; content: string[] }[] = []
-    const lines = description.split("\n")
-    let currentDay: { title: string; content: string[] } | null = null
+    if (!description) return days
 
-    lines.forEach((line) => {
-      const dayMatch = line.match(/^DAY\s+(\d+|0)\s*-\s*(.+)$/i)
+    const lines = description.split("\n").filter((line) => line.trim())
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      const dayMatch = line.match(/^DAY\s+(\d+|0)\s*[-–]\s*(.+)$/i)
+
       if (dayMatch) {
-        if (currentDay) {
-          days.push(currentDay)
-        }
-        currentDay = { title: `${dayMatch[1].padStart(1, "0")} - ${dayMatch[2]}`, content: [] }
-      } else if (currentDay && line.trim()) {
-        if (!line.match(/^ROUTE:|^TERMS|^\s*-|^Winter Spiti|^DURATION:|^INCLUSIONS/i)) {
-          currentDay.content.push(line.trim())
-        }
-      }
-    })
+        const dayNum = dayMatch[1]
+        const dayTitle = dayMatch[2]
+        const content: string[] = []
 
-    if (currentDay) {
-      days.push(currentDay)
+        // Collect all lines until next DAY or end
+        let j = i + 1
+        while (j < lines.length && !lines[j].match(/^DAY\s+(\d+|0)/i)) {
+          const nextLine = lines[j].trim()
+          // Skip empty lines and unwanted sections
+          if (
+            nextLine &&
+            !nextLine.match(/^ROUTE:|^TERMS|^DURATION|^INCLUSIONS|^Winter|^CANCELLATION|^BEHAVIOR|^ALCOHOL|^PERSONAL|^FORCE/i)
+          ) {
+            content.push(nextLine)
+          }
+          j++
+        }
+
+        if (content.length > 0) {
+          days.push({
+            title: `Day ${dayNum} - ${dayTitle}`,
+            content,
+          })
+        }
+        i = j - 1
+      }
     }
 
     return days
@@ -167,7 +183,7 @@ export function TripDetailsDynamic({ tripId }: TripDetailsDynamicProps) {
               style={{ transitionDelay: "100ms" }}
             >
               <p className="text-sm text-muted-foreground mb-2">Group Size</p>
-              <p className="font-serif text-2xl text-foreground">{trip.group_size || "8-12"}</p>
+              <p className="font-serif text-2xl text-foreground">8</p>
             </div>
             <div
               className={`transition-all duration-700 ease-out ${
@@ -192,12 +208,12 @@ export function TripDetailsDynamic({ tripId }: TripDetailsDynamicProps) {
       </section>
 
       {/* Itinerary */}
-      {itinerary.length > 0 && (
+      {itinerary && itinerary.length > 0 ? (
         <section className="px-6 py-24 md:px-16 lg:px-24">
           <div className="mx-auto max-w-5xl">
             <h2 className="font-serif text-4xl md:text-5xl text-foreground mb-16">The Journey</h2>
 
-            <div className="space-y-12">
+            <div className="space-y-16">
               {itinerary.map((day, index) => (
                 <div
                   key={index}
@@ -206,20 +222,20 @@ export function TripDetailsDynamic({ tripId }: TripDetailsDynamicProps) {
                   }`}
                   style={{ transitionDelay: `${100 + index * 50}ms` }}
                 >
-                  <div className="grid gap-8 md:grid-cols-2 items-center">
+                  <div className="grid gap-8 md:grid-cols-2 items-start">
                     <div className={index % 2 === 1 ? "md:order-2" : ""}>
-                      <h3 className="font-serif text-2xl md:text-3xl text-foreground mb-4">{day.title}</h3>
-                      <div className="space-y-3">
+                      <h3 className="font-serif text-2xl md:text-3xl text-foreground mb-6">{day.title}</h3>
+                      <div className="space-y-4">
                         {day.content.map((line, idx) => (
-                          <p key={idx} className="text-muted-foreground leading-relaxed">
-                            {line}
+                          <p key={idx} className="text-muted-foreground leading-relaxed text-lg">
+                            • {line}
                           </p>
                         ))}
                       </div>
                     </div>
                     <div className={`bg-card/50 h-64 rounded-lg overflow-hidden ${index % 2 === 1 ? "md:order-1" : ""}`}>
                       <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                        <p className="text-muted-foreground text-center">{day.title.split(" - ")[0]}</p>
+                        <p className="text-muted-foreground text-center font-serif text-xl">{day.title.split(" - ")[0]}</p>
                       </div>
                     </div>
                   </div>
@@ -228,7 +244,7 @@ export function TripDetailsDynamic({ tripId }: TripDetailsDynamicProps) {
             </div>
           </div>
         </section>
-      )}
+      ) : null}
 
       {/* Inclusions */}
       <section className="px-6 py-24 md:px-16 lg:px-24 bg-card/30">
