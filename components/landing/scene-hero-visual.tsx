@@ -5,18 +5,19 @@ import Image from "next/image"
 
 const heroImages = [
   {
-    src: "/hero-campfire-spiti.jpg",
+    src: "/hero1.png",
     alt: "Strangers laughing around a campfire at 4AM in Spiti Valley",
   },
   {
-    src: "/hero-houseboat-kerala.jpg",
+    src: "/hero2.png",
     alt: "Two strangers becoming friends on a Kerala houseboat at sunrise",
   },
   {
-    src: "/hero-foggy-valley-dawn.jpg",
+    src: "/hero3.png",
     alt: "Foggy mountain valley at dawn, travellers walking together",
   },
 ]
+
 
 
 export function SceneHeroVisual() {
