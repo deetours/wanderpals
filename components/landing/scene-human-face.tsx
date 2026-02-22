@@ -30,23 +30,22 @@ export function SceneHumanFace() {
         <div className="grid gap-12 md:grid-cols-2 items-center">
           {/* Image */}
           <div
-            className={`relative aspect-square overflow-hidden rounded-lg transition-all duration-800 ease-out ${
-              isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
-            }`}
+            className={`relative aspect-square overflow-hidden rounded-lg transition-all duration-800 ease-out ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
+              }`}
           >
             <Image
-              src="/traveller-testimonial-aisha.jpg"
+              src="/traveller-testimonial-aisha.png"
               alt="Aisha, a Wanderpals traveller"
               fill
               className="object-cover"
             />
+
           </div>
 
           {/* Testimony */}
           <div
-            className={`transition-all duration-700 ease-out ${
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
+            className={`transition-all duration-700 ease-out ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
             style={{ transitionDelay: isVisible ? "200ms" : "0ms" }}
           >
             <blockquote className="space-y-6">

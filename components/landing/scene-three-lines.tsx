@@ -6,20 +6,21 @@ import Image from "next/image"
 const threeLines = [
   {
     text: "Wake up somewhere new",
-    image: "/hero-foggy-valley-dawn.jpg",
+    image: "/hero-foggy-valley-dawn.png",
     position: "left",
   },
   {
     text: "Walk with strangers",
-    image: "/hero-campfire-spiti.jpg",
+    image: "/hero-campfire-spiti.png",
     position: "right",
   },
   {
     text: "Leave with fewer goodbyes",
-    image: "/hero-houseboat-kerala.jpg",
+    image: "/hero-houseboat-kerala.jpg", // Kept as jpg based on file list
     position: "left",
   },
 ]
+
 
 export function SceneThreeLines() {
   const [visibleLines, setVisibleLines] = useState<boolean[]>([false, false, false])
@@ -62,9 +63,8 @@ export function SceneThreeLines() {
         >
           {/* Image */}
           <div
-            className={`relative aspect-video overflow-hidden rounded-lg transition-all duration-800 ease-out ${
-              visibleLines[index] ? "opacity-100 scale-100" : "opacity-0 scale-95"
-            }`}
+            className={`relative aspect-video overflow-hidden rounded-lg transition-all duration-800 ease-out ${visibleLines[index] ? "opacity-100 scale-100" : "opacity-0 scale-95"
+              }`}
           >
             <Image
               src={line.image}
@@ -76,9 +76,8 @@ export function SceneThreeLines() {
 
           {/* Text */}
           <div
-            className={`transition-all duration-700 ease-out ${
-              visibleLines[index] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
+            className={`transition-all duration-700 ease-out ${visibleLines[index] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
             style={{ transitionDelay: visibleLines[index] ? "200ms" : "0ms" }}
           >
             <h3 className="font-serif text-5xl md:text-6xl lg:text-7xl text-foreground leading-tight">
