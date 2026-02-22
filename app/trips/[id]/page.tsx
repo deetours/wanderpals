@@ -1,7 +1,9 @@
 import { TripDetails } from "@/components/trips/trip-details"
+import { TripDetailsDynamic } from "@/components/trips/trip-details-dynamic"
 import { notFound } from "next/navigation"
+import { createClient } from "@supabase/supabase-js"
 
-// Trip data
+// Trip data - Static trips
 const tripsData: Record<
   string,
   {
@@ -212,13 +214,51 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 }
 
+// Check if trip is static or needs to fetch from Supabase
+async function getTripData(id: string) {
+  // First check static data
+  if (tripsData[id]) {
+    return { type: "static", data: tripsData[id] }
+  }
+
+  // Try to fetch from Supabase for new trips
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+    )
+    
+    const { data } = await supabase
+      .from("trips")
+      .select("*")
+      .eq("id", id)
+      .single()
+
+    if (data) {
+      return { type: "dynamic", data }
+    }
+  } catch (error) {
+    console.error("Error fetching trip:", error)
+  }
+
+  return null
+}
+
 export default async function TripPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const trip = tripsData[id]
+  
+  // Get trip data from static or Supabase
+  const tripResult = await getTripData(id)
 
-  if (!trip) {
+  if (!tripResult) {
     notFound()
   }
 
-  return <TripDetails trip={trip} />
+  // If it's a dynamic trip from Supabase, use the dynamic component
+  if (tripResult.type === "dynamic") {
+    return <TripDetailsDynamic tripId={id} />
+  }
+
+  // Otherwise use the static component
+  return <TripDetails trip={tripResult.data} />
 }
