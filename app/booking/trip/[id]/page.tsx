@@ -1,7 +1,5 @@
 import { TripBookingFlow } from "@/components/booking/trip-booking-flow"
 import { notFound } from "next/navigation"
-import { createServerClient } from "@supabase/ssr"
-import { cookies } from "next/headers"
 
 const tripsData: Record<
   string,
@@ -55,74 +53,14 @@ const tripsData: Record<
   },
 }
 
-async function getSupabaseTrip(tripId: string) {
-  try {
-    const cookieStore = await cookies()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll()
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
-          },
-        },
-      }
-    )
-    const { data, error } = await supabase
-      .from("trips")
-      .select("id, name, duration, price")
-      .eq("id", tripId)
-      .single()
-
-    if (error || !data) return null
-
-    // Create default dates for Supabase trips
-    const getMonth = (offset: number) => {
-      const date = new Date()
-      date.setMonth(date.getMonth() + offset)
-      return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
-    }
-
-    return {
-      id: data.id,
-      name: data.name,
-      duration: data.duration,
-      price: data.price,
-      dates: [
-        { start: getMonth(0), end: getMonth(0), spots: 8 },
-        { start: getMonth(1), end: getMonth(1), spots: 8 },
-        { start: getMonth(2), end: getMonth(2), spots: 8 },
-      ],
-    }
-  } catch (error) {
-    console.error("Error fetching Supabase trip:", error)
-    return null
-  }
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const staticTrip = tripsData[id]
-
-  if (staticTrip) {
-    return {
-      title: `Join ${staticTrip.name} | Wanderpals`,
-      description: `Reserve your spot on the ${staticTrip.name} journey`,
-    }
-  }
-
-  const supabaseTrip = await getSupabaseTrip(id)
-  if (!supabaseTrip) return { title: "Booking | Wanderpals" }
+  const trip = tripsData[id]
+  if (!trip) return { title: "Booking | Wanderpals" }
 
   return {
-    title: `Join ${supabaseTrip.name} | Wanderpals`,
-    description: `Reserve your spot on the ${supabaseTrip.name} journey`,
+    title: `Join ${trip.name} | Wanderpals`,
+    description: `Reserve your spot on the ${trip.name} journey`,
   }
 }
 
@@ -135,17 +73,24 @@ export default async function TripBookingPage({
 }) {
   const { id } = await params
   const { date } = await searchParams
-
-  // Try static trips first
-  let trip = tripsData[id]
-
-  // If not found, try Supabase
-  if (!trip) {
-    trip = await getSupabaseTrip(id)
-  }
+  const trip = tripsData[id]
 
   if (!trip) {
-    notFound()
+    // For Supabase trips, show a temporary booking page with default dates
+    // This is a fallback - ideally the trip would exist in tripsData
+    return (
+      <div className="min-h-screen bg-background p-6 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="font-serif text-4xl text-foreground mb-4">Booking Dates Coming Soon</h1>
+          <p className="text-muted-foreground mb-8">
+            This trip&apos;s booking dates are being arranged. Please check back soon!
+          </p>
+          <a href="/all-trips" className="text-primary hover:text-primary/80">
+            ← Back to all trips
+          </a>
+        </div>
+      </div>
+    )
   }
 
   return <TripBookingFlow trip={{ id, ...trip }} initialDateIndex={date ? Number.parseInt(date) : 0} />
