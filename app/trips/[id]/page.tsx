@@ -205,14 +205,17 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const trip = tripsData[id]
-  if (!trip) return { title: "Trip Not Found | Wanderpals" }
+  const tripResult = await getTripData(id)
 
+  if (!tripResult) return { title: "Trip Not Found | Wanderpals" }
+
+  const trip = tripResult.data
   return {
-    title: `${trip.name} | Wanderpals`,
-    description: trip.why,
+    title: `${trip.name || trip.title} | Wanderpals`,
+    description: trip.why || trip.description,
   }
 }
+
 
 // Check if trip is static or needs to fetch from Supabase
 async function getTripData(id: string) {
@@ -227,7 +230,7 @@ async function getTripData(id: string) {
       process.env.NEXT_PUBLIC_SUPABASE_URL || "",
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
     )
-    
+
     const { data } = await supabase
       .from("trips")
       .select("*")
@@ -246,7 +249,7 @@ async function getTripData(id: string) {
 
 export default async function TripPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  
+
   // Get trip data from static or Supabase
   const tripResult = await getTripData(id)
 

@@ -7,6 +7,7 @@ import { ArrowRight } from 'lucide-react'
 import { Navbar } from '../ui/navbar'
 import { StayCard } from './stay-card'
 import { StayFilters } from './stay-filters'
+import { Footer } from '../ui/footer'
 
 export function ExploreStaysDynamic() {
   const [stays, setStays] = useState<any[]>([])
@@ -58,24 +59,21 @@ export function ExploreStaysDynamic() {
       <section className="px-6 pt-32 pb-16 md:px-16 lg:px-24">
         <div className="mx-auto max-w-4xl">
           <h1
-            className={`font-serif text-4xl md:text-6xl lg:text-7xl text-foreground transition-all duration-700 ease-out ${
-              mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
+            className={`font-serif text-4xl md:text-6xl lg:text-7xl text-foreground transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}
           >
             Places you don't just check into.
           </h1>
           <p
-            className={`mt-6 font-sans text-lg md:text-xl text-muted-foreground transition-all duration-700 ease-out ${
-              mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-            }`}
+            className={`mt-6 font-sans text-lg md:text-xl text-muted-foreground transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
             style={{ transitionDelay: '200ms' }}
           >
             You arrive as a guest. You leave knowing names.
           </p>
           <p
-            className={`mt-2 font-sans text-sm text-muted-foreground/60 transition-all duration-700 ease-out ${
-              mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}
+            className={`mt-2 font-sans text-sm text-muted-foreground/60 transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
             style={{ transitionDelay: '400ms' }}
           >
             Across mountains, coasts, and cities in India.
@@ -101,12 +99,11 @@ export function ExploreStaysDynamic() {
             firstHalf.map((stay, index) => (
               <div
                 key={stay.id}
-                className={`transition-all duration-700 ease-out ${
-                  mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
+                className={`transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                  }`}
                 style={{ transitionDelay: `${300 + index * 150}ms` }}
               >
-                <StayCard stay={stay} />
+                <StayCard stay={stay} index={index} />
               </div>
             ))
           )}
@@ -118,17 +115,15 @@ export function ExploreStaysDynamic() {
         <section className="px-6 py-20 md:px-16 lg:px-24">
           <div className="mx-auto max-w-2xl text-center">
             <p
-              className={`font-serif text-2xl md:text-3xl text-foreground transition-all duration-700 ease-out ${
-                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
+              className={`font-serif text-2xl md:text-3xl text-foreground transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                }`}
               style={{ transitionDelay: '1000ms' }}
             >
               Most people stay for a night.
             </p>
             <p
-              className={`mt-2 font-sans text-base text-muted-foreground transition-all duration-700 ease-out ${
-                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
+              className={`mt-2 font-sans text-base text-muted-foreground transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                }`}
               style={{ transitionDelay: '1200ms' }}
             >
               Some extend. A few don't leave on time.
@@ -144,12 +139,11 @@ export function ExploreStaysDynamic() {
             {secondHalf.map((stay, index) => (
               <div
                 key={stay.id}
-                className={`transition-all duration-700 ease-out ${
-                  mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
+                className={`transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                  }`}
                 style={{ transitionDelay: `${1400 + index * 150}ms` }}
               >
-                <StayCard stay={stay} />
+                <StayCard stay={stay} index={index} />
               </div>
             ))}
           </div>
@@ -159,24 +153,23 @@ export function ExploreStaysDynamic() {
       {/* Closing CTA */}
       <section className="px-6 py-24 md:px-16 lg:px-24 text-center">
         <p
-          className={`font-serif text-2xl md:text-3xl text-foreground transition-all duration-1000 ease-out ${
-            mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
+          className={`font-serif text-2xl md:text-3xl text-foreground transition-all duration-1000 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}
           style={{ transitionDelay: '1800ms' }}
         >
           Not quite ready to book?
         </p>
         <Link
           href="/all-trips"
-          className={`mt-6 inline-flex items-center gap-2 font-sans text-primary hover:text-primary/80 transition-all duration-700 ease-out ${
-            mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
+          className={`mt-6 inline-flex items-center gap-2 font-sans text-primary hover:text-primary/80 transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}
           style={{ transitionDelay: '2000ms' }}
         >
           Explore our journeys
           <ArrowRight className="h-4 w-4" />
         </Link>
       </section>
+      <Footer />
     </main>
   )
 }

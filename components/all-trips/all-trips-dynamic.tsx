@@ -7,6 +7,7 @@ import { ArrowRight, ChevronDown } from 'lucide-react'
 import { Navbar } from '../ui/navbar'
 import { TripGridCard } from './trip-grid-card'
 import { TripFilters } from './trip-filters'
+import { Footer } from '../ui/footer'
 
 const moodKeywords: Record<string, { terrain?: string[]; duration?: string; groupSize?: string }> = {
   mountains: { terrain: ['mountains'] },
@@ -152,16 +153,14 @@ export function AllTripsDynamic() {
       <section className="px-6 pt-32 pb-12 md:px-16 lg:px-24">
         <div className="mx-auto max-w-4xl">
           <h1
-            className={`font-serif text-4xl md:text-5xl lg:text-6xl text-foreground transition-all duration-700 ease-out ${
-              mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
+            className={`font-serif text-4xl md:text-5xl lg:text-6xl text-foreground transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}
           >
             Every journey we currently run.
           </h1>
           <p
-            className={`mt-4 font-sans text-lg text-muted-foreground transition-all duration-700 ease-out ${
-              mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-            }`}
+            className={`mt-4 font-sans text-lg text-muted-foreground transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
             style={{ transitionDelay: '200ms' }}
           >
             Different places. Same pace.
@@ -198,9 +197,8 @@ export function AllTripsDynamic() {
 
           {/* Filters slide down */}
           <div
-            className={`overflow-hidden transition-all duration-500 ease-out ${
-              filtersExpanded ? 'max-h-32 opacity-100 mt-4' : 'max-h-0 opacity-0'
-            }`}
+            className={`overflow-hidden transition-all duration-500 ease-out ${filtersExpanded ? 'max-h-32 opacity-100 mt-4' : 'max-h-0 opacity-0'
+              }`}
           >
             <TripFilters activeFilters={filters} onFilterChange={setFilters} />
           </div>
@@ -224,11 +222,20 @@ export function AllTripsDynamic() {
                 <p className="text-muted-foreground">No trips match your filters</p>
               </div>
             ) : (
-              firstHalf.map((trip, index) => (
-                <div key={trip.id} className={index === 3 ? 'lg:col-span-2' : ''}>
-                  <TripGridCard trip={trip} index={index} featured={index === 3} />
-                </div>
-              ))
+              firstHalf.map((trip, index) => {
+                const mappedTrip = {
+                  ...trip,
+                  name: trip.name || trip.title,
+                  image: trip.image_url || trip.image || "/placeholder.jpg",
+                  groupSize: trip.max_group_size || "8-10"
+                }
+                return (
+                  <div key={trip.id} className={index === 3 ? 'lg:col-span-2' : ''}>
+                    <TripGridCard trip={mappedTrip} index={index} featured={index === 3} />
+                  </div>
+                )
+              })
+
             )}
           </div>
         </div>
@@ -249,11 +256,20 @@ export function AllTripsDynamic() {
         <section className="px-6 py-12 md:px-16 lg:px-24">
           <div className="mx-auto max-w-6xl">
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {secondHalf.map((trip, index) => (
-                <div key={trip.id} className={index === 3 ? 'lg:col-span-2' : ''}>
-                  <TripGridCard trip={trip} index={index} featured={index === 3} />
-                </div>
-              ))}
+              {secondHalf.map((trip, index) => {
+                const mappedTrip = {
+                  ...trip,
+                  name: trip.name || trip.title,
+                  image: trip.image_url || trip.image || "/placeholder.jpg",
+                  groupSize: trip.max_group_size || "8-10"
+                }
+                return (
+                  <div key={trip.id} className={index === 3 ? 'lg:col-span-2' : ''}>
+                    <TripGridCard trip={mappedTrip} index={index} featured={index === 3} />
+                  </div>
+                )
+              })}
+
             </div>
           </div>
         </section>
@@ -277,6 +293,7 @@ export function AllTripsDynamic() {
           </Link>
         </div>
       </section>
+      <Footer />
     </main>
   )
 }
