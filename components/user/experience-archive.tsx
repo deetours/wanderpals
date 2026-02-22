@@ -41,7 +41,12 @@ const experiences: Experience[] = [
   },
 ]
 
-export function ExperienceArchive() {
+interface ExperienceArchiveProps {
+  userId?: string
+}
+
+export function ExperienceArchive({ userId }: ExperienceArchiveProps) {
+
   const [saved, setSaved] = useState<Record<string, boolean>>(
     experiences.reduce((acc, exp) => ({ ...acc, [exp.id]: exp.saved }), {})
   )
@@ -69,11 +74,10 @@ export function ExperienceArchive() {
                 <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => toggleSave(exp.id)}
-                    className={`p-2 rounded-lg backdrop-blur-sm transition-colors ${
-                      saved[exp.id]
+                    className={`p-2 rounded-lg backdrop-blur-sm transition-colors ${saved[exp.id]
                         ? 'bg-primary/20 text-primary'
                         : 'bg-background/20 text-foreground/60 hover:bg-background/40'
-                    }`}
+                      }`}
                   >
                     <Bookmark className={`h-4 w-4 ${saved[exp.id] ? 'fill-current' : ''}`} />
                   </button>

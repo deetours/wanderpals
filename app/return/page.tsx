@@ -17,7 +17,12 @@ export default function ReturnPage() {
     const getUser = async () => {
       const client = createClientComponentClient()
       setSupabase(client)
+      if (!client) {
+        setLoading(false)
+        return
+      }
       const { data: { user } } = await client.auth.getUser()
+
       if (!user) {
         router.push('/login')
       } else {

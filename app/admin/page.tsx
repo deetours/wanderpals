@@ -16,7 +16,12 @@ export default function AdminPage() {
     const checkAdmin = async () => {
       const client = createClientComponentClient()
       setSupabase(client)
+      if (!client) {
+        setLoading(false)
+        return
+      }
       const { data: { user } } = await client.auth.getUser()
+
       if (!user) {
         router.push('/login')
         return
@@ -28,7 +33,8 @@ export default function AdminPage() {
         .eq('id', user.id)
         .single()
 
-      if (userData?.role !== 'admin') {
+      if ((userData as any)?.role !== 'admin') {
+
         router.push('/return')
         return
       }

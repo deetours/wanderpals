@@ -30,3 +30,5 @@ next-env.d.ts
 pnpm-lock.yaml
 
 # temp directories
+app/login/
+lib/supabase-client.ts

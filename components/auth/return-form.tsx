@@ -23,7 +23,7 @@ export function ReturnForm() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!supabase) {
       setError('Supabase client not initialized')
       return
@@ -47,7 +47,8 @@ export function ReturnForm() {
         .eq('id', data.user.id)
         .single()
 
-      if (userData?.role === 'admin') {
+      if ((userData as any)?.role === 'admin') {
+
         router.push('/admin')
       } else {
         router.push('/return')

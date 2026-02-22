@@ -12,11 +12,15 @@ export function createClientComponentClient() {
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseKey) {
-    throw new Error(
-      'Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your .env.local file.'
+    console.error(
+      'Supabase environment variables are missing. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your deployment settings.'
     )
+    // Return a dummy client or null to avoid crashing every component that calls this
+    // but the components should handle a null client.
+    return null
   }
 
   supabaseClient = createClient(supabaseUrl, supabaseKey)
   return supabaseClient
 }
+

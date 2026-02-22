@@ -17,7 +17,12 @@ export default function MemoriesPage() {
     const getUser = async () => {
       const client = createClientComponentClient()
       setSupabase(client)
+      if (!client) {
+        setLoading(false)
+        return
+      }
       const { data: { user } } = await client.auth.getUser()
+
       if (!user) {
         router.push('/login')
       } else {
