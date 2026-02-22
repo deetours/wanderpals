@@ -83,41 +83,53 @@ export function TripDetailsDynamic({ tripId }: TripDetailsDynamicProps) {
     const days: { title: string; content: string[] }[] = []
     if (!description) return days
 
-    const lines = description.split("\n").filter((line) => line.trim())
+    // Normalize line breaks (handle \n, \r\n, and HTML breaks)
+    const normalized = description.replace(/<br\s*\/?>/gi, "\n").split(/[\n\r]+/)
+    const lines = normalized.filter((line) => line.trim())
+
+    // Log for debugging
+    console.log("Total lines in description:", lines.length)
+    console.log("First 5 lines:", lines.slice(0, 5))
 
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
-      const dayMatch = line.match(/^DAY\s+(\d+|0)\s*[-–]\s*(.+)$/i)
+      const line = lines[i].trim()
+      // Match "DAY 0", "DAY 1", "DAY 0 -", "DAY 1 -", etc.
+      const dayMatch = line.match(/^DAY\s+(\d+|0)\s*[-–]?\s*(.*)$/i)
 
-      if (dayMatch) {
+      if (dayMatch && (dayMatch[2] || !isNaN(Number(dayMatch[1])))) {
         const dayNum = dayMatch[1]
-        const dayTitle = dayMatch[2]
+        const dayTitle = dayMatch[2] || "Itinerary"
         const content: string[] = []
 
         // Collect all lines until next DAY or end
         let j = i + 1
-        while (j < lines.length && !lines[j].match(/^DAY\s+(\d+|0)/i)) {
+        while (j < lines.length) {
           const nextLine = lines[j].trim()
-          // Skip empty lines and unwanted sections
+          // Stop if we hit another DAY section
+          if (nextLine.match(/^DAY\s+(\d+|0)/i)) {
+            break
+          }
+          // Skip section headers
           if (
-            nextLine &&
-            !nextLine.match(/^ROUTE:|^TERMS|^DURATION|^INCLUSIONS|^Winter|^CANCELLATION|^BEHAVIOR|^ALCOHOL|^PERSONAL|^FORCE/i)
+            !nextLine.match(/^(ROUTE|TERMS|DURATION|INCLUSIONS|Winter|CANCELLATION|BEHAVIOR|ALCOHOL|PERSONAL|FORCE|BEST TIME|THINGS TO):/i) &&
+            nextLine.length > 0
           ) {
             content.push(nextLine)
           }
           j++
         }
 
-        if (content.length > 0) {
+        if (content.length > 0 || dayTitle) {
           days.push({
-            title: `Day ${dayNum} - ${dayTitle}`,
-            content,
+            title: `Day ${dayNum}${dayTitle ? " - " + dayTitle : ""}`,
+            content: content.length > 0 ? content : ["Explore and experience"],
           })
         }
         i = j - 1
       }
     }
 
+    console.log("Parsed days:", days.length)
     return days
   }
 

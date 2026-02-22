@@ -1,5 +1,7 @@
 import { TripBookingFlow } from "@/components/booking/trip-booking-flow"
 import { notFound } from "next/navigation"
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
+import { cookies } from "next/headers"
 
 const tripsData: Record<
   string,
@@ -53,14 +55,58 @@ const tripsData: Record<
   },
 }
 
+async function getSupabaseTrip(tripId: string) {
+  try {
+    const supabase = createServerComponentClient({ cookies })
+    const { data, error } = await supabase
+      .from("trips")
+      .select("id, name, duration, price")
+      .eq("id", tripId)
+      .single()
+
+    if (error || !data) return null
+
+    // Create default dates for Supabase trips
+    const getMonth = (offset: number) => {
+      const date = new Date()
+      date.setMonth(date.getMonth() + offset)
+      return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    }
+
+    return {
+      id: data.id,
+      name: data.name,
+      duration: data.duration,
+      price: data.price,
+      dates: [
+        { start: getMonth(0), end: getMonth(0), spots: 8 },
+        { start: getMonth(1), end: getMonth(1), spots: 8 },
+        { start: getMonth(2), end: getMonth(2), spots: 8 },
+      ],
+    }
+  } catch (error) {
+    console.error("Error fetching Supabase trip:", error)
+    return null
+  }
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const trip = tripsData[id]
-  if (!trip) return { title: "Booking | Wanderpals" }
+  const staticTrip = tripsData[id]
+
+  if (staticTrip) {
+    return {
+      title: `Join ${staticTrip.name} | Wanderpals`,
+      description: `Reserve your spot on the ${staticTrip.name} journey`,
+    }
+  }
+
+  const supabaseTrip = await getSupabaseTrip(id)
+  if (!supabaseTrip) return { title: "Booking | Wanderpals" }
 
   return {
-    title: `Join ${trip.name} | Wanderpals`,
-    description: `Reserve your spot on the ${trip.name} journey`,
+    title: `Join ${supabaseTrip.name} | Wanderpals`,
+    description: `Reserve your spot on the ${supabaseTrip.name} journey`,
   }
 }
 
@@ -73,7 +119,14 @@ export default async function TripBookingPage({
 }) {
   const { id } = await params
   const { date } = await searchParams
-  const trip = tripsData[id]
+
+  // Try static trips first
+  let trip = tripsData[id]
+
+  // If not found, try Supabase
+  if (!trip) {
+    trip = await getSupabaseTrip(id)
+  }
 
   if (!trip) {
     notFound()
