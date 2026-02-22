@@ -15,7 +15,7 @@ export function AllTripsDynamic() {
   const [filters, setFilters] = useState({
     region: 'all',
     terrain: 'all',
-    difficulty: 'all',
+    duration: 'all',
   })
   const [mounted, setMounted] = useState(false)
   const supabase = createClient()
@@ -42,7 +42,7 @@ export function AllTripsDynamic() {
     return trips.filter((trip) => {
       if (filters.region !== 'all' && trip.region !== filters.region) return false
       if (filters.terrain !== 'all' && trip.terrain !== filters.terrain) return false
-      if (filters.difficulty !== 'all' && trip.difficulty !== filters.difficulty) return false
+      if (filters.duration !== 'all' && !trip.duration?.toLowerCase().includes(filters.duration)) return false
       return true
     })
   }, [trips, filters])
@@ -58,16 +58,14 @@ export function AllTripsDynamic() {
       <section className="px-6 pt-32 pb-16 md:px-16 lg:px-24">
         <div className="mx-auto max-w-4xl">
           <h1
-            className={`font-serif text-4xl md:text-6xl lg:text-7xl text-foreground transition-all duration-700 ease-out ${
-              mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
+            className={`font-serif text-4xl md:text-6xl lg:text-7xl text-foreground transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}
           >
             Every journey we currently run.
           </h1>
           <p
-            className={`mt-6 font-sans text-lg md:text-xl text-muted-foreground transition-all duration-700 ease-out ${
-              mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-            }`}
+            className={`mt-6 font-sans text-lg md:text-xl text-muted-foreground transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
             style={{ transitionDelay: '200ms' }}
           >
             Different places. Same pace.
@@ -76,7 +74,13 @@ export function AllTripsDynamic() {
       </section>
 
       {/* Filters */}
-      <TripFilters visible={showFilters} filters={filters} onChange={setFilters} />
+      <div className={`transition-all duration-700 ${showFilters ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+        <section className="px-6 py-4 md:px-16 lg:px-24">
+          <div className="mx-auto max-w-7xl">
+            <TripFilters activeFilters={filters} onFilterChange={setFilters} />
+          </div>
+        </section>
+      </div>
 
       {/* First Half Grid */}
       <section className="px-6 py-12 md:px-16 lg:px-24">
@@ -93,12 +97,11 @@ export function AllTripsDynamic() {
             firstHalf.map((trip, index) => (
               <div
                 key={trip.id}
-                className={`transition-all duration-700 ease-out ${
-                  mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
+                className={`transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                  }`}
                 style={{ transitionDelay: `${300 + index * 100}ms` }}
               >
-                <TripGridCard trip={trip} />
+                <TripGridCard trip={trip} index={index} />
               </div>
             ))
           )}
@@ -110,17 +113,15 @@ export function AllTripsDynamic() {
         <section className="px-6 py-24 md:px-16 lg:px-24">
           <div className="mx-auto max-w-3xl text-center">
             <p
-              className={`font-serif text-3xl md:text-4xl text-foreground transition-all duration-1000 ease-out ${
-                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
+              className={`font-serif text-3xl md:text-4xl text-foreground transition-all duration-1000 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                }`}
               style={{ transitionDelay: '1200ms' }}
             >
               Each one earns its place.
             </p>
             <p
-              className={`mt-4 font-sans text-base text-muted-foreground transition-all duration-1000 ease-out ${
-                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
+              className={`mt-4 font-sans text-base text-muted-foreground transition-all duration-1000 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                }`}
               style={{ transitionDelay: '1400ms' }}
             >
               We don't add trips often. When we do, it's because the hosts are exceptional.
@@ -136,12 +137,11 @@ export function AllTripsDynamic() {
             {secondHalf.map((trip, index) => (
               <div
                 key={trip.id}
-                className={`transition-all duration-700 ease-out ${
-                  mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
+                className={`transition-all duration-700 ease-out ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                  }`}
                 style={{ transitionDelay: `${1600 + index * 100}ms` }}
               >
-                <TripGridCard trip={trip} />
+                <TripGridCard trip={trip} index={index} />
               </div>
             ))}
           </div>
