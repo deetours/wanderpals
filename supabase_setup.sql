@@ -89,10 +89,11 @@ DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'trips' AND column_name = 'max_group_size') THEN
         ALTER TABLE public.trips ADD COLUMN max_group_size integer;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'trips' AND column_name = 'status') THEN
-        ALTER TABLE public.trips ADD COLUMN status text DEFAULT 'draft';
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'trips' AND column_name = 'image_url') THEN
+        ALTER TABLE public.trips ADD COLUMN image_url text;
     END IF;
 END $$;
+
 
 ALTER TABLE public.trips ENABLE ROW LEVEL SECURITY;
 
@@ -129,15 +130,71 @@ CREATE POLICY "Anyone can view public memories"
 ON public.memories FOR SELECT 
 USING (visibility = 'public');
 
--- 8. Setup Storage for Memories
--- Note: This creates the bucket if it doesn't exist via SQL if your role has permissions
+-- 8. Lead Management Table
+CREATE TABLE IF NOT EXISTS public.leads (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  full_name text,
+  phone_number text,
+  email text,
+  source text DEFAULT 'whatsapp_popup',
+  status text DEFAULT 'new', -- new, contacted, interested, qualified, closed
+  notes text,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
+
+-- Only admins can see and manage leads
+CREATE POLICY "Admins can manage leads" 
+ON public.leads FOR ALL 
+USING (public.isAdmin());
+
+-- Public can only insert (for capture forms)
+CREATE POLICY "Anyone can submit a lead" 
+ON public.leads FOR INSERT 
+WITH CHECK (true);
+
+-- 9. User Onboarding & Metadata
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'onboarding_complete') THEN
+        ALTER TABLE public.users ADD COLUMN onboarding_complete boolean DEFAULT false;
+    END IF;
+END $$;
+
+-- 10. Social Interactions (Likes & Comments)
+CREATE TABLE IF NOT EXISTS public.story_likes (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid REFERENCES public.users(id) ON DELETE CASCADE,
+  story_id text NOT NULL, -- references the ID in traveller-stories.tsx or a future stories table
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE(user_id, story_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.story_comments (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid REFERENCES public.users(id) ON DELETE CASCADE,
+  story_id text NOT NULL,
+  content text NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.story_likes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.story_comments ENABLE ROW LEVEL SECURITY;
+
+-- Likes policies
+CREATE POLICY "Users can manage their own likes" ON public.story_likes FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Anyone can view likes" ON public.story_likes FOR SELECT USING (true);
+
+-- Comments policies
+CREATE POLICY "Users can manage their own comments" ON public.story_comments FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Anyone can view comments" ON public.story_comments FOR SELECT USING (true);
+
+-- 11. Setup Storage for Memories (Robust check)
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('memories', 'memories', false)
 ON CONFLICT (id) DO NOTHING;
 
 -- Storage Policies for 'memories' bucket
-
--- 1. Allow Users to Upload their own memories
 DROP POLICY IF EXISTS "Users can upload their own memories" ON storage.objects;
 CREATE POLICY "Users can upload their own memories"
 ON storage.objects FOR INSERT
@@ -147,7 +204,6 @@ WITH CHECK (
   (storage.foldername(name))[1] = auth.uid()::text
 );
 
--- 2. Allow Users to view their own private memories
 DROP POLICY IF EXISTS "Users can view their own memories" ON storage.objects;
 CREATE POLICY "Users can view their own memories"
 ON storage.objects FOR SELECT
@@ -157,7 +213,6 @@ USING (
   (storage.foldername(name))[1] = auth.uid()::text
 );
 
--- 3. Allow Users to delete their own memories
 DROP POLICY IF EXISTS "Users can delete their own memories" ON storage.objects;
 CREATE POLICY "Users can delete their own memories"
 ON storage.objects FOR DELETE
@@ -167,7 +222,6 @@ USING (
   (storage.foldername(name))[1] = auth.uid()::text
 );
 
--- 4. Admins can view everything
 DROP POLICY IF EXISTS "Admins can view all storage" ON storage.objects;
 CREATE POLICY "Admins can view all storage"
 ON storage.objects FOR SELECT
@@ -175,4 +229,5 @@ TO authenticated
 USING (
   public.isAdmin()
 );
+
 

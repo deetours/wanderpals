@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClientComponentClient } from '@/lib/supabase-client'
-import { Plus, Edit2, Trash2 } from 'lucide-react'
+import { Plus, Edit2, Trash2, Globe, Users, Clock } from 'lucide-react'
 import { TripForm } from './trip-form'
 
 export function TripsManager() {
@@ -10,7 +10,7 @@ export function TripsManager() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingTrip, setEditingTrip] = useState<any>(null)
-  const [supabase, setSupabase] = useState<ReturnType<typeof createClientComponentClient> | null>(null)
+  const [supabase, setSupabase] = useState<any>(null)
 
   useEffect(() => {
     const client = createClientComponentClient()
@@ -18,10 +18,12 @@ export function TripsManager() {
     fetchTrips(client)
   }, [])
 
-  const fetchTrips = async (client: typeof supabase) => {
-    if (!client) return
+  const fetchTrips = async (client: any) => {
+    const activeClient = client || supabase
+    if (!activeClient) return
+
     setLoading(true)
-    const { data } = await client
+    const { data } = await activeClient
       .from('trips')
       .select('*')
       .order('created_at', { ascending: false })
@@ -33,70 +35,101 @@ export function TripsManager() {
     if (!supabase) return
     if (confirm('Delete this trip? This action cannot be undone.')) {
       await supabase.from('trips').delete().eq('id', id)
-      fetchTrips()
+      fetchTrips(supabase)
     }
   }
 
   return (
-    <div className="space-y-6">
-      {/* Add Trip Button */}
-      <div>
+    <div className="space-y-8">
+      {/* Header with Add Button */}
+      <div className="flex items-center justify-between">
+        <h2 className="font-serif text-2xl text-foreground">Expeditions Cache</h2>
         <button
           onClick={() => {
             setEditingTrip(null)
             setShowForm(!showForm)
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-background rounded hover:bg-primary/90 transition-colors font-sans"
+          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl transition-all font-sans font-semibold text-sm shadow-lg ${showForm
+              ? 'bg-muted-foreground/10 text-muted-foreground'
+              : 'bg-primary text-background hover:bg-primary/90 shadow-primary/20'
+            }`}
         >
-          <Plus className="h-4 w-4" />
-          {showForm ? 'Cancel' : 'Add Trip'}
+          <Plus className={`h-4 w-4 transition-transform duration-300 ${showForm ? 'rotate-45' : ''}`} />
+          {showForm ? 'Close Editor' : 'Direct New Expedition'}
         </button>
       </div>
 
       {/* Trip Form */}
-      {showForm && (
+      <div className={`transition-all duration-500 ease-in-out overflow-hidden ${showForm ? 'max-h-[1000px] opacity-100 mb-12' : 'max-h-0 opacity-0 pointer-events-none'
+        }`}>
         <TripForm
           trip={editingTrip}
           onSuccess={() => {
             setShowForm(false)
-            fetchTrips()
+            fetchTrips(supabase)
           }}
         />
-      )}
+      </div>
 
-      {/* Trips List */}
-      <div className="space-y-4">
+      {/* Trips Grid */}
+      <div className="grid gap-4">
         {loading ? (
-          <p className="text-muted-foreground">Loading trips...</p>
+          <div className="py-20 text-center text-muted-foreground animate-pulse font-sans">Syncing with satellite data...</div>
         ) : trips.length === 0 ? (
-          <p className="text-muted-foreground">No trips yet. Create your first one!</p>
+          <div className="py-20 text-center border-2 border-dashed border-muted-foreground/10 rounded-2xl">
+            <p className="font-sans text-muted-foreground italic">No expeditions recorded. Click the button above to begin.</p>
+          </div>
         ) : (
           trips.map((trip) => (
             <div
               key={trip.id}
-              className="p-6 bg-card border border-muted-foreground/10 rounded flex items-center justify-between"
+              className="p-6 bg-card border border-primary/5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-xl hover:border-primary/20 transition-all group"
             >
-              <div>
-                <h3 className="font-serif text-lg text-foreground">{trip.name}</h3>
-                <p className="font-sans text-sm text-muted-foreground mt-1">
-                  {trip.duration} • {trip.group_size} travellers • From ₹{trip.price?.toLocaleString()}
-                </p>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <h3 className="font-serif text-xl text-foreground group-hover:text-primary transition-colors">{trip.title}</h3>
+                  <span className={`text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded ${trip.status === 'published' ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-500'
+                    }`}>
+                    {trip.status}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground uppercase tracking-widest">
+                  <div className="flex items-center gap-1.5 bg-muted-foreground/5 px-2 py-1 rounded">
+                    <Clock className="h-3 w-3" />
+                    {trip.duration} Days
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-muted-foreground/5 px-2 py-1 rounded">
+                    <Users className="h-3 w-3" />
+                    Max {trip.max_group_size}
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-muted-foreground/5 px-2 py-1 rounded">
+                    <Globe className="h-3 w-3" />
+                    {trip.region || 'Remote'}
+                  </div>
+                  <div className="font-sans font-bold text-foreground bg-primary/10 px-2 py-1 rounded text-primary">
+                    ₹{trip.price?.toLocaleString()}
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
+
+              <div className="flex items-center gap-3 border-t md:border-t-0 pt-4 md:pt-0 border-muted-foreground/10">
                 <button
                   onClick={() => {
                     setEditingTrip(trip)
                     setShowForm(true)
                   }}
-                  className="p-2 hover:bg-foreground/10 rounded transition-colors"
+                  className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-background border border-muted-foreground/20 rounded-lg hover:border-primary/50 transition-all font-sans text-xs font-semibold"
                 >
-                  <Edit2 className="h-4 w-4 text-foreground" />
+                  <Edit2 className="h-3.5 w-3.5" />
+                  Edit
                 </button>
                 <button
                   onClick={() => handleDelete(trip.id)}
-                  className="p-2 hover:bg-red-500/10 rounded transition-colors"
+                  className="p-2.5 text-muted-foreground hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all"
+                  title="Archive/Delete Expedition"
                 >
-                  <Trash2 className="h-4 w-4 text-red-500" />
+                  <Trash2 className="h-4 w-4" />
                 </button>
               </div>
             </div>

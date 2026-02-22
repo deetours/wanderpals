@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { createClientComponentClient } from '@/lib/supabase-client'
-import { Bookmark, Share2, MessageCircle } from 'lucide-react'
-
+import { Bookmark, Share2, MessageCircle, ArrowRight } from 'lucide-react'
+import { UserOnboarding } from './user-onboarding'
 
 interface Experience {
   id: string
@@ -18,7 +19,6 @@ interface Experience {
   saved: boolean
 }
 
-// Keep mock data as fallback for now
 const mockExperiences: Experience[] = [
   {
     id: '1',
@@ -50,14 +50,23 @@ interface ExperienceArchiveProps {
 
 export function ExperienceArchive({ userId }: ExperienceArchiveProps) {
   const [data, setData] = useState<Experience[]>(mockExperiences)
+  const [recommendedTrips, setRecommendedTrips] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     if (userId) {
       fetchMemories()
+      fetchRecommendations()
     }
   }, [userId])
+
+  const fetchRecommendations = async () => {
+    const supabase = createClientComponentClient()
+    if (!supabase) return
+    const { data } = await supabase.from('trips').select('*').eq('status', 'published').limit(2)
+    setRecommendedTrips(data || [])
+  }
 
   const fetchMemories = async () => {
     const supabase = createClientComponentClient()
@@ -72,7 +81,6 @@ export function ExperienceArchive({ userId }: ExperienceArchiveProps) {
           trips (title, duration, max_group_size)
         `)
         .eq('user_id', userId)
-
 
       if (error) throw error
 
@@ -92,7 +100,6 @@ export function ExperienceArchive({ userId }: ExperienceArchiveProps) {
       }
     } catch (err) {
       console.error('Error fetching memories:', err)
-      // Stay with mock data on error
     } finally {
       setLoading(false)
     }
@@ -111,66 +118,100 @@ export function ExperienceArchive({ userId }: ExperienceArchiveProps) {
   }
 
   return (
-    <section className="py-12 px-6 md:px-16 lg:px-24">
-      <div className="mx-auto max-w-6xl">
-        <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-2">Your archive</h2>
-        <p className="font-sans text-muted-foreground mb-8">Revisit your journeys anytime</p>
+    <div className="space-y-16">
+      {userId && <UserOnboarding userId={userId} />}
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {data.map((exp) => (
-            <div key={exp.id} className="group">
-              <div className="relative aspect-square overflow-hidden rounded-lg mb-4 bg-card">
-                <Image
-                  src={exp.image}
-                  alt={exp.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={() => toggleSave(exp.id)}
-                    className={`p-2 rounded-lg backdrop-blur-sm transition-colors ${saved[exp.id]
-                      ? 'bg-primary/20 text-primary'
-                      : 'bg-background/20 text-foreground/60 hover:bg-background/40'
-                      }`}
-                  >
-                    <Bookmark className={`h-4 w-4 ${saved[exp.id] ? 'fill-current' : ''}`} />
-                  </button>
+      <section className="py-12">
+        <div className="mx-auto max-w-6xl">
+          <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-2">Your archive</h2>
+          <p className="font-sans text-muted-foreground mb-8">Revisit your journeys anytime</p>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {data.map((exp) => (
+              <div key={exp.id} className="group">
+                <div className="relative aspect-square overflow-hidden rounded-lg mb-4 bg-card">
+                  <Image
+                    src={exp.image}
+                    alt={exp.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    unoptimized
+                  />
+                  <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => toggleSave(exp.id)}
+                      className={`p-2 rounded-lg backdrop-blur-sm transition-colors ${saved[exp.id]
+                        ? 'bg-primary/20 text-primary'
+                        : 'bg-background/20 text-foreground/60 hover:bg-background/40'
+                        }`}
+                    >
+                      <Bookmark className={`h-4 w-4 ${saved[exp.id] ? 'fill-current' : ''}`} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <p className="font-serif text-lg text-foreground">{exp.title}</p>
+                    <p className="font-sans text-xs text-muted-foreground">
+                      {exp.date} • {exp.duration} • {exp.people} people
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {exp.memories.map((memory, idx) => (
+                      <span key={idx} className="text-xs px-2 py-1 rounded bg-primary/10 text-primary">
+                        {memory}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-2 pt-3 border-t border-muted-foreground/10">
+                    <button className="flex-1 text-xs font-sans text-primary hover:text-primary/80 transition-colors flex items-center justify-center gap-1">
+                      <MessageCircle className="h-3 w-3" />
+                      View memories
+                    </button>
+                    <button className="flex-1 text-xs font-sans text-primary hover:text-primary/80 transition-colors flex items-center justify-center gap-1">
+                      <Share2 className="h-3 w-3" />
+                      Share
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              <div className="space-y-3">
-                <div>
-                  <p className="font-serif text-lg text-foreground">{exp.title}</p>
-                  <p className="font-sans text-xs text-muted-foreground">
-                    {exp.date} • {exp.duration} • {exp.people} people
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {exp.memories.map((memory, idx) => (
-                    <span key={idx} className="text-xs px-2 py-1 rounded bg-primary/10 text-primary">
-                      {memory}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="flex gap-2 pt-3 border-t border-muted-foreground/10">
-                  <button className="flex-1 text-xs font-sans text-primary hover:text-primary/80 transition-colors flex items-center justify-center gap-1">
-                    <MessageCircle className="h-3 w-3" />
-                    View memories
-                  </button>
-                  <button className="flex-1 text-xs font-sans text-primary hover:text-primary/80 transition-colors flex items-center justify-center gap-1">
-                    <Share2 className="h-3 w-3" />
-                    Share
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* Upsell for next booking */}
+      <section className="py-12 border-t border-muted-foreground/10">
+        <div className="mx-auto max-w-6xl">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+            <div>
+              <h3 className="font-serif text-2xl md:text-3xl text-foreground mb-2">Where to next?</h3>
+              <p className="font-sans text-muted-foreground">Specifically curated based on your previous expeditions</p>
+            </div>
+            <Link href="/all-trips" className="inline-flex items-center gap-2 text-primary hover:gap-3 transition-all">
+              <span className="font-sans text-sm font-semibold">Explore all journeys</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {recommendedTrips.map((trip) => (
+              <Link href={`/trips/${trip.id}`} key={trip.id} className="group flex flex-col md:flex-row gap-4 p-4 rounded-xl border border-muted-foreground/5 hover:border-primary/20 hover:bg-card transition-all">
+                <div className="relative w-full md:w-32 aspect-[4/3] rounded-lg overflow-hidden shrink-0">
+                  <Image src="/highlights/spiti-sunset.jpg" alt={trip.title} fill className="object-cover group-hover:scale-110 transition-transform duration-500" unoptimized />
+                </div>
+                <div className="flex flex-col justify-center gap-1">
+                  <h4 className="font-serif text-lg text-foreground group-hover:text-primary transition-colors">{trip.title}</h4>
+                  <p className="text-xs text-muted-foreground uppercase tracking-widest">{trip.duration} Days • {trip.region}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
   )
 }
-

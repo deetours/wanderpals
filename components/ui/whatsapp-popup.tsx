@@ -24,16 +24,27 @@ export function WhatsAppPopup() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [isOpen])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (phoneNumber.trim()) {
-      // WhatsApp link to +91 9876543210 (placeholder)
+      // 1. Log the lead in our database (don't block the WhatsApp redirect)
+      fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone_number: phoneNumber,
+          source: 'whatsapp_popup'
+        })
+      }).catch(err => console.warn('Lead logging failed:', err))
+
+      // 2. WhatsApp link redirect
       const message = `Hi Wanderpals! I'm interested in your trips and stays. My phone: ${phoneNumber}`
       const whatsappLink = `https://wa.me/919876543210?text=${encodeURIComponent(message)}`
       window.open(whatsappLink, "_blank")
       setIsOpen(false)
     }
   }
+
 
   if (!mounted) return null
 
@@ -50,9 +61,8 @@ export function WhatsAppPopup() {
 
       {/* Popup */}
       <div
-        className={`fixed bottom-4 right-4 md:bottom-8 md:right-8 z-50 transition-all duration-300 ease-out ${
-          isOpen ? "opacity-100 scale-100" : "opacity-0 scale-90 pointer-events-none"
-        }`}
+        className={`fixed bottom-4 right-4 md:bottom-8 md:right-8 z-50 transition-all duration-300 ease-out ${isOpen ? "opacity-100 scale-100" : "opacity-0 scale-90 pointer-events-none"
+          }`}
       >
         <div className="bg-card rounded-2xl p-6 max-w-sm shadow-xl border border-primary/20">
           {/* Close button */}
