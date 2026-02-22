@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClientComponentClient } from '@/lib/supabase-client'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Eye, EyeOff, Mail, Lock, User, Phone, LogIn } from 'lucide-react'
 
 export function ReturnForm() {
@@ -218,7 +219,7 @@ export function ReturnForm() {
         </form>
 
         <p className="text-center text-[10px] text-muted-foreground/60 leading-relaxed px-4">
-          By continuing, you agree to Wanderpals' Terms of Service and Privacy Policy. Private trip data is encrypted.
+          By continuing, you agree to Wanderpals&apos; <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link> and Privacy Policy. Private trip data is encrypted.
         </p>
       </div>
     </div>

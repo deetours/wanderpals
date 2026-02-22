@@ -32,9 +32,8 @@ export function SceneExit() {
     >
       <div className="space-y-6">
         <div
-          className={`transition-all duration-700 ease-out ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          className={`transition-all duration-700 ease-out ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
           <Link
             href="/stays"
@@ -46,9 +45,8 @@ export function SceneExit() {
         </div>
 
         <p
-          className={`text-xs text-muted-foreground/50 tracking-wide transition-all duration-700 ease-out ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}
+          className={`text-xs text-muted-foreground/50 tracking-wide transition-all duration-700 ease-out ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            }`}
           style={{ transitionDelay: "400ms" }}
         >
           Takes less than a minute
@@ -56,8 +54,12 @@ export function SceneExit() {
       </div>
 
       {/* Footer - minimal */}
-      <footer className="absolute bottom-8 left-0 right-0 text-center">
-        <p className="text-xs text-muted-foreground/50">Wanderpals © 2026</p>
+      <footer className="absolute bottom-8 left-0 right-0 text-center space-y-2">
+        <div className="flex justify-center gap-4">
+          <Link href="/terms" className="text-[10px] text-muted-foreground/30 hover:text-primary transition-colors uppercase tracking-widest">Terms & Conditions</Link>
+          <span className="text-[10px] text-muted-foreground/20">|</span>
+          <p className="text-[10px] text-muted-foreground/30 uppercase tracking-widest">Wanderpals © 2026</p>
+        </div>
       </footer>
     </section>
   )
