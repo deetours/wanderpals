@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
 import { Navbar } from "../ui/navbar"
+import { HostProfile } from "../profiles/host-profile"
 import { Check } from "lucide-react"
 import Link from "next/link"
 

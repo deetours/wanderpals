@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { SceneHeroVisual } from "./scene-hero-visual"
 
 export function SceneArrival() {
   const [mounted, setMounted] = useState(false)
@@ -10,8 +11,9 @@ export function SceneArrival() {
   }, [])
 
   return (
-    <section className="relative flex min-h-screen items-center justify-start px-6 md:px-16 lg:px-24">
-      <div className="max-w-3xl">
+    <section className="relative flex min-h-screen items-center justify-start px-6 md:px-16 lg:px-24 overflow-hidden">
+      <SceneHeroVisual />
+      <div className="relative z-10 max-w-3xl">
         {/* Main title */}
         <h1
           className={`font-serif text-6xl md:text-8xl lg:text-9xl font-medium tracking-tight text-foreground transition-all duration-[900ms] ease-out ${

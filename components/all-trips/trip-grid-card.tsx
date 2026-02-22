@@ -11,6 +11,8 @@ interface Trip {
   duration: string
   image: string
   groupSize: string
+  price?: number
+  spotsLeft?: number
 }
 
 interface TripGridCardProps {
@@ -82,6 +84,20 @@ export function TripGridCard({ trip, index, featured = false }: TripGridCardProp
             <span>{trip.duration}</span>
             <span className="h-1 w-1 rounded-full bg-muted-foreground" />
             <span>{trip.groupSize} travellers</span>
+          </div>
+          
+          {/* Pricing and urgency */}
+          <div className="mt-3 pt-3 border-t border-muted-foreground/10 flex items-center justify-between">
+            {trip.price && (
+              <span className="font-sans text-xs text-primary">
+                From ₹{trip.price.toLocaleString()}
+              </span>
+            )}
+            {trip.spotsLeft && trip.spotsLeft <= 3 && (
+              <span className="font-sans text-xs text-orange-400">
+                Only {trip.spotsLeft} spots
+              </span>
+            )}
           </div>
         </div>
       </Link>

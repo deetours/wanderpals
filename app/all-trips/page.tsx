@@ -1,4 +1,4 @@
-import { AllTripsPage } from "@/components/all-trips/all-trips-page"
+import { AllTripsDynamic } from "@/components/all-trips/all-trips-dynamic"
 
 export const metadata = {
   title: "All Trips | Wanderpals",
@@ -6,5 +6,5 @@ export const metadata = {
 }
 
 export default function AllTrips() {
-  return <AllTripsPage />
+  return <AllTripsDynamic />
 }

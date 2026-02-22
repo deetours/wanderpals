@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { Check, Mail, ArrowRight } from "lucide-react"
+import { Check, MessageCircle, ArrowRight } from "lucide-react"
 
 function ConfirmedContent() {
   const searchParams = useSearchParams()
@@ -107,15 +107,15 @@ function ConfirmedContent() {
           </div>
         )}
 
-        {/* Email notification */}
+        {/* WhatsApp notification */}
         <div
           className={`mt-8 flex items-center justify-center gap-2 text-sm text-muted-foreground transition-all duration-700 ease-out ${
             mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           }`}
           style={{ transitionDelay: "800ms" }}
         >
-          <Mail className="h-4 w-4" />
-          <span>Check your email for confirmation details</span>
+          <MessageCircle className="h-4 w-4" />
+          <span>Our team will message you on WhatsApp with details</span>
         </div>
 
         {/* Packing message */}

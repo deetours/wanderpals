@@ -26,10 +26,7 @@ export function StayBookingFlow({ stay }: StayBookingFlowProps) {
     checkIn: "",
     checkOut: "",
     guests: 1,
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
+    whatsappPhone: "",
   })
 
   useEffect(() => {
@@ -61,7 +58,7 @@ export function StayBookingFlow({ stay }: StayBookingFlowProps) {
       return bookingData.checkIn && bookingData.checkOut && nights > 0
     }
     if (step === 2) {
-      return bookingData.firstName && bookingData.lastName && bookingData.email && bookingData.phone
+      return bookingData.whatsappPhone && bookingData.whatsappPhone.length >= 10
     }
     return true
   }

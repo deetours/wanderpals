@@ -23,7 +23,7 @@ export function Navbar({ visible }: NavbarProps) {
             Wanderpals
           </Link>
 
-          {/* Desktop nav - Updated order: Journeys, All Trips, Stays, About */}
+          {/* Desktop nav - Updated order: Journeys, All Trips, Stays, About, Return */}
           <nav className="hidden items-center gap-8 md:flex">
             <Link
               href="/journeys"
@@ -49,6 +49,12 @@ export function Navbar({ visible }: NavbarProps) {
             >
               About
             </Link>
+            <Link
+              href="/return"
+              className="font-sans text-sm text-primary hover:text-primary/80 transition-colors"
+            >
+              Return
+            </Link>
           </nav>
 
           {/* Mobile menu button */}
@@ -62,7 +68,7 @@ export function Navbar({ visible }: NavbarProps) {
         </div>
       </header>
 
-      {/* Mobile menu - Updated order: Journeys, All Trips, Stays, About */}
+      {/* Mobile menu - Updated order: Journeys, All Trips, Stays, About, Return */}
       <div
         className={`fixed inset-0 z-40 bg-background/95 backdrop-blur-sm transition-all duration-300 md:hidden ${
           mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
@@ -96,6 +102,13 @@ export function Navbar({ visible }: NavbarProps) {
             onClick={() => setMobileMenuOpen(false)}
           >
             About
+          </Link>
+          <Link
+            href="/return"
+            className="font-serif text-3xl text-primary transition-colors hover:text-primary/80"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Return
           </Link>
         </nav>
       </div>

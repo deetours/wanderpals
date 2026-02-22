@@ -1,4 +1,4 @@
-import { ExploreStays } from "@/components/stays/explore-stays"
+import { ExploreStaysDynamic } from "@/components/stays/explore-stays-dynamic"
 
 export const metadata = {
   title: "Stays | Wanderpals",
@@ -6,5 +6,5 @@ export const metadata = {
 }
 
 export default function StaysPage() {
-  return <ExploreStays />
+  return <ExploreStaysDynamic />
 }

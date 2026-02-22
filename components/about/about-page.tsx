@@ -89,10 +89,23 @@ export function AboutPage() {
         </div>
       </RevealSection>
 
-      {/* Numbers */}
+      {/* 98% Return Rate - As Hero Stat */}
+      <RevealSection className="px-6 py-24 md:px-16 lg:px-24">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="font-serif text-5xl md:text-6xl lg:text-7xl text-foreground mb-4">98%</p>
+          <p className="font-serif text-2xl md:text-3xl text-muted-foreground mb-6">
+            of our travellers come back.
+          </p>
+          <p className="font-sans text-lg text-muted-foreground max-w-2xl mx-auto">
+            We've stopped being surprised by this number. What surprises us more is how many friendships survive after the trip ends.
+          </p>
+        </div>
+      </RevealSection>
+
+      {/* Other Numbers */}
       <RevealSection className="px-6 py-24 md:px-16 lg:px-24 bg-card">
         <div className="mx-auto max-w-4xl">
-          <div className="grid gap-8 md:grid-cols-4 text-center">
+          <div className="grid gap-8 md:grid-cols-3 text-center">
             <div>
               <p className="font-serif text-4xl md:text-5xl text-primary">4,800+</p>
               <p className="mt-2 text-sm text-muted-foreground">Travellers</p>
@@ -102,13 +115,38 @@ export function AboutPage() {
               <p className="mt-2 text-sm text-muted-foreground">Locations</p>
             </div>
             <div>
-              <p className="font-serif text-4xl md:text-5xl text-primary">98%</p>
-              <p className="mt-2 text-sm text-muted-foreground">Return with friends</p>
-            </div>
-            <div>
               <p className="font-serif text-4xl md:text-5xl text-primary">6</p>
               <p className="mt-2 text-sm text-muted-foreground">Years of wandering</p>
             </div>
+          </div>
+        </div>
+      </RevealSection>
+
+      {/* Manifesto */}
+      <RevealSection className="px-6 py-32 md:px-16 lg:px-24 bg-card/30">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="font-serif text-3xl md:text-4xl text-foreground mb-10">Our Manifesto</h2>
+          <div className="space-y-6 font-sans text-lg text-muted-foreground leading-relaxed">
+            <p>
+              We believe travel is the most human of acts. It breaks you open. It teaches you what matters. It reminds
+              you that the world is made of people, not pins on a map.
+            </p>
+            <p>
+              We're building Wanderpals because the travel industry has forgotten this. It's turned journeys into
+              consumption, stays into check-ins, and connection into content. We reject that entirely.
+            </p>
+            <p>
+              Every trip we run is small. Every stay we host is designed for conversation. Every decision we make asks:
+              Will this make someone feel more human, or less? We will always choose more.
+            </p>
+            <p>
+              We're not interested in scale for its own sake. We're interested in depth. In the traveller who arrives
+              as a stranger and leaves as a friend. In the stay where nobody checks their phone at dinner. In the journey
+              where time moves differently.
+            </p>
+            <p>
+              This is what we're building. Not a business. A better way to travel.
+            </p>
           </div>
         </div>
       </RevealSection>
