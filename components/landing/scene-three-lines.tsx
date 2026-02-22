@@ -6,17 +6,17 @@ import Image from "next/image"
 const threeLines = [
   {
     text: "Wake up somewhere new",
-    image: "/hero1.png",
+    image: "/hero-foggy-valley-dawn.jpg",
     position: "left",
   },
   {
     text: "Walk with strangers",
-    image: "/hero2.png",
+    image: "/hero-campfire-spiti.jpg",
     position: "right",
   },
   {
     text: "Leave with fewer goodbyes",
-    image: "/hero3.png",
+    image: "/hero-houseboat-kerala.jpg",
     position: "left",
   },
 ]
