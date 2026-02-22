@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { createClientComponentClient } from '@/lib/supabase-client'
 import { Bookmark, Share2, MessageCircle, ArrowRight } from 'lucide-react'
 import { UserOnboarding } from './user-onboarding'
+import { WhatsappRequirement } from './whatsapp-requirement'
+
 
 interface Experience {
   id: string
@@ -119,7 +121,13 @@ export function ExperienceArchive({ userId }: ExperienceArchiveProps) {
 
   return (
     <div className="space-y-16">
-      {userId && <UserOnboarding userId={userId} />}
+      {userId && (
+        <>
+          <UserOnboarding userId={userId} />
+          <WhatsappRequirement userId={userId} />
+        </>
+      )}
+
 
       <section className="py-12">
         <div className="mx-auto max-w-6xl">

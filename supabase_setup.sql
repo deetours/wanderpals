@@ -53,6 +53,15 @@ BEGIN
   INSERT INTO public.users (id, email, role)
   VALUES (new.id, new.email, 'user')
   ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email;
+
+  INSERT INTO public.profiles (id, full_name, avatar_url)
+  VALUES (
+    new.id, 
+    COALESCE(new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name'),
+    new.raw_user_meta_data->>'avatar_url'
+  )
+  ON CONFLICT (id) DO NOTHING;
+
   RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -92,8 +101,10 @@ DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'trips' AND column_name = 'image_url') THEN
         ALTER TABLE public.trips ADD COLUMN image_url text;
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'trips' AND column_name = 'status') THEN
+        ALTER TABLE public.trips ADD COLUMN status text DEFAULT 'draft';
+    END IF;
 END $$;
-
 
 ALTER TABLE public.trips ENABLE ROW LEVEL SECURITY;
 
@@ -144,12 +155,12 @@ CREATE TABLE IF NOT EXISTS public.leads (
 
 ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
 
--- Only admins can see and manage leads
+DROP POLICY IF EXISTS "Admins can manage leads" ON public.leads;
 CREATE POLICY "Admins can manage leads" 
 ON public.leads FOR ALL 
 USING (public.isAdmin());
 
--- Public can only insert (for capture forms)
+DROP POLICY IF EXISTS "Anyone can submit a lead" ON public.leads;
 CREATE POLICY "Anyone can submit a lead" 
 ON public.leads FOR INSERT 
 WITH CHECK (true);
@@ -165,7 +176,7 @@ END $$;
 CREATE TABLE IF NOT EXISTS public.story_likes (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid REFERENCES public.users(id) ON DELETE CASCADE,
-  story_id text NOT NULL, -- references the ID in traveller-stories.tsx or a future stories table
+  story_id text NOT NULL,
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
   UNIQUE(user_id, story_id)
 );
@@ -181,53 +192,51 @@ CREATE TABLE IF NOT EXISTS public.story_comments (
 ALTER TABLE public.story_likes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.story_comments ENABLE ROW LEVEL SECURITY;
 
--- Likes policies
+DROP POLICY IF EXISTS "Users can manage their own likes" ON public.story_likes;
 CREATE POLICY "Users can manage their own likes" ON public.story_likes FOR ALL USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Anyone can view likes" ON public.story_likes;
 CREATE POLICY "Anyone can view likes" ON public.story_likes FOR SELECT USING (true);
 
--- Comments policies
+DROP POLICY IF EXISTS "Users can manage their own comments" ON public.story_comments;
 CREATE POLICY "Users can manage their own comments" ON public.story_comments FOR ALL USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Anyone can view comments" ON public.story_comments;
 CREATE POLICY "Anyone can view comments" ON public.story_comments FOR SELECT USING (true);
 
--- 11. Setup Storage for Memories (Robust check)
+-- 12. Robust Profile System
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id uuid REFERENCES public.users(id) ON DELETE CASCADE PRIMARY KEY,
+  full_name text,
+  whatsapp_number text,
+  avatar_url text,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can manage their own profile" ON public.profiles;
+CREATE POLICY "Users can manage their own profile" ON public.profiles FOR ALL USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Admins can view all profiles" ON public.profiles;
+CREATE POLICY "Admins can view all profiles" ON public.profiles FOR SELECT USING (public.isAdmin());
+
+-- 13. Storage Setup & Policies
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('memories', 'memories', false)
 ON CONFLICT (id) DO NOTHING;
 
--- Storage Policies for 'memories' bucket
 DROP POLICY IF EXISTS "Users can upload their own memories" ON storage.objects;
 CREATE POLICY "Users can upload their own memories"
-ON storage.objects FOR INSERT
-TO authenticated
-WITH CHECK (
-  bucket_id = 'memories' AND 
-  (storage.foldername(name))[1] = auth.uid()::text
-);
+ON storage.objects FOR INSERT TO authenticated
+WITH CHECK (bucket_id = 'memories' AND (storage.foldername(name))[1] = auth.uid()::text);
 
 DROP POLICY IF EXISTS "Users can view their own memories" ON storage.objects;
 CREATE POLICY "Users can view their own memories"
-ON storage.objects FOR SELECT
-TO authenticated
-USING (
-  bucket_id = 'memories' AND 
-  (storage.foldername(name))[1] = auth.uid()::text
-);
-
-DROP POLICY IF EXISTS "Users can delete their own memories" ON storage.objects;
-CREATE POLICY "Users can delete their own memories"
-ON storage.objects FOR DELETE
-TO authenticated
-USING (
-  bucket_id = 'memories' AND 
-  (storage.foldername(name))[1] = auth.uid()::text
-);
+ON storage.objects FOR SELECT TO authenticated
+USING (bucket_id = 'memories' AND (storage.foldername(name))[1] = auth.uid()::text);
 
 DROP POLICY IF EXISTS "Admins can view all storage" ON storage.objects;
 CREATE POLICY "Admins can view all storage"
-ON storage.objects FOR SELECT
-TO authenticated
-USING (
-  public.isAdmin()
-);
-
-
+ON storage.objects FOR SELECT TO authenticated
+USING (public.isAdmin());
