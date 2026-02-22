@@ -5,18 +5,19 @@ import Image from "next/image"
 
 const heroImages = [
   {
-    src: "/hero1.png",
+    src: "/hero-campfire-spiti.jpg",
     alt: "Strangers laughing around a campfire at 4AM in Spiti Valley",
   },
   {
-    src: "/hero2.png",
+    src: "/hero-houseboat-kerala.jpg",
     alt: "Two strangers becoming friends on a Kerala houseboat at sunrise",
   },
   {
-    src: "/hero3.png",
+    src: "/hero-foggy-valley-dawn.jpg",
     alt: "Foggy mountain valley at dawn, travellers walking together",
   },
 ]
+
 
 export function SceneHeroVisual() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -38,9 +39,8 @@ export function SceneHeroVisual() {
       {heroImages.map((image, index) => (
         <div
           key={image.src}
-          className={`absolute inset-0 transition-opacity duration-1500 ease-in-out ${
-            index === currentImageIndex ? "opacity-100" : "opacity-0"
-          }`}
+          className={`absolute inset-0 transition-opacity duration-1500 ease-in-out ${index === currentImageIndex ? "opacity-100" : "opacity-0"
+            }`}
         >
           <Image
             src={image.src}
