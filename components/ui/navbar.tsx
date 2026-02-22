@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useState } from "react"
 import { Menu, X } from "lucide-react"
+import Image from "next/image"
 
 interface NavbarProps {
   visible: boolean
@@ -19,8 +20,8 @@ export function Navbar({ visible }: NavbarProps) {
         }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <Link href="/" className="font-serif text-xl text-foreground transition-colors hover:text-primary">
-            Wanderpals
+          <Link href="/" className="transition-opacity hover:opacity-80">
+            <Image src="/favicon.png" alt="Wanderpals" width={40} height={40} className="h-10 w-10" />
           </Link>
 
           {/* Desktop nav - Updated order: Journeys, All Trips, Stays, About, Return */}
