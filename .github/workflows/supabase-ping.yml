@@ -1,0 +1,43 @@
+name: Supabase Keep-Alive Ping
+
+on:
+  schedule:
+    # Run every 3 days at 00:00 UTC
+    - cron: '0 0 */3 * *'
+  workflow_dispatch:
+
+jobs:
+  ping-supabase:
+    name: Ping Supabase Health Endpoint
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Ping health endpoint
+        run: |
+          echo "🚀 Pinging Supabase health endpoint..."
+          RESPONSE=$(curl -s -X GET https://wanderpals.vercel.app/api/health)
+          echo "📊 Response: $RESPONSE"
+          
+          # Check if response contains "ok" status
+          if echo "$RESPONSE" | grep -q '"status":"ok"'; then
+            echo "✅ Health check passed - Supabase is active"
+            exit 0
+          else
+            echo "❌ Health check failed"
+            echo "$RESPONSE"
+            exit 1
+          fi
+      
+      - name: Log success
+        if: success()
+        run: |
+          echo "✅ Supabase keep-alive ping successful at $(date)"
+          echo "Database will remain active for another 7 days"
+      
+      - name: Log failure
+        if: failure()
+        run: |
+          echo "⚠️ Health check failed - review endpoint and credentials"
