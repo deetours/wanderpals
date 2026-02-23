@@ -36,7 +36,7 @@ const staticStories: Story[] = [
     traveller: 'Vikram & Ananya',
     trip: 'Kerala Backwaters',
     duration: '5 days',
-    image: '/stories/kerala-couple.jpg',
+    image: '/stories/kerala-couple.jpeg',
     quote: 'We booked for us two. Left with 6 friends planning the next trip.',
     date: 'Jan 2025',
     likes: 521,
