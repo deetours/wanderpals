@@ -18,6 +18,11 @@ interface TripDetailsDynamicProps {
 // ─── Tab types ───
 type InfoTab = "inclusions" | "exclusions" | "terms" | "carry" | "altitude"
 
+// ─── Day Images Mapping ───
+const DAY_IMAGES_MAP: Record<string, string[]> = {
+  "Jaisalmer - Longewala Desert Adventure": ["/jai1.png", "/jai2.png", "/jai3.png"],
+}
+
 const TAB_META: Record<InfoTab, { label: string; icon: React.ReactNode }> = {
   inclusions: { label: "Inclusions", icon: <Check className="h-4 w-4" /> },
   exclusions: { label: "Exclusions", icon: <MinusCircle className="h-4 w-4" /> },
@@ -315,13 +320,23 @@ export function TripDetailsDynamic({ tripId }: TripDetailsDynamicProps) {
                     </div>
                   </div>
                   <div className={`relative aspect-[4/5] rounded-2xl overflow-hidden bg-card/20 border border-white/5 ${index % 2 === 1 ? "md:order-1" : ""}`}>
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-                    <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center gap-2">
-                      <MapPin className="h-8 w-8 text-primary/10" />
-                      <span className="font-serif text-6xl opacity-[0.04] select-none uppercase tracking-tighter">
-                        {day.title.split("—")[0]?.trim()}
-                      </span>
-                    </div>
+                    {DAY_IMAGES_MAP[trip.name]?.[index] ? (
+                      <img
+                        src={DAY_IMAGES_MAP[trip.name][index]}
+                        alt={day.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <>
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                        <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center gap-2">
+                          <MapPin className="h-8 w-8 text-primary/10" />
+                          <span className="font-serif text-6xl opacity-[0.04] select-none uppercase tracking-tighter">
+                            {day.title.split("—")[0]?.trim()}
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
