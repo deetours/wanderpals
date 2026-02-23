@@ -33,10 +33,10 @@ const staticStories: Story[] = [
   },
   {
     id: '2',
-    traveller: 'Vikram & Ananya',
-    trip: 'Kerala Backwaters',
+    traveller: 'Shreeram H',
+    trip: 'Meghalaya',
     duration: '5 days',
-    image: '/stories/kerala-couple.jpeg',
+    image: '/stories/shree.jpg',
     quote: 'We booked for us two. Left with 6 friends planning the next trip.',
     date: 'Jan 2025',
     likes: 521,
