@@ -188,6 +188,16 @@ export function TripDetailsDynamic({ tripId }: TripDetailsDynamicProps) {
 
   const data = parse(trip.description || "")
 
+  // ─── Custom Image Mapping for Specific Trips ───
+  const getCustomDayImage = (index: number) => {
+    // Jaisalmer Trip Mapping
+    if (trip.name?.includes("Jaisalmer")) {
+      const jaisalmerImages = ["/jai0.png", "/jai1.png", "/jai2.png", "/jai3.png"]
+      return jaisalmerImages[index] || null
+    }
+    return null
+  }
+
   // Set default active tab to first non-empty one
   const availableTabs = (Object.keys(TAB_META) as InfoTab[]).filter(
     (tab) => data[tab] && data[tab].length > 0
@@ -320,23 +330,21 @@ export function TripDetailsDynamic({ tripId }: TripDetailsDynamicProps) {
                     </div>
                   </div>
                   <div className={`relative aspect-[4/5] rounded-2xl overflow-hidden bg-card/20 border border-white/5 ${index % 2 === 1 ? "md:order-1" : ""}`}>
-                    {DAY_IMAGES_MAP[trip.name]?.[index] ? (
-                      <img
-                        src={DAY_IMAGES_MAP[trip.name][index]}
-                        alt={day.title}
-                        className="w-full h-full object-cover"
+                    {getCustomDayImage(index) ? (
+                      <div
+                        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 hover:scale-110"
+                        style={{ backgroundImage: `url('${getCustomDayImage(index)}')` }}
                       />
                     ) : (
-                      <>
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
-                        <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center gap-2">
-                          <MapPin className="h-8 w-8 text-primary/10" />
-                          <span className="font-serif text-6xl opacity-[0.04] select-none uppercase tracking-tighter">
-                            {day.title.split("—")[0]?.trim()}
-                          </span>
-                        </div>
-                      </>
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
                     )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent" />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center gap-2">
+                      <MapPin className={`h-8 w-8 ${getCustomDayImage(index) ? "text-white/20" : "text-primary/10"}`} />
+                      <span className={`font-serif text-6xl select-none uppercase tracking-tighter ${getCustomDayImage(index) ? "opacity-[0.1] text-white" : "opacity-[0.04] text-foreground"}`}>
+                        {day.title.split("—")[0]?.trim()}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
