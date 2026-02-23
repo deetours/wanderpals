@@ -13,6 +13,10 @@ export function SceneArrival() {
   return (
     <section className="relative flex min-h-screen items-center justify-start px-6 md:px-16 lg:px-24 overflow-hidden">
       <SceneHeroVisual />
+      
+      {/* Fade gradient overlay - blends carousel into next section */}
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-b from-transparent via-transparent to-background pointer-events-none z-5" />
+      
       <div className="relative z-10 max-w-3xl">
         {/* Main title */}
         <h1
