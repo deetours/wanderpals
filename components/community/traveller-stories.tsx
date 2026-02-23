@@ -44,10 +44,10 @@ const staticStories: Story[] = [
   },
   {
     id: '3',
-    traveller: 'Arjun K.',
+    traveller: 'Prashansa R',
     trip: 'Ladakh Roads',
     duration: '10 days',
-    image: '/stories/ladakh-arjun.jpg',
+    image: '/stories/prashansa.jpg',
     quote: '3,700 meters up. Lowest I\'ve ever felt anxiety. Highest I\'ve ever felt free.',
     date: 'Dec 2024',
     likes: 798,
