@@ -23,7 +23,7 @@ export function Navbar({ visible }: NavbarProps) {
             Wanderpals
           </Link>
 
-          {/* Desktop nav - Updated order: Journeys, All Trips, Stays, About, Return */}
+          {/* Desktop nav - Updated order: Journeys, Stays, All Trips, About, Return */}
           <nav className="hidden items-center gap-8 md:flex">
             <Link
               href="/journeys"
@@ -32,16 +32,16 @@ export function Navbar({ visible }: NavbarProps) {
               Journeys
             </Link>
             <Link
-              href="/all-trips"
-              className="font-sans text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              All Trips
-            </Link>
-            <Link
               href="/stays"
               className="font-sans text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               Stays
+            </Link>
+            <Link
+              href="/all-trips"
+              className="font-sans text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              All Trips
             </Link>
             <Link
               href="/about"
@@ -68,7 +68,7 @@ export function Navbar({ visible }: NavbarProps) {
         </div>
       </header>
 
-      {/* Mobile menu - Updated order: Journeys, All Trips, Stays, About, Return */}
+      {/* Mobile menu - Updated order: Journeys, Stays, All Trips, About, Return */}
       <div
         className={`fixed inset-0 z-40 bg-background/95 backdrop-blur-sm transition-all duration-300 md:hidden ${
           mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
@@ -83,18 +83,18 @@ export function Navbar({ visible }: NavbarProps) {
             Journeys
           </Link>
           <Link
-            href="/all-trips"
-            className="font-serif text-3xl text-foreground transition-colors hover:text-primary"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            All Trips
-          </Link>
-          <Link
             href="/stays"
             className="font-serif text-3xl text-foreground transition-colors hover:text-primary"
             onClick={() => setMobileMenuOpen(false)}
           >
             Stays
+          </Link>
+          <Link
+            href="/all-trips"
+            className="font-serif text-3xl text-foreground transition-colors hover:text-primary"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            All Trips
           </Link>
           <Link
             href="/about"
