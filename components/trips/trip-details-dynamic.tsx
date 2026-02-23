@@ -20,7 +20,7 @@ type InfoTab = "inclusions" | "exclusions" | "terms" | "carry" | "altitude"
 
 // ─── Day Images Mapping ───
 const DAY_IMAGES_MAP: Record<string, string[]> = {
-  "Jaisalmer - Longewala Desert Adventure": ["/jai0.png", "/jai1.png", "/jai2.png"],
+  "Jaisalmer - Longewala Desert Adventure": ["/jai0.png", "/jai1.png", "/jai2.png", "/jai3.png"],
 }
 
 const TAB_META: Record<InfoTab, { label: string; icon: React.ReactNode }> = {
