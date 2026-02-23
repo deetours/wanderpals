@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 
 const highlights = [
-  { id: 1, image: '/highlights/spiti-sunset.jpg', trip: 'Spiti Valley', likes: 342 },
-  { id: 2, image: '/highlights/ladakh-group.jpg', trip: 'Ladakh Roads', likes: 521 },
-  { id: 3, image: '/highlights/kerala-boat.jpg', trip: 'Kerala Backwaters', likes: 298 },
-  { id: 4, image: '/highlights/meghalaya-waterfall.jpg', trip: 'Meghalaya Green', likes: 445 },
-  { id: 5, image: '/highlights/gokarna-bonfire.jpg', trip: 'Gokarna Stay', likes: 678 },
-  { id: 6, image: '/highlights/bir-paraglide.jpg', trip: 'Bir Adventure', likes: 512 },
+  { id: 1, image: '/moments1.jpg', trip: 'Puga Valley Ladakh', likes: 342 },
+  { id: 2, image: '/moments2.png', trip: 'Meghalaya caves', likes: 521 },
+  { id: 3, image: '/moments3.png', trip: 'Tyrna Meghalaya', likes: 298 },
+  { id: 4, image: '/moments4.png', trip: 'Arunachal Pradesh', likes: 445 },
+  { id: 5, image: '/moments5.png', trip: 'Spiti Valley Komic', likes: 678 },
+  { id: 6, image: '/moments6.png', trip: 'Arunachal Pradesh beauty', likes: 512 },
 ]
 
 export function HighlightsGallery() {
