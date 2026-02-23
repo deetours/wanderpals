@@ -3,51 +3,49 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
+import { createClientComponentClient } from "@/lib/supabase-client"
 import { Navbar } from "../ui/navbar"
 import { JourneyCard } from "./journey-card"
 
-// Handpicked journeys - only 4-5 signature routes
-const journeys = [
-  {
-    id: "spiti",
-    name: "Spiti Valley",
-    tagline: "Silence, altitude, and shared roads",
-    duration: "9 Days",
-    images: ["/trips/spiti-1.jpg", "/trips/spiti-2.jpg", "/trips/spiti-3.jpg"],
-    groupSize: "8-10",
-  },
-  {
-    id: "ladakh",
-    name: "Ladakh Circuit",
-    tagline: "Where the sky meets the earth",
-    duration: "11 Days",
-    images: ["/trips/ladakh-1.jpg", "/trips/ladakh-2.jpg", "/trips/ladakh-3.jpg"],
-    groupSize: "8-10",
-  },
-  {
-    id: "kerala",
-    name: "Kerala Backwaters",
-    tagline: "Slow rivers, slower days",
-    duration: "6 Days",
-    images: ["/trips/kerala-1.jpg", "/trips/kerala-2.jpg", "/trips/kerala-3.jpg"],
-    groupSize: "10-12",
-  },
-  {
-    id: "meghalaya",
-    name: "Meghalaya Trails",
-    tagline: "Clouds below, roots above",
-    duration: "7 Days",
-    images: ["/trips/meghalaya-1.jpg", "/trips/meghalaya-2.jpg", "/trips/meghalaya-3.jpg"],
-    groupSize: "8-10",
-  },
-]
-
 export function JourneysPage() {
   const [mounted, setMounted] = useState(false)
+  const [journeys, setJourneys] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     setMounted(true)
+    fetchFeaturedTrips()
   }, [])
+
+  const fetchFeaturedTrips = async () => {
+    try {
+      const supabase = createClientComponentClient()
+      const { data, error } = await supabase
+        .from('trips')
+        .select('id, name, tagline, duration, image_url, group_size')
+        .eq('is_featured', true)
+        .limit(5)
+
+      if (error) throw error
+
+      // Transform Supabase data to match JourneyCard format
+      const transformedData = (data || []).map((trip: any) => ({
+        id: trip.id,
+        name: trip.name,
+        tagline: trip.tagline,
+        duration: trip.duration,
+        images: [trip.image_url], // Wrap single image in array
+        groupSize: `${trip.group_size}`,
+      }))
+
+      setJourneys(transformedData)
+    } catch (error) {
+      console.error('Error fetching featured trips:', error)
+      setJourneys([]) // Fall back to empty
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <main className="grain min-h-screen bg-background">
@@ -77,9 +75,15 @@ export function JourneysPage() {
       {/* Journey Cards - vertical storytelling */}
       <section className="px-6 py-12 md:px-16 lg:px-24">
         <div className="mx-auto max-w-5xl space-y-24">
-          {journeys.map((journey, index) => (
-            <JourneyCard key={journey.id} journey={journey} index={index} />
-          ))}
+          {loading ? (
+            <div className="text-center py-16 text-muted-foreground">Loading curated journeys...</div>
+          ) : journeys.length > 0 ? (
+            journeys.map((journey, index) => (
+              <JourneyCard key={journey.id} journey={journey} index={index} />
+            ))
+          ) : (
+            <div className="text-center py-16 text-muted-foreground">No featured journeys at the moment.</div>
+          )}
         </div>
       </section>
 

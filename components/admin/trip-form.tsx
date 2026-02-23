@@ -20,6 +20,7 @@ export function TripForm({ trip, onSuccess }: TripFormProps) {
     max_group_size: trip?.max_group_size || 12,
     status: trip?.status || 'draft',
     image_url: trip?.image_url || '',
+    is_featured: trip?.is_featured || false,
   })
 
   useEffect(() => {
@@ -146,6 +147,19 @@ export function TripForm({ trip, onSuccess }: TripFormProps) {
             <option value="archived">Archived</option>
           </select>
         </div>
+      </div>
+
+      <div className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/20 rounded-xl">
+        <input
+          type="checkbox"
+          id="is_featured"
+          checked={formData.is_featured}
+          onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
+          className="w-5 h-5 cursor-pointer"
+        />
+        <label htmlFor="is_featured" className="text-sm font-semibold text-foreground cursor-pointer">
+          Featured on Journeys Page
+        </label>
       </div>
 
       <button
