@@ -22,10 +22,10 @@ interface Story {
 const staticStories: Story[] = [
   {
     id: '1',
-    traveller: 'Priya M.',
-    trip: 'Spiti Valley',
+    traveller: 'Apoorva H',
+    trip: 'Tawang',
     duration: '7 days',
-    image: '/stories/spiti-priya.jpeg',
+    image: '/stories/apoorva.jpg',
     quote: 'Went solo, came back with a family. Still text the group daily.',
     date: 'Feb 2025',
     likes: 342,
