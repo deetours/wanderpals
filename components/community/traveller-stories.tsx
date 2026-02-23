@@ -25,7 +25,7 @@ const staticStories: Story[] = [
     traveller: 'Priya M.',
     trip: 'Spiti Valley',
     duration: '7 days',
-    image: '/stories/spiti-priya.jpg',
+    image: '/stories/spiti-priya.jpeg',
     quote: 'Went solo, came back with a family. Still text the group daily.',
     date: 'Feb 2025',
     likes: 342,
