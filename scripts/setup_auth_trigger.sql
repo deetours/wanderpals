@@ -18,12 +18,11 @@ BEGIN
     whatsapp_number = EXCLUDED.whatsapp_number;
 
   -- Insert into users (fallback table)
-  INSERT INTO public.users (id, role, email, name)
+  INSERT INTO public.users (id, role, email)
   VALUES (
     new.id, 
     'user', 
-    new.email,
-    new.raw_user_meta_data->>'full_name'
+    new.email
   )
   ON CONFLICT (id) DO NOTHING;
 
@@ -49,12 +48,11 @@ FROM auth.users
 WHERE id NOT IN (SELECT id FROM public.profiles)
 ON CONFLICT DO NOTHING;
 
-INSERT INTO public.users (id, role, email, name)
+INSERT INTO public.users (id, role, email)
 SELECT 
   id, 
   'user',
-  email,
-  raw_user_meta_data->>'full_name'
+  email
 FROM auth.users
 WHERE id NOT IN (SELECT id FROM public.users)
 ON CONFLICT DO NOTHING;
