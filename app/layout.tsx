@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
 import { WhatsAppPopup } from "@/components/ui/whatsapp-popup"
 import "./globals.css"
+import "tw-animate-css/dist/tw-animate.css"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
   title: "Wanderpals | Travel Slower. Stay Longer.",
   description: "A travel and stay experience designed like cinema. For travellers who value people over plans.",
   keywords: ["travel", "hostels", "trips", "India", "backpacking", "slow travel"],
-    generator: 'v0.app'
+  generator: 'v0.app'
 }
 
 export const viewport: Viewport = {

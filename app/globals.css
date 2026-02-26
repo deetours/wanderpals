@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css/dist/tw-animate.css" prelayer;
 
 @custom-variant dark (&:is(.dark *));
 
@@ -135,6 +134,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -144,6 +144,7 @@
 .grain {
   position: relative;
 }
+
 .grain::before {
   content: "";
   position: absolute;
@@ -160,6 +161,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -170,6 +172,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -179,16 +182,19 @@
   from {
     letter-spacing: 0.1em;
   }
+
   to {
     letter-spacing: 0.02em;
   }
 }
 
 @keyframes slowPulse {
+
   0%,
   100% {
     opacity: 0.4;
   }
+
   50% {
     opacity: 1;
   }
