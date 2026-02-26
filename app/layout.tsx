@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
 import { WhatsAppPopup } from "@/components/ui/whatsapp-popup"
 import "./globals.css"
-import "tw-animate-css/dist/tw-animate.css"
+import "tw-animate-css"
 
 const inter = Inter({
   subsets: ["latin"],
