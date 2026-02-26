@@ -38,25 +38,6 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         {children}
         <WhatsAppPopup />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                console.log('--- Wanderpals CSS Diagnostics ---');
-                const checkCSS = () => {
-                  const bg = getComputedStyle(document.documentElement).getPropertyValue('--background').trim();
-                  if (!bg) {
-                    console.error('❌ CSS Variables NOT found in :root. Styles may not be applied.');
-                  } else {
-                    console.log('✅ CSS Variables loaded (Background: ' + bg + ')');
-                  }
-                };
-                window.addEventListener('load', checkCSS);
-                setTimeout(checkCSS, 2000);
-              })();
-            `,
-          }}
-        />
       </body>
     </html>
   )

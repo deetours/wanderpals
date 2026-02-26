@@ -17,9 +17,6 @@ const nextConfig = {
     ],
   },
   // Force CSS to be included in a way that doesn't depend on JS hydration
-  experimental: {
-    optimizeCss: false,
-  },
 }
 
 export default nextConfig
