@@ -77,16 +77,22 @@ export function ReturnForm() {
         formData.append('email', email)
         formData.append('password', password)
 
+        console.log('Sending login request to server action...')
         const result = await login(formData)
+        console.log('Server action result:', result)
 
         if (result?.error) {
           setError(result.error)
         } else if (result?.redirectUrl) {
+          console.log(`Success! Redirecting to ${result.redirectUrl}`)
           // Hard redirect ensure session is picked up by the new page
           window.location.href = result.redirectUrl
+        } else {
+          console.warn('Login action returned success but no redirect URL.')
         }
       }
     } catch (err: any) {
+      console.error('Submit handling error:', err)
       setError(err.message)
     } finally {
       setLoading(false)

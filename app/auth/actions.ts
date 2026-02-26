@@ -3,49 +3,67 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 
 export async function login(formData: FormData) {
-    const email = formData.get('email') as string
-    const password = formData.get('password') as string
+    console.log('--- LOGIN ACTION START ---')
+    try {
+        const email = formData.get('email') as string
+        const password = formData.get('password') as string
 
-    if (!email || !password) {
-        return { error: 'Email and password are required' }
-    }
+        if (!email || !password) {
+            return { error: 'Email and password are required' }
+        }
 
-    const supabase = await createSupabaseServerClient()
+        console.log(`Attempting login for: ${email}`)
+        const supabase = await createSupabaseServerClient()
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-    })
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        })
 
-    if (error) {
-        return { error: error.message }
-    }
+        if (error) {
+            console.error('Supabase Auth Error:', error.message)
+            return { error: error.message }
+        }
 
-    // Check role and determine redirect (checking both profiles and users for safety)
-    let role = 'user'
+        console.log('Login successful, checking role...')
 
-    const { data: profileData } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user?.id)
-        .single()
+        const userId = data.user?.id
+        console.log('User ID:', userId)
 
-    if (profileData?.role) {
-        role = profileData.role
-    } else {
-        // Fallback to 'users' table if profile doesn't have it
-        const { data: userData } = await supabase
-            .from('users')
+        // Check role and determine redirect (checking both profiles and users for safety)
+        let role = 'user'
+
+        const { data: profileData } = await (supabase
+            .from('profiles')
             .select('role')
-            .eq('id', data.user?.id)
-            .single()
-        if (userData?.role) role = userData.role
-    }
+            .eq('id', userId)
+            .single() as any)
 
-    if (role === 'admin') {
-        return { success: true, redirectUrl: '/admin' }
-    } else {
-        return { success: true, redirectUrl: '/return' }
+        if (profileData?.role) {
+            role = profileData.role
+            console.log('Role found in profiles:', role)
+        } else {
+            console.log('Checking fallback users table...')
+            const { data: userData } = await (supabase
+                .from('users')
+                .select('role')
+                .eq('id', userId)
+                .single() as any)
+            if (userData?.role) {
+                role = userData.role
+                console.log('Role found in users:', role)
+            }
+        }
+
+        const redirectUrl = role === 'admin' ? '/admin' : '/return'
+        console.log(`Redirecting to: ${redirectUrl}`)
+        return { success: true, redirectUrl }
+
+    } catch (err: any) {
+        console.error('UNEXPECTED LOGIN ACTION ERROR:', err)
+        return { error: 'An unexpected server error occurred during login.' }
+    } finally {
+        console.log('--- LOGIN ACTION END ---')
     }
 }
 
