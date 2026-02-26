@@ -1,0 +1,4 @@
+# Zero config for Netlify
+[build]
+  command = "npm run build"
+  publish = ".next"
