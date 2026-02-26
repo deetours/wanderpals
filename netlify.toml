@@ -1,3 +1,3 @@
 [build]
   command = "npm run build"
-  publish = ".next"
+  # Let Netlify detect the publish directory automatically

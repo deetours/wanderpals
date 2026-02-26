@@ -1,18 +1,1 @@
-/_next/static/chunks/*.css
-  Content-Type: text/css; charset=utf-8
-  Cache-Control: public, max-age=31536000, immutable
-
-/_next/static/chunks/*.js
-  Content-Type: application/javascript; charset=utf-8
-  Cache-Control: public, max-age=31536000, immutable
-
-/_next/static/**/*.css
-  Content-Type: text/css; charset=utf-8
-  Cache-Control: public, max-age=31536000, immutable
-
-/_next/static/**/*.js
-  Content-Type: application/javascript; charset=utf-8
-  Cache-Control: public, max-age=31536000, immutable
-
-/_next/**
-  Cache-Control: public, max-age=0, must-revalidate
+# Empty headers to let Netlify Next.js Runtime v5 handle it automatically
