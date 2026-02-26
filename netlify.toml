@@ -1,6 +1,8 @@
 [build]
   command = "next build"
-  publish = ".next"
+
+# No publish directory here - the Next.js Runtime plugin v5 handles it automatically.
+# Adding a manual publish directory in netlify.toml often causes 404s for static assets.
 
 [build.environment]
   NODE_VERSION = "20"

@@ -4,8 +4,11 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: false, // Changed to false to enable Next.js image optimization
+    unoptimized: false,
     formats: ['image/avif', 'image/webp'],
+  },
+  experimental: {
+    // Ensuring no legacy experimental flags are causing build issues
   },
 }
 
