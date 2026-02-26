@@ -20,8 +20,6 @@ const nextConfig = {
   experimental: {
     optimizeCss: false,
   },
-  // Ensure output is compatible with Netlify
-  output: 'standalone',
 }
 
 export default nextConfig
