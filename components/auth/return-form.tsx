@@ -26,6 +26,8 @@ export function ReturnForm() {
       const result = await signInWithGoogle(window.location.origin)
       if (result?.error) {
         setError(result.error)
+      } else if (result?.url) {
+        window.location.href = result.url
       }
     } catch (err: any) {
       setError(err.message)
@@ -79,8 +81,10 @@ export function ReturnForm() {
 
         if (result?.error) {
           setError(result.error)
+        } else if (result?.redirectUrl) {
+          router.push(result.redirectUrl)
+          router.refresh()
         }
-        // Redirect is handled inside the server action
       }
     } catch (err: any) {
       setError(err.message)

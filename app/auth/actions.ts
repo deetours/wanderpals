@@ -1,7 +1,6 @@
 'use server'
 
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 
 export async function login(formData: FormData) {
     const email = formData.get('email') as string
@@ -22,23 +21,21 @@ export async function login(formData: FormData) {
         return { error: error.message }
     }
 
-    // Check role and redirect
+    // Check role and determine redirect
     const { data: userData, error: roleError } = await supabase
         .from('users')
         .select('role')
         .eq('id', data.user?.id)
         .single()
 
-    if (roleError) {
-        // If user record doesn't exist in 'users' table or role is not found,
-        // fallback to normal user redirect
-        redirect('/return')
+    if (roleError || !userData) {
+        return { success: true, redirectUrl: '/return' }
     }
 
-    if ((userData as any)?.role === 'admin') {
-        redirect('/admin')
+    if ((userData as any).role === 'admin') {
+        return { success: true, redirectUrl: '/admin' }
     } else {
-        redirect('/return')
+        return { success: true, redirectUrl: '/return' }
     }
 }
 
@@ -56,6 +53,6 @@ export async function signInWithGoogle(origin: string) {
     }
 
     if (data.url) {
-        redirect(data.url)
+        return { url: data.url }
     }
 }
