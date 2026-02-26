@@ -38,6 +38,18 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         {children}
         <WhatsAppPopup />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.addEventListener('error', function(e) {
+                if (e.message && e.message.includes('Loading chunk') || e.message && e.message.includes('ChunkLoadError')) {
+                  console.warn('Stale chunk detected. Hard reloading the page...');
+                  window.location.reload(true);
+                }
+              });
+            `
+          }}
+        />
       </body>
     </html>
   )
