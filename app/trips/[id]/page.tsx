@@ -217,6 +217,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 
+import { createSupabaseServerClient } from "@/lib/supabase/server"
+
 // Check if trip is static or needs to fetch from Supabase
 async function getTripData(id: string) {
   // First check static data
@@ -226,10 +228,7 @@ async function getTripData(id: string) {
 
   // Try to fetch from Supabase for new trips
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-    )
+    const supabase = await createSupabaseServerClient()
 
     const { data } = await supabase
       .from("trips")
@@ -259,7 +258,7 @@ export default async function TripPage({ params }: { params: Promise<{ id: strin
 
   // If it's a dynamic trip from Supabase, use the dynamic component
   if (tripResult.type === "dynamic") {
-    return <TripDetailsDynamic tripId={id} />
+    return <TripDetailsDynamic tripId={id} initialTrip={tripResult.data} />
   }
 
   // Otherwise use the static component

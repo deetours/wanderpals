@@ -20,7 +20,12 @@ export function createClientComponentClient() {
     return null
   }
 
-  supabaseClient = createClient(supabaseUrl, supabaseKey)
+  supabaseClient = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  })
   return supabaseClient
 }
 

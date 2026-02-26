@@ -65,9 +65,15 @@ export function TravellerStories() {
 
   useEffect(() => {
     const checkUser = async () => {
-      if (!supabase) return
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
+      try {
+        const supabase = createClientComponentClient()
+        if (!supabase) return
+        const { data: { user } } = await supabase.auth.getUser()
+        setUser(user)
+      } catch (err) {
+        // Silently fail as stories are still visible to non-logged-in users
+        console.log("Supabase connectivity restricted (Stories)")
+      }
     }
     checkUser()
     fetchInteractions()
@@ -98,9 +104,9 @@ export function TravellerStories() {
 
     if (!supabase) return
     if (!selectedStory?.isLiked) {
-      await supabase.from('story_likes').upsert({ user_id: user.id, story_id: storyId })
+      await (supabase.from('story_likes' as any).upsert({ user_id: user.id, story_id: storyId } as any) as any)
     } else {
-      await supabase.from('story_likes').delete().eq('user_id', user.id).eq('story_id', storyId)
+      await (supabase.from('story_likes' as any).delete().eq('user_id', user.id).eq('story_id', storyId) as any)
     }
   }
 
@@ -121,11 +127,11 @@ export function TravellerStories() {
     }))
 
     if (supabase) {
-      await supabase.from('story_comments').insert({
+      await (supabase.from('story_comments' as any).insert({
         user_id: user.id,
         story_id: selectedStory.id,
         content: commentText
-      })
+      } as any) as any)
     }
 
     setCommentText("")

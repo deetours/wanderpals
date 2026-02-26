@@ -13,6 +13,7 @@ import { Footer } from "../ui/footer"
 
 interface TripDetailsDynamicProps {
   tripId: string
+  initialTrip?: any
 }
 
 // ─── Tab types ───
@@ -31,37 +32,39 @@ const TAB_META: Record<InfoTab, { label: string; icon: React.ReactNode }> = {
   altitude: { label: "Altitude & Weather", icon: <Thermometer className="h-4 w-4" /> },
 }
 
-export function TripDetailsDynamic({ tripId }: TripDetailsDynamicProps) {
-  const [trip, setTrip] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+export function TripDetailsDynamic({ tripId, initialTrip }: TripDetailsDynamicProps) {
+  const [trip, setTrip] = useState<any>(initialTrip)
+  const [loading, setLoading] = useState(!initialTrip)
   const [mounted, setMounted] = useState(false)
   const [selectedDate, setSelectedDate] = useState(0)
   const [activeTab, setActiveTab] = useState<InfoTab>("inclusions")
 
-  useEffect(() => { setMounted(true) }, [])
-
   useEffect(() => {
-    const fetchTrip = async () => {
-      setLoading(true)
-      try {
-        const supabase = createClientComponentClient()
-        const { data, error } = await supabase
-          .from("trips")
-          .select("*")
-          .eq("id", tripId)
-          .single()
+    setMounted(true)
+    if (!initialTrip) {
+      const fetchTrip = async () => {
+        setLoading(true)
+        try {
+          const supabase = createClientComponentClient()
+          if (!supabase) return
+          const { data, error } = await supabase
+            .from("trips")
+            .select("*")
+            .eq("id", tripId)
+            .single()
 
-        if (error || !data) { setTrip(null); return }
-        setTrip(data)
-      } catch (error) {
-        console.error("Error fetching trip:", error)
-        setTrip(null)
-      } finally {
-        setLoading(false)
+          if (error || !data) { setTrip(null); return }
+          setTrip(data)
+        } catch (error) {
+          console.error("Error fetching trip:", error)
+          setTrip(null)
+        } finally {
+          setLoading(false)
+        }
       }
+      fetchTrip()
     }
-    if (mounted) fetchTrip()
-  }, [tripId, mounted])
+  }, [tripId, initialTrip])
 
   // ─── Loading ───
   if (loading) {
@@ -178,7 +181,7 @@ export function TripDetailsDynamic({ tripId }: TripDetailsDynamicProps) {
       } else if (currentSection !== "none" && currentSection !== "itinerary") {
         const arr = result[currentSection as keyof typeof result]
         if (Array.isArray(arr)) {
-          arr.push(cleanLine)
+          ; (arr as string[]).push(cleanLine)
         }
       }
     }
