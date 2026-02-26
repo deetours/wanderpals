@@ -6,18 +6,21 @@ import Image from "next/image"
 const threeLines = [
   {
     text: "Wake up somewhere new",
-    image: "/hero-foggy-valley-dawn.png",
+    image: "/hero-foggy-valley-dawn2.jpg", // Switched to optimized jpg
     position: "left",
+    priority: true, // Priority for first section
   },
   {
     text: "Walk with strangers",
-    image: "/hero-campfire-spiti.png",
+    image: "/hero-campfire-spiti1.jpg", // Switched to optimized jpg
     position: "right",
+    priority: false,
   },
   {
     text: "Leave with fewer goodbyes",
-    image: "/hero-houseboat-kerala.jpg", // Kept as jpg based on file list
+    image: "/hero-houseboat-kerala.jpg",
     position: "left",
+    priority: false,
   },
 ]
 
@@ -71,6 +74,9 @@ export function SceneThreeLines() {
               alt={line.text}
               fill
               className="object-cover"
+              priority={line.priority}
+              sizes="(max-width: 768px) 100vw, 50vw"
+              quality={90}
             />
           </div>
 

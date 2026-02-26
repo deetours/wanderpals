@@ -5,7 +5,8 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    unoptimized: false, // Changed to false to enable Next.js image optimization
+    formats: ['image/avif', 'image/webp'],
   },
 }
 

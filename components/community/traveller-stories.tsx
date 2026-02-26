@@ -153,7 +153,8 @@ export function TravellerStories() {
                   alt={story.traveller}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  unoptimized
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
+                  quality={85}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
@@ -201,7 +202,6 @@ export function TravellerStories() {
                   alt={selectedStory.traveller}
                   fill
                   className="object-cover"
-                  unoptimized
                 />
               </div>
 
@@ -212,8 +212,8 @@ export function TravellerStories() {
                   <button
                     onClick={() => handleLike(selectedStory.id)}
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-sans text-sm transition-all ${selectedStory.isLiked
-                        ? 'bg-primary text-background'
-                        : 'bg-primary/10 text-primary hover:bg-primary/20'
+                      ? 'bg-primary text-background'
+                      : 'bg-primary/10 text-primary hover:bg-primary/20'
                       }`}
                   >
                     <Heart className={`h-4 w-4 ${selectedStory.isLiked ? 'fill-current' : ''}`} />

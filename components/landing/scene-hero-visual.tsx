@@ -9,16 +9,14 @@ const heroImages = [
     alt: "Strangers laughing around a campfire at 4AM in Spiti Valley",
   },
   {
-    src: "/hero2.png",
+    src: "/hero-campfire-spiti1.jpg", // Switched to optimized jpg
     alt: "Two strangers becoming friends on a Kerala houseboat at sunrise",
   },
   {
-    src: "/hero3.png",
+    src: "/hero2.png",
     alt: "Foggy mountain valley at dawn, travellers walking together",
   },
 ]
-
-
 
 export function SceneHeroVisual() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -50,7 +48,7 @@ export function SceneHeroVisual() {
             sizes="100vw"
             className="object-cover"
             priority={index === 0}
-            quality={85}
+            quality={90}
           />
           {/* Dark overlay for text readability */}
           <div className="absolute inset-0 bg-black/40" />

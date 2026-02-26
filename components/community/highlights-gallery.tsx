@@ -39,6 +39,8 @@ export function HighlightsGallery() {
                 alt={highlights[autoRotate].trip}
                 fill
                 className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 800px"
+                quality={90}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -53,15 +55,16 @@ export function HighlightsGallery() {
               <div
                 key={highlight.id}
                 onClick={() => setAutoRotate(idx)}
-                className={`relative h-20 overflow-hidden rounded cursor-pointer transition-all duration-300 ${
-                  idx === autoRotate ? 'ring-2 ring-primary' : 'opacity-60 hover:opacity-100'
-                }`}
+                className={`relative h-20 overflow-hidden rounded cursor-pointer transition-all duration-300 ${idx === autoRotate ? 'ring-2 ring-primary' : 'opacity-60 hover:opacity-100'
+                  }`}
               >
                 <Image
                   src={highlight.image}
                   alt={highlight.trip}
                   fill
                   className="object-cover"
+                  sizes="120px"
+                  quality={60}
                 />
               </div>
             ))}
@@ -74,9 +77,8 @@ export function HighlightsGallery() {
             <button
               key={idx}
               onClick={() => setAutoRotate(idx)}
-              className={`h-2 rounded-full transition-all ${
-                idx === autoRotate ? 'w-8 bg-primary' : 'w-2 bg-muted-foreground/30'
-              }`}
+              className={`h-2 rounded-full transition-all ${idx === autoRotate ? 'w-8 bg-primary' : 'w-2 bg-muted-foreground/30'
+                }`}
             />
           ))}
         </div>
