@@ -25,7 +25,7 @@ export function TripForm({ trip, onSuccess }: TripFormProps) {
     duration: trip?.duration || 5,
     price: trip?.price || 0,
     group_size: trip?.group_size || 12,
-    status: trip?.status || 'draft',
+    status: trip?.status || 'published',
     image_url: trip?.image_url || '',
     is_featured: trip?.is_featured || false,
     show_on_all_trips: trip?.show_on_all_trips !== false,
@@ -145,8 +145,8 @@ export function TripForm({ trip, onSuccess }: TripFormProps) {
             type="button"
             onClick={() => setActiveSection(s.id)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeSection === s.id
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10'
               }`}
           >
             {s.label}

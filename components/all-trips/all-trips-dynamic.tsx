@@ -59,12 +59,7 @@ export function AllTripsDynamic({ initialTrips = [] }: { initialTrips?: any[] })
     const client = createClientComponentClient()
     setSupabase(client)
     setMounted(true)
-
-    if (!initialTrips || initialTrips.length === 0) {
-      fetchTrips(client)
-    } else {
-      setLoading(false)
-    }
+    setLoading(false)
   }, [initialTrips])
 
   // Observe mid-page pause to trigger second half
