@@ -1,29 +1,9 @@
 [build]
-  command = "npm run build"
+  command = "next build"
   publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
-
-[[headers]]
-  for = "/_next/static/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "/_next/static/chunks/*.js"
-  [headers.values]
-    Content-Type = "application/javascript"
-
-[[headers]]
-  for = "/_next/static/chunks/*.css"
-  [headers.values]
-    Content-Type = "text/css"
-
-[[headers]]
-  for = "/_next/static/css/*.css"
-  [headers.values]
-    Content-Type = "text/css"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
