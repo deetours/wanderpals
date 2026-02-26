@@ -11,17 +11,47 @@ for = "/_next/static/*"
 Content-Type = "application/javascript"
 Cache-Control = "public, max-age=31536000, immutable"
 
-[[headers]]
-for = "/_next/static/**/*.css"
-[headers.values]
-Content-Type = "text/css; charset=utf-8"
-Cache-Control = "public, max-age=31536000, immutable"
+[build]
+  command = "npm run build"
+  publish = ".next"
+  environment = { NODE_VERSION = "18" }
+
+[functions]
+  directory = ".next/server"
 
 [[headers]]
-for = "/_next/static/**/*.js"
-[headers.values]
-Content-Type = "application/javascript; charset=utf-8"
-Cache-Control = "public, max-age=31536000, immutable"
+  for = "/_next/static/chunks/*.css"
+  [headers.values]
+    Content-Type = "text/css; charset=utf-8"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/_next/static/chunks/*.js"
+  [headers.values]
+    Content-Type = "application/javascript; charset=utf-8"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/_next/static/**/*.css"
+  [headers.values]
+    Content-Type = "text/css; charset=utf-8"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/_next/static/**/*.js"
+  [headers.values]
+    Content-Type = "application/javascript; charset=utf-8"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/_next/**"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [[headers]]
 for = "/**/*.css"
