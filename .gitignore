@@ -30,5 +30,4 @@ next-env.d.ts
 pnpm-lock.yaml
 
 # temp directories
-app/login/
-lib/supabase-client.ts
+# Removed app/login/ and lib/supabase-client.ts from here - they must be tracked
