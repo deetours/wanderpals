@@ -5,6 +5,7 @@ import { createClientComponentClient } from '@/lib/supabase-client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff, Mail, Lock, User, Phone, LogIn } from 'lucide-react'
+import { login, signInWithGoogle } from '@/app/auth/actions'
 
 export function ReturnForm() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
@@ -19,25 +20,28 @@ export function ReturnForm() {
   const supabaseName = createClientComponentClient()
 
   const handleGoogleLogin = async () => {
-    if (!supabaseName) return
+    setLoading(true)
     setError(null)
-    const { error } = await supabaseName.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`
+    try {
+      const result = await signInWithGoogle(window.location.origin)
+      if (result?.error) {
+        setError(result.error)
       }
-    })
-    if (error) setError(error.message)
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!supabaseName) return
     setLoading(true)
     setError(null)
 
     try {
       if (mode === 'signup') {
+        if (!supabaseName) return
         if (!whatsapp) throw new Error('WhatsApp number is required for journey updates.')
 
         const { data, error: signUpError } = await supabaseName.auth.signUp({
@@ -64,29 +68,19 @@ export function ReturnForm() {
             .eq('id', data.user.id) as any)
         }
 
-
-
         router.push('/return')
       } else {
-        const { data, error: signInError } = await supabaseName.auth.signInWithPassword({
-          email,
-          password,
-        })
+        // Use Server Action for sign-in to bypass ISP blocks
+        const formData = new FormData()
+        formData.append('email', email)
+        formData.append('password', password)
 
-        if (signInError) throw signInError
+        const result = await login(formData)
 
-        // Role check and redirect
-        const { data: userData } = await supabaseName
-          .from('users')
-          .select('role')
-          .eq('id', data.user?.id)
-          .single()
-
-        if ((userData as any)?.role === 'admin') {
-          router.push('/admin')
-        } else {
-          router.push('/return')
+        if (result?.error) {
+          setError(result.error)
         }
+        // Redirect is handled inside the server action
       }
     } catch (err: any) {
       setError(err.message)
