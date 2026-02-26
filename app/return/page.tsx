@@ -51,10 +51,10 @@ export default function ReturnPage() {
         <div className="flex items-center justify-between mb-12">
           <div>
             <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-2">
-              Your memories
+              Welcome back, {user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Traveller'}
             </h1>
             <p className="font-sans text-muted-foreground">
-              Every journey you've taken with us
+              Here are your memories and past journeys with us
             </p>
           </div>
           <button
