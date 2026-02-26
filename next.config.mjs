@@ -16,6 +16,12 @@ const nextConfig = {
       },
     ],
   },
+  // Force CSS to be included in a way that doesn't depend on JS hydration
+  experimental: {
+    optimizeCss: false,
+  },
+  // Ensure output is compatible with Netlify
+  output: 'standalone',
 }
 
 export default nextConfig
