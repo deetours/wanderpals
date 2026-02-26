@@ -89,15 +89,20 @@ export function AllTripsDynamic() {
         .select('*')
         .eq('status', 'published')
         .order('created_at', { ascending: false })
-      
+
       if (error) {
-        console.error('Error fetching trips:', error)
+        console.error('Supabase Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
         setTrips([])
       } else {
         setTrips(data || [])
       }
-    } catch (error) {
-      console.error('Error fetching trips:', error)
+    } catch (error: any) {
+      console.error('Network or Runtime error fetching trips:', error.message || error)
       setTrips([])
     } finally {
       setLoading(false)

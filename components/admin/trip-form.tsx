@@ -19,7 +19,7 @@ export function TripForm({ trip, onSuccess }: TripFormProps) {
     duration: trip?.duration || 5,
     price: trip?.price || 0,
     group_size: trip?.group_size || 12,
-    status: trip?.status || 'draft',
+    status: trip?.status || 'published',
     image_url: trip?.image_url || '',
     is_featured: trip?.is_featured || false,
   })

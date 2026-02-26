@@ -50,8 +50,8 @@ export function TripsManager() {
             setShowForm(!showForm)
           }}
           className={`flex items-center gap-2 px-6 py-2.5 rounded-xl transition-all font-sans font-semibold text-sm shadow-lg ${showForm
-              ? 'bg-muted-foreground/10 text-muted-foreground'
-              : 'bg-primary text-background hover:bg-primary/90 shadow-primary/20'
+            ? 'bg-muted-foreground/10 text-muted-foreground'
+            : 'bg-primary text-background hover:bg-primary/90 shadow-primary/20'
             }`}
         >
           <Plus className={`h-4 w-4 transition-transform duration-300 ${showForm ? 'rotate-45' : ''}`} />
@@ -87,10 +87,10 @@ export function TripsManager() {
             >
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <h3 className="font-serif text-xl text-foreground group-hover:text-primary transition-colors">{trip.title}</h3>
+                  <h3 className="font-serif text-xl text-foreground group-hover:text-primary transition-colors">{trip.name}</h3>
                   <span className={`text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded ${trip.status === 'published' ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-500'
                     }`}>
-                    {trip.status}
+                    {trip.status || 'draft'}
                   </span>
                 </div>
 
@@ -136,6 +136,6 @@ export function TripsManager() {
           ))
         )}
       </div>
-    </div>
+    </div >
   )
 }
