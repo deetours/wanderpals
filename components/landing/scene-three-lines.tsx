@@ -6,21 +6,21 @@ import Image from "next/image"
 const threeLines = [
   {
     text: "Wake up somewhere new",
-    image: "/hero-foggy-valley-dawn2.jpg", // Switched to optimized jpg
+    image: "/hero-foggy-valley-dawn.png",
     position: "left",
-    priority: true, // Priority for first section
+    priority: true, // Forces immediate preload
   },
   {
     text: "Walk with strangers",
-    image: "/hero-campfire-spiti1.jpg", // Switched to optimized jpg
+    image: "/hero-campfire-spiti.png",
     position: "right",
-    priority: false,
+    priority: true, // Forces immediate preload
   },
   {
     text: "Leave with fewer goodbyes",
     image: "/hero-houseboat-kerala.jpg",
     position: "left",
-    priority: false,
+    priority: true, // Forces immediate preload
   },
 ]
 
@@ -66,8 +66,7 @@ export function SceneThreeLines() {
         >
           {/* Image */}
           <div
-            className={`relative aspect-video overflow-hidden rounded-lg transition-all duration-800 ease-out ${visibleLines[index] ? "opacity-100 scale-100" : "opacity-0 scale-95"
-              }`}
+            className="relative aspect-video overflow-hidden rounded-lg"
           >
             <Image
               src={line.image}
