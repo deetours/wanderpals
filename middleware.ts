@@ -64,14 +64,26 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL('/login', request.url))
         }
 
-        // Check for admin role
-        const { data: userData } = await supabase
-            .from('users')
+        // Check for admin role (check both profiles and users for safety)
+        let role = 'user'
+        const { data: profileData } = await supabase
+            .from('profiles')
             .select('role')
             .eq('id', session.user.id)
             .single()
 
-        if ((userData as any)?.role !== 'admin') {
+        if (profileData?.role) {
+            role = profileData.role
+        } else {
+            const { data: userData } = await supabase
+                .from('users')
+                .select('role')
+                .eq('id', session.user.id)
+                .single()
+            if (userData?.role) role = userData.role
+        }
+
+        if (role !== 'admin') {
             return NextResponse.redirect(new URL('/return', request.url))
         }
     }
