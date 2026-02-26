@@ -23,6 +23,8 @@ export function JourneysPage() {
       const { data, error } = await supabase
         .from('trips')
         .select('id, name, tagline, duration, image_url, group_size')
+        .eq('status', 'published')
+        .not('name', 'is', null)
         .eq('is_featured', true)
         .limit(5)
 
@@ -55,16 +57,14 @@ export function JourneysPage() {
       <section className="px-6 pt-32 pb-16 md:px-16 lg:px-24">
         <div className="mx-auto max-w-4xl">
           <h1
-            className={`font-serif text-4xl md:text-6xl lg:text-7xl text-foreground transition-all duration-700 ease-out ${
-              mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
+            className={`font-serif text-4xl md:text-6xl lg:text-7xl text-foreground transition-all duration-700 ease-out ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
           >
             Journeys for people who don't rush places.
           </h1>
           <p
-            className={`mt-6 font-sans text-lg md:text-xl text-muted-foreground transition-all duration-700 ease-out ${
-              mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-            }`}
+            className={`mt-6 font-sans text-lg md:text-xl text-muted-foreground transition-all duration-700 ease-out ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+              }`}
             style={{ transitionDelay: "200ms" }}
           >
             Small groups. Local routes. Real pace.

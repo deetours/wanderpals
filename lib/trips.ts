@@ -6,6 +6,7 @@ export async function getTrips() {
         .from('trips')
         .select('*')
         .eq('status', 'published')
+        .not('name', 'is', null)
         .order('created_at', { ascending: false })
 
     if (error) {

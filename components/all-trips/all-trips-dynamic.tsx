@@ -88,6 +88,7 @@ export function AllTripsDynamic({ initialTrips = [] }: { initialTrips?: any[] })
         .from('trips')
         .select('*')
         .eq('status', 'published')
+        .not('name', 'is', null)
         .order('created_at', { ascending: false })
 
       if (error) {
