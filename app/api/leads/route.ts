@@ -1,14 +1,11 @@
-import { createServerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
-    // We allow public POST for lead capture, or authenticated one
+    // Public endpoint — no auth required for lead capture
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-    // Use a simple client for public lead submission
-    const { createClient } = await import('@supabase/supabase-js')
     const supabase = createClient(supabaseUrl, supabaseKey)
 
     try {
@@ -19,7 +16,6 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Phone or Email is required' }, { status: 400 })
         }
 
-        // Check for "WANDERPALS_SECRET" to identify trusted external tools like PhantomBuster
         const authHeader = req.headers.get('Authorization')
         const actualSource = authHeader === `Bearer ${process.env.INTERNAL_API_SECRET}`
             ? (source || 'external_tool')
@@ -48,27 +44,20 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
-    const cookieStore = await cookies()
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        { cookies: { get: (name) => cookieStore.get(name)?.value } }
-    )
-
+    const supabase = await createSupabaseServerClient()
     const { data: { session } } = await supabase.auth.getSession()
 
     if (!session) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check admin role
-    const { data: userData } = await supabase
-        .from('users')
+    const { data: profileData } = await supabase
+        .from('profiles')
         .select('role')
         .eq('id', session.user.id)
         .single()
 
-    if ((userData as any)?.role !== 'admin') {
+    if ((profileData as any)?.role !== 'admin') {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

@@ -1,16 +1,8 @@
-import { createServerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
-    const cookieStore = await cookies()
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        { cookies: { get: (name) => cookieStore.get(name)?.value } }
-    )
-
-
+    const supabase = await createSupabaseServerClient()
     const { data: { session } } = await supabase.auth.getSession()
 
     if (!session) {
@@ -18,8 +10,8 @@ export async function GET() {
     }
 
     const { data: user, error } = await supabase
-        .from('users')
-        .select('*, profiles(*)')
+        .from('profiles')
+        .select('*')
         .eq('id', session.user.id)
         .single()
 
@@ -31,14 +23,7 @@ export async function GET() {
 }
 
 export async function PATCH(req: Request) {
-    const cookieStore = await cookies()
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        { cookies: { get: (name) => cookieStore.get(name)?.value } }
-    )
-
-
+    const supabase = await createSupabaseServerClient()
     const { data: { session } } = await supabase.auth.getSession()
 
     if (!session) {
@@ -63,5 +48,5 @@ export async function PATCH(req: Request) {
         return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ profile: data[0] })
+    return NextResponse.json({ profile: (data as any)[0] })
 }
