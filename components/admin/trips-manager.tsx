@@ -101,7 +101,7 @@ export function TripsManager() {
                   </div>
                   <div className="flex items-center gap-1.5 bg-muted-foreground/5 px-2 py-1 rounded">
                     <Users className="h-3 w-3" />
-                    Max {trip.max_group_size}
+                    Max {trip.group_size}
                   </div>
                   <div className="flex items-center gap-1.5 bg-muted-foreground/5 px-2 py-1 rounded">
                     <Globe className="h-3 w-3" />

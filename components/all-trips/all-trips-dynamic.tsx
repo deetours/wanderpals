@@ -84,11 +84,18 @@ export function AllTripsDynamic() {
     if (!client) return
     setLoading(true)
     try {
-      const { data } = await client
+      const { data, error } = await client
         .from('trips')
         .select('*')
+        .eq('status', 'published')
         .order('created_at', { ascending: false })
-      setTrips(data || [])
+      
+      if (error) {
+        console.error('Error fetching trips:', error)
+        setTrips([])
+      } else {
+        setTrips(data || [])
+      }
     } catch (error) {
       console.error('Error fetching trips:', error)
       setTrips([])
@@ -135,7 +142,7 @@ export function AllTripsDynamic() {
           if (moodFilters.duration === 'short' && days > 7) return false
           if (moodFilters.duration === 'long' && days <= 7) return false
         }
-        if (moodFilters.smallGroup && trip.max_group_size && trip.max_group_size > 10) return false
+        if (moodFilters.smallGroup && trip.group_size && trip.group_size > 10) return false
       }
 
       return true
@@ -238,7 +245,7 @@ export function AllTripsDynamic() {
                   ...trip,
                   name: trip.name || trip.title,
                   image: trip.image_url || trip.image || "/placeholder.jpg",
-                  groupSize: trip.max_group_size || "8-10"
+                  groupSize: trip.group_size || "8-10"
                 };
 
                 return (

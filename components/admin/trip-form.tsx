@@ -12,12 +12,13 @@ export function TripForm({ trip, onSuccess }: TripFormProps) {
   const [loading, setLoading] = useState(false)
   const [supabase, setSupabase] = useState<any>(null)
   const [formData, setFormData] = useState({
-    title: trip?.title || '',
+    name: trip?.name || '',
     description: trip?.description || '',
     region: trip?.region || '',
+    terrain: trip?.terrain || '',
     duration: trip?.duration || 5,
     price: trip?.price || 0,
-    max_group_size: trip?.max_group_size || 12,
+    group_size: trip?.group_size || 12,
     status: trip?.status || 'draft',
     image_url: trip?.image_url || '',
     is_featured: trip?.is_featured || false,
@@ -64,8 +65,8 @@ export function TripForm({ trip, onSuccess }: TripFormProps) {
           <label className="block text-sm font-semibold text-foreground">Trip Title</label>
           <input
             type="text"
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             className="w-full px-4 py-2.5 bg-background border border-muted-foreground/20 rounded-xl text-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
             required
             placeholder="e.g. Spiti Valley Expedition"
@@ -81,6 +82,25 @@ export function TripForm({ trip, onSuccess }: TripFormProps) {
             className="w-full px-4 py-2.5 bg-background border border-muted-foreground/20 rounded-xl text-foreground focus:border-primary outline-none transition-all"
             placeholder="e.g. Himachal Pradesh"
           />
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-foreground">Terrain</label>
+          <select
+            value={formData.terrain}
+            onChange={(e) => setFormData({ ...formData, terrain: e.target.value })}
+            className="w-full px-4 py-2.5 bg-background border border-muted-foreground/20 rounded-xl text-foreground focus:border-primary outline-none appearance-none"
+            required
+          >
+            <option value="">Select terrain type</option>
+            <option value="mountains">Mountains</option>
+            <option value="forest">Forest</option>
+            <option value="coast">Coast</option>
+            <option value="desert">Desert</option>
+            <option value="plateaus">Plateaus</option>
+            <option value="valleys">Valleys</option>
+            <option value="mixed">Mixed Terrain</option>
+          </select>
         </div>
       </div>
 
@@ -108,8 +128,8 @@ export function TripForm({ trip, onSuccess }: TripFormProps) {
           <label className="block text-sm font-semibold text-foreground">Max Group Size</label>
           <input
             type="number"
-            value={formData.max_group_size}
-            onChange={(e) => setFormData({ ...formData, max_group_size: parseInt(e.target.value) })}
+            value={formData.group_size}
+            onChange={(e) => setFormData({ ...formData, group_size: parseInt(e.target.value) })}
             className="w-full px-4 py-2.5 bg-background border border-muted-foreground/20 rounded-xl text-foreground focus:border-primary outline-none"
           />
         </div>

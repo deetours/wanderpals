@@ -279,7 +279,7 @@ export function TripDetailsDynamic({ tripId }: TripDetailsDynamicProps) {
           <div className="grid gap-12 md:grid-cols-4">
             {[
               { label: "Duration", value: `${trip.duration} Days`, icon: <Calendar className="h-4 w-4" /> },
-              { label: "Group Size", value: `${trip.max_group_size || "8–10"} Max`, icon: <Users className="h-4 w-4" /> },
+              { label: "Group Size", value: `${trip.group_size || "8–10"} Max`, icon: <Users className="h-4 w-4" /> },
               { label: "Terrain", value: trip.terrain || "Mountains", icon: <Mountain className="h-4 w-4" /> },
               { label: "Cost", value: `₹${trip.price?.toLocaleString()}`, icon: <CreditCard className="h-4 w-4" /> },
             ].map((stat, i) => (

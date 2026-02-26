@@ -24,29 +24,40 @@ export function AnalyticsDashboard() {
     if (!client) return
     setLoading(true)
     
-    const { count: usersCount } = await client
-      .from('users')
-      .select('*', { count: 'exact', head: true })
-    
-    const { count: bookingsCount } = await client
-      .from('bookings')
-      .select('*', { count: 'exact', head: true })
-    
-    const { count: tripsCount } = await supabase
-      .from('trips')
-      .select('*', { count: 'exact', head: true })
-    
-    const { count: staysCount } = await supabase
-      .from('stays')
-      .select('*', { count: 'exact', head: true })
+    try {
+      const { count: usersCount, error: usersError } = await client
+        .from('users')
+        .select('*', { count: 'exact', head: true })
+      
+      const { count: bookingsCount, error: bookingsError } = await client
+        .from('bookings')
+        .select('*', { count: 'exact', head: true })
+      
+      const { count: tripsCount, error: tripsError } = await client
+        .from('trips')
+        .select('*', { count: 'exact', head: true })
+      
+      const { count: staysCount, error: staysError } = await client
+        .from('stays')
+        .select('*', { count: 'exact', head: true })
 
-    setStats({
-      totalUsers: usersCount || 0,
-      totalBookings: bookingsCount || 0,
-      totalTrips: tripsCount || 0,
-      totalStays: staysCount || 0,
-    })
-    setLoading(false)
+      setStats({
+        totalUsers: usersCount || 0,
+        totalBookings: bookingsCount || 0,
+        totalTrips: tripsCount || 0,
+        totalStays: staysCount || 0,
+      })
+    } catch (err) {
+      console.error('Analytics fetch error:', err)
+      setStats({
+        totalUsers: 0,
+        totalBookings: 0,
+        totalTrips: 0,
+        totalStays: 0,
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const cards = [

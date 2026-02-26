@@ -80,7 +80,7 @@ export function ExperienceArchive({ userId }: ExperienceArchiveProps) {
         .from('memories')
         .select(`
           *,
-          trips (title, duration, max_group_size)
+          trips (name, duration, group_size)
         `)
         .eq('user_id', userId)
 
@@ -90,11 +90,11 @@ export function ExperienceArchive({ userId }: ExperienceArchiveProps) {
         const transformedData: Experience[] = dbMemories.map((m: any) => ({
           id: m.id,
           type: 'trip',
-          title: m.trips?.title || 'Unknown Trip',
+          title: m.trips?.name || 'Unknown Trip',
           image: m.media_urls?.[0] || '/cozy-hostel-dorm-warm-lights-quiet-evening-mountai.jpg',
           date: new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
           duration: m.trips?.duration ? `${m.trips.duration} days` : 'TBD',
-          people: m.trips?.max_group_size || 0,
+          people: m.trips?.group_size || 0,
           memories: m.content ? [m.content] : [],
           saved: false
         }))

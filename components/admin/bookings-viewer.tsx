@@ -18,16 +18,24 @@ export function BookingsViewer() {
   const fetchBookings = async (client: typeof supabase) => {
     if (!client) return
     setLoading(true)
-    const { data } = await client
-      .from('bookings')
-      .select(`
-        *,
-        trip:trips(name),
-        stay:stays(name)
-      `)
-      .order('created_at', { ascending: false })
-    setBookings(data || [])
-    setLoading(false)
+    try {
+      const { data, error } = await client
+        .from('bookings')
+        .select('*')
+        .order('created_at', { ascending: false })
+      
+      if (error) {
+        console.error('Bookings fetch error:', error)
+        setBookings([])
+      } else {
+        setBookings(data || [])
+      }
+    } catch (err) {
+      console.error('Bookings fetch exception:', err)
+      setBookings([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   const getStatusIcon = (status: string) => {
@@ -64,12 +72,12 @@ export function BookingsViewer() {
             <tbody>
               {bookings.map((booking) => (
                 <tr key={booking.id} className="border-b border-muted-foreground/5 hover:bg-foreground/5 transition-colors">
-                  <td className="py-3 px-4 text-foreground">{booking.user_email}</td>
+                  <td className="py-3 px-4 text-foreground">{booking.whatsapp_phone || 'N/A'}</td>
                   <td className="py-3 px-4 text-foreground">
-                    {booking.trip?.name || booking.stay?.name}
+                    {booking.trip_id ? 'Trip Booking' : booking.stay_id ? 'Stay Booking' : 'Unknown'}
                   </td>
                   <td className="py-3 px-4 text-muted-foreground">
-                    {booking.booking_type === 'trip' ? 'Trip' : 'Stay'}
+                    {booking.trip_id ? 'Trip' : 'Stay'}
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-2">

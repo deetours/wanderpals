@@ -18,12 +18,24 @@ export function LeadsManager() {
     const fetchLeads = async (client: any) => {
         if (!client) return
         setLoading(true)
-        const { data } = await client
-            .from('leads')
-            .select('*')
-            .order('created_at', { ascending: false })
-        setLeads(data || [])
-        setLoading(false)
+        try {
+          const { data, error } = await client
+              .from('leads')
+              .select('*')
+              .order('created_at', { ascending: false })
+          
+          if (error) {
+            console.error('Leads fetch error:', error)
+            setLeads([])
+          } else {
+            setLeads(data || [])
+          }
+        } catch (err) {
+          console.error('Leads fetch exception:', err)
+          setLeads([])
+        } finally {
+          setLoading(false)
+        }
     }
 
     const updateLeadStatus = async (id: string, status: string) => {
