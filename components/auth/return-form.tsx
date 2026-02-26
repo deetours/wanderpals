@@ -95,7 +95,7 @@ export function ReturnForm() {
             .from('profiles')
             .select('role')
             .eq('id', userId)
-            .single() as any)
+            .maybeSingle() as any)
 
           if (profileData?.role === 'admin') {
             redirectUrl = '/admin'
@@ -105,7 +105,7 @@ export function ReturnForm() {
               .from('users')
               .select('role')
               .eq('id', userId)
-              .single() as any)
+              .maybeSingle() as any)
 
             if (userData?.role === 'admin') {
               redirectUrl = '/admin'
@@ -113,7 +113,7 @@ export function ReturnForm() {
           }
         }
 
-        // Hard redirect to pick up session
+        // Hard redirect to pick up new session cookie in middleware
         window.location.href = redirectUrl
       }
     } catch (err: any) {
