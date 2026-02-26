@@ -1,5 +1,1 @@
-# MIME types for static assets
-/_next/static/*.css
-  Content-Type: text/css
-/_next/static/*.js
-  Content-Type: text/javascript
+# Static asset MIME types handled in netlify.toml
