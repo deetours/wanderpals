@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 
-const revealLines = ["Wake up somewhere new", "Walk with strangers", "Leave with fewer goodbyes"]
+const revealLines = ["Trade the rush for the rhythm", "Stay until it feels like home", "Let the journey change you"]
 
 export function SceneReveal() {
   const [isVisible, setIsVisible] = useState(false)
@@ -42,9 +42,8 @@ export function SceneReveal() {
   return (
     <section ref={sectionRef} className="relative min-h-screen overflow-hidden">
       <div
-        className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
-          isVisible ? "opacity-100" : "opacity-0"
-        }`}
+        className={`absolute inset-0 transition-opacity duration-1000 ease-out ${isVisible ? "opacity-100" : "opacity-0"
+          }`}
         style={{ transitionDelay: "200ms" }}
       >
         <div
@@ -61,9 +60,8 @@ export function SceneReveal() {
           {revealLines.map((line, index) => (
             <p
               key={index}
-              className={`font-serif text-2xl md:text-4xl lg:text-5xl text-foreground transition-all duration-700 ease-out ${
-                activeLineIndex >= index ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-              }`}
+              className={`font-serif text-2xl md:text-4xl lg:text-5xl text-foreground transition-all duration-700 ease-out ${activeLineIndex >= index ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+                }`}
             >
               {line}
             </p>
