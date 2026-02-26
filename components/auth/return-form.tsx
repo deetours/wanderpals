@@ -82,8 +82,8 @@ export function ReturnForm() {
         if (result?.error) {
           setError(result.error)
         } else if (result?.redirectUrl) {
-          router.push(result.redirectUrl)
-          router.refresh()
+          // Hard redirect ensure session is picked up by the new page
+          window.location.href = result.redirectUrl
         }
       }
     } catch (err: any) {

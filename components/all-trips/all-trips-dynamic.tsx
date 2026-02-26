@@ -40,9 +40,9 @@ const moodKeywords: Record<string, { terrain?: string[]; duration?: string; grou
   dunes: { terrain: ['desert'] },
 }
 
-export function AllTripsDynamic() {
-  const [trips, setTrips] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+export function AllTripsDynamic({ initialTrips = [] }: { initialTrips?: any[] }) {
+  const [trips, setTrips] = useState<any[]>(initialTrips)
+  const [loading, setLoading] = useState(!initialTrips || initialTrips.length === 0)
   const [filtersExpanded, setFiltersExpanded] = useState(false)
   const [moodSearch, setMoodSearch] = useState('')
   const [showSecondHalf, setShowSecondHalf] = useState(false)
@@ -59,8 +59,13 @@ export function AllTripsDynamic() {
     const client = createClientComponentClient()
     setSupabase(client)
     setMounted(true)
-    fetchTrips(client)
-  }, [])
+
+    if (!initialTrips || initialTrips.length === 0) {
+      fetchTrips(client)
+    } else {
+      setLoading(false)
+    }
+  }, [initialTrips])
 
   // Observe mid-page pause to trigger second half
   useEffect(() => {
@@ -89,7 +94,7 @@ export function AllTripsDynamic() {
         .select('*')
         .eq('status', 'published')
         .order('created_at', { ascending: false })
-      
+
       if (error) {
         console.error('Error fetching trips:', error)
         setTrips([])

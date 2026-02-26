@@ -21,18 +21,28 @@ export async function login(formData: FormData) {
         return { error: error.message }
     }
 
-    // Check role and determine redirect
-    const { data: userData, error: roleError } = await supabase
-        .from('users')
+    // Check role and determine redirect (checking both profiles and users for safety)
+    let role = 'user'
+
+    const { data: profileData } = await supabase
+        .from('profiles')
         .select('role')
         .eq('id', data.user?.id)
         .single()
 
-    if (roleError || !userData) {
-        return { success: true, redirectUrl: '/return' }
+    if (profileData?.role) {
+        role = profileData.role
+    } else {
+        // Fallback to 'users' table if profile doesn't have it
+        const { data: userData } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', data.user?.id)
+            .single()
+        if (userData?.role) role = userData.role
     }
 
-    if ((userData as any).role === 'admin') {
+    if (role === 'admin') {
         return { success: true, redirectUrl: '/admin' }
     } else {
         return { success: true, redirectUrl: '/return' }
