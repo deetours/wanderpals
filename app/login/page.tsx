@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { ReturnForm } from '@/components/auth/return-form'
 
+export const dynamic = 'force-dynamic'
+
 export default function LoginPage() {
   return (
     <main className="grain min-h-screen bg-background flex items-center justify-center px-6">
