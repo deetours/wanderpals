@@ -5,7 +5,7 @@ import { createClientComponentClient } from '@/lib/supabase-client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff, Mail, Lock, User, Phone, LogIn } from 'lucide-react'
-import { login, signInWithGoogle } from '@/app/auth/actions'
+import { signInWithGoogle } from '@/app/auth/actions'
 
 export function ReturnForm() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
@@ -17,7 +17,7 @@ export function ReturnForm() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const supabaseName = createClientComponentClient()
+  const supabase = createClientComponentClient()
 
   const handleGoogleLogin = async () => {
     setLoading(true)
@@ -42,11 +42,15 @@ export function ReturnForm() {
     setError(null)
 
     try {
+      if (!supabase) {
+        setError('Unable to connect. Please try again.')
+        return
+      }
+
       if (mode === 'signup') {
-        if (!supabaseName) return
         if (!whatsapp) throw new Error('WhatsApp number is required for journey updates.')
 
-        const { data, error: signUpError } = await supabaseName.auth.signUp({
+        const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -59,9 +63,8 @@ export function ReturnForm() {
 
         if (signUpError) throw signUpError
 
-        // Manual profile update for safety
         if (data.user) {
-          await (supabaseName
+          await (supabase
             .from('profiles' as any)
             .update({
               full_name: fullName,
@@ -70,29 +73,50 @@ export function ReturnForm() {
             .eq('id', data.user.id) as any)
         }
 
-        router.push('/return')
+        window.location.href = '/return'
       } else {
-        // Use Server Action for sign-in to bypass ISP blocks
-        const formData = new FormData()
-        formData.append('email', email)
-        formData.append('password', password)
+        // Direct client-side login (DNS is now fixed)
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
 
-        console.log('Sending login request to server action...')
-        const result = await login(formData)
-        console.log('Server action result:', result)
-
-        if (result?.error) {
-          setError(result.error)
-        } else if (result?.redirectUrl) {
-          console.log(`Success! Redirecting to ${result.redirectUrl}`)
-          // Hard redirect ensure session is picked up by the new page
-          window.location.href = result.redirectUrl
-        } else {
-          console.warn('Login action returned success but no redirect URL.')
+        if (signInError) {
+          setError(signInError.message)
+          return
         }
+
+        // Check role for redirect
+        const userId = data.user?.id
+        let redirectUrl = '/return'
+
+        if (userId) {
+          const { data: profileData } = await (supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', userId)
+            .single() as any)
+
+          if (profileData?.role === 'admin') {
+            redirectUrl = '/admin'
+          } else {
+            // Fallback check
+            const { data: userData } = await (supabase
+              .from('users')
+              .select('role')
+              .eq('id', userId)
+              .single() as any)
+
+            if (userData?.role === 'admin') {
+              redirectUrl = '/admin'
+            }
+          }
+        }
+
+        // Hard redirect to pick up session
+        window.location.href = redirectUrl
       }
     } catch (err: any) {
-      console.error('Submit handling error:', err)
       setError(err.message)
     } finally {
       setLoading(false)
