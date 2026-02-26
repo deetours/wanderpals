@@ -9,9 +9,9 @@ import { StayCard } from './stay-card'
 import { StayFilters } from './stay-filters'
 import { Footer } from '../ui/footer'
 
-export function ExploreStaysDynamic() {
-  const [stays, setStays] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+export function ExploreStaysDynamic({ initialStays = [] }: { initialStays?: any[] }) {
+  const [stays, setStays] = useState<any[]>(initialStays)
+  const [loading, setLoading] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState({
     type: 'all',
@@ -19,26 +19,30 @@ export function ExploreStaysDynamic() {
     vibe: 'all',
   })
   const [mounted, setMounted] = useState(false)
-  const [supabase, setSupabase] = useState<ReturnType<typeof createClientComponentClient> | null>(null)
 
   useEffect(() => {
-    const client = createClientComponentClient()
-    setSupabase(client)
     setMounted(true)
-    fetchStays(client)
+    if (initialStays.length === 0) {
+      const client = createClientComponentClient()
+      if (client) fetchStays(client)
+    }
     const timer = setTimeout(() => setShowFilters(true), 1500)
     return () => clearTimeout(timer)
-  }, [])
+  }, [initialStays])
 
-  const fetchStays = async (client: typeof supabase) => {
-    if (!client) return
+  const fetchStays = async (client: any) => {
     setLoading(true)
-    const { data } = await client
-      .from('stays')
-      .select('*')
-      .order('created_at', { ascending: false })
-    setStays(data || [])
-    setLoading(false)
+    try {
+      const { data } = await client
+        .from('stays')
+        .select('*')
+        .order('created_at', { ascending: false })
+      setStays(data || [])
+    } catch (err) {
+      console.error('Fetch stays error:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const filteredStays = stays.filter((stay) => {

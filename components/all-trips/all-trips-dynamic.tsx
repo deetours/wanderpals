@@ -40,9 +40,9 @@ const moodKeywords: Record<string, { terrain?: string[]; duration?: string; grou
   dunes: { terrain: ['desert'] },
 }
 
-export function AllTripsDynamic() {
-  const [trips, setTrips] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+export function AllTripsDynamic({ initialTrips = [] }: { initialTrips?: any[] }) {
+  const [trips, setTrips] = useState<any[]>(initialTrips)
+  const [loading, setLoading] = useState(false)
   const [filtersExpanded, setFiltersExpanded] = useState(false)
   const [moodSearch, setMoodSearch] = useState('')
   const [showSecondHalf, setShowSecondHalf] = useState(false)
@@ -52,15 +52,16 @@ export function AllTripsDynamic() {
     duration: 'all',
   })
   const [mounted, setMounted] = useState(false)
-  const [supabase, setSupabase] = useState<ReturnType<typeof createClientComponentClient> | null>(null)
   const midPauseRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const client = createClientComponentClient()
-    setSupabase(client)
     setMounted(true)
-    fetchTrips(client)
-  }, [])
+    if (initialTrips.length === 0) {
+      // Only fetch if nothing was provided (unlikely in SSR)
+      const client = createClientComponentClient()
+      if (client) fetchTrips(client)
+    }
+  }, [initialTrips])
 
   // Observe mid-page pause to trigger second half
   useEffect(() => {
@@ -80,8 +81,7 @@ export function AllTripsDynamic() {
     return () => observer.disconnect()
   }, [])
 
-  const fetchTrips = async (client: typeof supabase) => {
-    if (!client) return
+  const fetchTrips = async (client: any) => {
     setLoading(true)
     try {
       const { data, error } = await client
@@ -91,19 +91,12 @@ export function AllTripsDynamic() {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.error('Supabase Error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        })
-        setTrips([])
+        console.error('Supabase Error:', error)
       } else {
         setTrips(data || [])
       }
     } catch (error: any) {
-      console.error('Network or Runtime error fetching trips:', error.message || error)
-      setTrips([])
+      console.error('Fetch error:', error)
     } finally {
       setLoading(false)
     }
