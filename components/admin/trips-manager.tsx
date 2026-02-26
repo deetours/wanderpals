@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClientComponentClient } from '@/lib/supabase-client'
-import { Plus, Edit2, Trash2, Globe, Users, Clock } from 'lucide-react'
+import { Plus, Edit2, Trash2, Globe, Users, Clock, MapPin, Eye } from 'lucide-react'
 import { TripForm } from './trip-form'
 
 export function TripsManager() {
@@ -50,8 +50,8 @@ export function TripsManager() {
             setShowForm(!showForm)
           }}
           className={`flex items-center gap-2 px-6 py-2.5 rounded-xl transition-all font-sans font-semibold text-sm shadow-lg ${showForm
-              ? 'bg-muted-foreground/10 text-muted-foreground'
-              : 'bg-primary text-background hover:bg-primary/90 shadow-primary/20'
+            ? 'bg-muted-foreground/10 text-muted-foreground'
+            : 'bg-primary text-background hover:bg-primary/90 shadow-primary/20'
             }`}
         >
           <Plus className={`h-4 w-4 transition-transform duration-300 ${showForm ? 'rotate-45' : ''}`} />
@@ -60,7 +60,7 @@ export function TripsManager() {
       </div>
 
       {/* Trip Form */}
-      <div className={`transition-all duration-500 ease-in-out overflow-hidden ${showForm ? 'max-h-[1000px] opacity-100 mb-12' : 'max-h-0 opacity-0 pointer-events-none'
+      <div className={`transition-all duration-500 ease-in-out overflow-hidden ${showForm ? 'max-h-[3000px] opacity-100 mb-12' : 'max-h-0 opacity-0 pointer-events-none'
         }`}>
         <TripForm
           trip={editingTrip}
@@ -85,30 +85,61 @@ export function TripsManager() {
               key={trip.id}
               className="p-6 bg-card border border-primary/5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-xl hover:border-primary/20 transition-all group"
             >
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <h3 className="font-serif text-xl text-foreground group-hover:text-primary transition-colors">{trip.title}</h3>
-                  <span className={`text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded ${trip.status === 'published' ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-500'
-                    }`}>
-                    {trip.status}
-                  </span>
-                </div>
+              <div className="flex gap-4 items-start flex-1">
+                {trip.image_url && (
+                  <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-muted-foreground/10">
+                    <img src={trip.image_url} alt={trip.name} className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <h3 className="font-serif text-xl text-foreground group-hover:text-primary transition-colors">{trip.name || trip.title}</h3>
+                    <span className={`text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded ${trip.status === 'published' ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-500'
+                      }`}>
+                      {trip.status}
+                    </span>
+                  </div>
 
-                <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground uppercase tracking-widest">
-                  <div className="flex items-center gap-1.5 bg-muted-foreground/5 px-2 py-1 rounded">
-                    <Clock className="h-3 w-3" />
-                    {trip.duration} Days
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground uppercase tracking-widest">
+                    <div className="flex items-center gap-1.5 bg-muted-foreground/5 px-2 py-1 rounded">
+                      <Clock className="h-3 w-3" />
+                      {trip.duration} Days
+                    </div>
+                    <div className="flex items-center gap-1.5 bg-muted-foreground/5 px-2 py-1 rounded">
+                      <Users className="h-3 w-3" />
+                      Max {trip.group_size}
+                    </div>
+                    <div className="flex items-center gap-1.5 bg-muted-foreground/5 px-2 py-1 rounded">
+                      <Globe className="h-3 w-3" />
+                      {trip.region || 'Remote'}
+                    </div>
+                    <div className="font-sans font-bold text-foreground bg-primary/10 px-2 py-1 rounded text-primary">
+                      ₹{trip.price?.toLocaleString()}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-muted-foreground/5 px-2 py-1 rounded">
-                    <Users className="h-3 w-3" />
-                    Max {trip.group_size}
-                  </div>
-                  <div className="flex items-center gap-1.5 bg-muted-foreground/5 px-2 py-1 rounded">
-                    <Globe className="h-3 w-3" />
-                    {trip.region || 'Remote'}
-                  </div>
-                  <div className="font-sans font-bold text-foreground bg-primary/10 px-2 py-1 rounded text-primary">
-                    ₹{trip.price?.toLocaleString()}
+
+                  {/* Visibility Badges */}
+                  <div className="flex flex-wrap gap-2">
+                    {trip.show_on_all_trips !== false && (
+                      <span className="flex items-center gap-1 px-2 py-0.5 bg-blue-500/10 text-blue-400 rounded text-[10px] font-semibold uppercase tracking-wider">
+                        <Eye className="h-3 w-3" /> All Trips
+                      </span>
+                    )}
+                    {trip.is_featured && (
+                      <span className="flex items-center gap-1 px-2 py-0.5 bg-emerald-500/10 text-emerald-400 rounded text-[10px] font-semibold uppercase tracking-wider">
+                        <MapPin className="h-3 w-3" /> Journeys
+                      </span>
+                    )}
+                    {trip.itinerary && trip.itinerary.length > 0 && (
+                      <span className="px-2 py-0.5 bg-purple-500/10 text-purple-400 rounded text-[10px] font-semibold uppercase tracking-wider">
+                        {trip.itinerary.length}-Day Itinerary
+                      </span>
+                    )}
+                    {trip.inclusions && trip.inclusions.length > 0 && (
+                      <span className="px-2 py-0.5 bg-amber-500/10 text-amber-400 rounded text-[10px] font-semibold uppercase tracking-wider">
+                        {trip.inclusions.length} Inclusions
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

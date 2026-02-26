@@ -27,16 +27,26 @@ export default function AdminPage() {
         return
       }
 
-      const { data: userData } = await client
-        .from('users')
+      const { data: profileData } = await client
+        .from('profiles')
         .select('role')
         .eq('id', user.id)
         .single()
 
-      if ((userData as any)?.role !== 'admin') {
+      const role = (profileData as any)?.role || 'user'
 
-        router.push('/return')
-        return
+      if (role !== 'admin') {
+        // fallback to users table
+        const { data: userData } = await client
+          .from('users')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+
+        if ((userData as any)?.role !== 'admin') {
+          router.push('/return')
+          return
+        }
       }
 
       setUser(user)
