@@ -23,7 +23,7 @@ export function AdminDashboard() {
   return (
     <div className="space-y-8">
       {/* Tab Navigation */}
-      <div className="flex gap-2 border-b border-muted-foreground/10">
+      <div className="flex gap-2 border-b border-muted-foreground/10 overflow-x-auto whitespace-nowrap scrollbar-hide pb-1">
         {tabs.map((tab) => (
           <button
             key={tab.id}

@@ -23,20 +23,20 @@ export function AnalyticsDashboard() {
   const fetchStats = async (client: typeof supabase) => {
     if (!client) return
     setLoading(true)
-    
+
     try {
       const { count: usersCount, error: usersError } = await client
         .from('users')
         .select('*', { count: 'exact', head: true })
-      
+
       const { count: bookingsCount, error: bookingsError } = await client
         .from('bookings')
         .select('*', { count: 'exact', head: true })
-      
+
       const { count: tripsCount, error: tripsError } = await client
         .from('trips')
         .select('*', { count: 'exact', head: true })
-      
+
       const { count: staysCount, error: staysError } = await client
         .from('stays')
         .select('*', { count: 'exact', head: true })
@@ -68,7 +68,7 @@ export function AnalyticsDashboard() {
   ]
 
   return (
-    <div className="grid md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       {cards.map((card) => (
         <div
           key={card.label}

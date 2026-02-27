@@ -43,7 +43,7 @@ export function TripsManager() {
   return (
     <div className="space-y-8">
       {/* Header with Add Button */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h2 className="font-serif text-2xl text-foreground">Expeditions Cache</h2>
         <button
           onClick={() => {
@@ -74,7 +74,7 @@ export function TripsManager() {
 
       {/* Tabs */}
       {!loading && trips.length > 0 && (
-        <div className="flex items-center gap-4 border-b border-muted-foreground/10 pb-4 mb-6">
+        <div className="flex items-center gap-4 border-b border-muted-foreground/10 pb-4 mb-6 overflow-x-auto whitespace-nowrap scrollbar-hide">
           {(['published', 'draft', 'archived'] as const).map((tab) => {
             const count = trips.filter(t => (t.status || 'draft') === tab).length
             return (
@@ -114,11 +114,11 @@ export function TripsManager() {
             .map((trip) => (
               <div
                 key={trip.id}
-                className="p-6 bg-card border border-primary/5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-xl hover:border-primary/20 transition-all group"
+                className="p-4 sm:p-6 bg-card border border-primary/5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 hover:shadow-xl hover:border-primary/20 transition-all group"
               >
-                <div className="flex gap-4 items-start flex-1">
+                <div className="flex flex-col sm:flex-row gap-4 items-start flex-1">
                   {trip.image_url && (
-                    <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-muted-foreground/10">
+                    <div className="w-full sm:w-20 h-40 sm:h-20 rounded-xl overflow-hidden shrink-0 border border-muted-foreground/10">
                       <img src={trip.image_url} alt={trip.name} className="w-full h-full object-cover" />
                     </div>
                   )}

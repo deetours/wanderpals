@@ -120,7 +120,7 @@ export function LeadsManager() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2.5 bg-background border border-muted-foreground/20 rounded-xl text-sm text-foreground focus:border-primary outline-none" placeholder="Search leads..." />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide pb-1">
                     {['all', 'new', 'contacted', 'interested', 'converted', 'lost'].map(f => (
                         <button key={f} onClick={() => setFilter(f)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${filter === f ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted-foreground/10'}`}>
                             {f.charAt(0).toUpperCase() + f.slice(1)}

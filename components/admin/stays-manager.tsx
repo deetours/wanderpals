@@ -40,7 +40,7 @@ export function StaysManager() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h2 className="font-serif text-2xl text-foreground">Stays & Retreats</h2>
         <button
           onClick={() => { setEditingStay(null); setShowForm(!showForm) }}
@@ -65,10 +65,10 @@ export function StaysManager() {
           </div>
         ) : (
           stays.map((stay) => (
-            <div key={stay.id} className="p-6 bg-card border border-primary/5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-xl hover:border-primary/20 transition-all group">
-              <div className="flex gap-4 items-start flex-1">
+            <div key={stay.id} className="p-4 sm:p-6 bg-card border border-primary/5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 hover:shadow-xl hover:border-primary/20 transition-all group">
+              <div className="flex flex-col sm:flex-row gap-4 items-start flex-1 w-full">
                 {stay.image_url && (
-                  <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-muted-foreground/10">
+                  <div className="w-full sm:w-20 h-40 sm:h-20 rounded-xl overflow-hidden shrink-0 border border-muted-foreground/10">
                     <img src={stay.image_url} alt={stay.name} className="w-full h-full object-cover" />
                   </div>
                 )}
@@ -88,8 +88,8 @@ export function StaysManager() {
                   {stay.tagline && <p className="text-xs text-muted-foreground italic">{stay.tagline}</p>}
                 </div>
               </div>
-              <div className="flex items-center gap-3 border-t md:border-t-0 pt-4 md:pt-0 border-muted-foreground/10">
-                <button onClick={() => { setEditingStay(stay); setShowForm(true) }} className="flex items-center gap-2 px-4 py-2 bg-background border border-muted-foreground/20 rounded-lg hover:border-primary/50 transition-all font-sans text-xs font-semibold">
+              <div className="flex items-center gap-3 border-t md:border-t-0 pt-4 md:pt-0 border-muted-foreground/10 w-full md:w-auto mt-4 md:mt-0">
+                <button onClick={() => { setEditingStay(stay); setShowForm(true) }} className="flex-1 md:flex-none flex justify-center items-center gap-2 px-4 py-2 bg-background border border-muted-foreground/20 rounded-lg hover:border-primary/50 transition-all font-sans text-xs font-semibold">
                   <Edit2 className="h-3.5 w-3.5" />Edit
                 </button>
                 <button onClick={() => handleDelete(stay.id)} className="p-2.5 text-muted-foreground hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all" title="Delete Stay">
