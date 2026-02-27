@@ -7,53 +7,8 @@ import { AdminDashboard } from '@/components/admin/admin-dashboard'
 import { LogOut } from 'lucide-react'
 
 export default function AdminPage() {
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [supabase, setSupabase] = useState<ReturnType<typeof createClientComponentClient> | null>(null)
   const router = useRouter()
-
-  useEffect(() => {
-    const checkAdmin = async () => {
-      const client = createClientComponentClient()
-      setSupabase(client)
-      if (!client) {
-        setLoading(false)
-        return
-      }
-      const { data: { user } } = await client.auth.getUser()
-
-      if (!user) {
-        router.push('/login')
-        return
-      }
-
-      const { data: profileData } = await client
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-
-      const role = (profileData as any)?.role || 'user'
-
-      if (role !== 'admin') {
-        // fallback to users table
-        const { data: userData } = await client
-          .from('users')
-          .select('role')
-          .eq('id', user.id)
-          .single()
-
-        if ((userData as any)?.role !== 'admin') {
-          router.push('/return')
-          return
-        }
-      }
-
-      setUser(user)
-      setLoading(false)
-    }
-    checkAdmin()
-  }, [])
+  const supabase = createClientComponentClient()
 
   const handleLogout = async () => {
     if (supabase) {
@@ -61,8 +16,6 @@ export default function AdminPage() {
     }
     router.push('/')
   }
-
-  if (loading) return <div className="h-screen bg-background" />
 
   return (
     <main className="grain min-h-screen bg-background">
