@@ -5,49 +5,9 @@ import { Navbar } from "../ui/navbar"
 import { TripCard } from "./trip-card"
 import { createClientComponentClient } from "@/lib/supabase-client"
 
-// Static trips data
-const staticTrips = [
-  {
-    id: "spiti",
-    name: "Spiti Valley",
-    tagline: "Silence, altitude, and shared roads",
-    duration: "9 Days",
-    images: ["/trips/spiti-1.jpg", "/trips/spiti-2.jpg", "/trips/spiti-3.jpg"],
-    difficulty: "Moderate",
-    groupSize: "8-10",
-  },
-  {
-    id: "ladakh",
-    name: "Ladakh Circuit",
-    tagline: "Where the sky meets the earth",
-    duration: "11 Days",
-    images: ["/trips/ladakh-1.jpg", "/trips/ladakh-2.jpg", "/trips/ladakh-3.jpg"],
-    difficulty: "Challenging",
-    groupSize: "8-10",
-  },
-  {
-    id: "kerala",
-    name: "Kerala Backwaters",
-    tagline: "Slow rivers, slower days",
-    duration: "6 Days",
-    images: ["/trips/kerala-1.jpg", "/trips/kerala-2.jpg", "/trips/kerala-3.jpg"],
-    difficulty: "Easy",
-    groupSize: "10-12",
-  },
-  {
-    id: "meghalaya",
-    name: "Meghalaya Trails",
-    tagline: "Clouds below, roots above",
-    duration: "7 Days",
-    images: ["/trips/meghalaya-1.jpg", "/trips/meghalaya-2.jpg", "/trips/meghalaya-3.jpg"],
-    difficulty: "Moderate",
-    groupSize: "8-10",
-  },
-]
-
 export function ExploreTrips() {
   const [mounted, setMounted] = useState(false)
-  const [trips, setTrips] = useState(staticTrips)
+  const [trips, setTrips] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -66,7 +26,7 @@ export function ExploreTrips() {
           .order("created_at", { ascending: false })
 
         if (error || !data) {
-          setTrips(staticTrips)
+          setTrips([])
           setLoading(false)
           return
         }
@@ -79,15 +39,13 @@ export function ExploreTrips() {
           duration: trip.duration,
           images: [trip.image_url || "/placeholder.jpg"],
           difficulty: trip.terrain || "Moderate",
-          groupSize: "8",
+          groupSize: trip.group_size || "8",
         }))
 
-        // Combine static and Supabase trips
-        const allTrips = [...staticTrips, ...supabaseTrips]
-        setTrips(allTrips)
+        setTrips(supabaseTrips)
       } catch (error) {
         console.error("Error fetching trips:", error)
-        setTrips(staticTrips)
+        setTrips([])
       } finally {
         setLoading(false)
       }
