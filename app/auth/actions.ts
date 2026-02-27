@@ -2,12 +2,9 @@
 
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 
-export async function login(formData: FormData) {
+export async function login(email: string, password: string) {
     console.log('--- LOGIN ACTION START ---')
     try {
-        const email = formData.get('email') as string
-        const password = formData.get('password') as string
-
         if (!email || !password) {
             return { error: 'Email and password are required' }
         }
@@ -82,5 +79,50 @@ export async function signInWithGoogle(origin: string) {
 
     if (data.url) {
         return { url: data.url }
+    }
+}
+
+export async function signup(email: string, password: string, fullName: string, whatsapp: string) {
+    console.log('--- SIGNUP ACTION START ---')
+    try {
+        if (!email || !password || !fullName || !whatsapp) {
+            return { error: 'All fields including WhatsApp number are required.' }
+        }
+
+        const supabase = await createSupabaseServerClient()
+
+        const { data, error: signUpError } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    full_name: fullName,
+                    whatsapp_number: whatsapp,
+                }
+            }
+        })
+
+        if (signUpError) {
+            console.error('Supabase SignUp Error:', signUpError.message)
+            return { error: signUpError.message }
+        }
+
+        if (data.user) {
+            await (supabase
+                .from('profiles')
+                .update({
+                    full_name: fullName,
+                    whatsapp_number: whatsapp
+                })
+                .eq('id', data.user.id) as any)
+        }
+
+        return { success: true, redirectUrl: '/return' }
+
+    } catch (err: any) {
+        console.error('UNEXPECTED SIGNUP ACTION ERROR:', err)
+        return { error: 'An unexpected server error occurred during sign up.' }
+    } finally {
+        console.log('--- SIGNUP ACTION END ---')
     }
 }

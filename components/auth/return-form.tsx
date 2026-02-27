@@ -5,7 +5,7 @@ import { createClientComponentClient } from '@/lib/supabase-client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff, Mail, Lock, User, Phone, LogIn } from 'lucide-react'
-import { signInWithGoogle } from '@/app/auth/actions'
+import { signInWithGoogle, login, signup } from '@/app/auth/actions'
 
 export function ReturnForm() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
@@ -50,71 +50,25 @@ export function ReturnForm() {
       if (mode === 'signup') {
         if (!whatsapp) throw new Error('WhatsApp number is required for journey updates.')
 
-        const { data, error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: fullName,
-              whatsapp_number: whatsapp,
-            }
-          }
-        })
+        const result = await signup(email, password, fullName, whatsapp)
 
-        if (signUpError) throw signUpError
-
-        if (data.user) {
-          await (supabase
-            .from('profiles' as any)
-            .update({
-              full_name: fullName,
-              whatsapp_number: whatsapp
-            } as any)
-            .eq('id', data.user.id) as any)
+        if (result?.error) {
+          throw new Error(result.error)
         }
 
-        window.location.href = '/return'
+        if (result?.success && result?.redirectUrl) {
+          window.location.href = result.redirectUrl
+        }
       } else {
-        // Direct client-side login (DNS is now fixed)
-        const { data, error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
+        const result = await login(email, password)
 
-        if (signInError) {
-          setError(signInError.message)
-          return
+        if (result?.error) {
+          throw new Error(result.error)
         }
 
-        // Check role for redirect
-        const userId = data.user?.id
-        let redirectUrl = '/return'
-
-        if (userId) {
-          const { data: profileData } = await (supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', userId)
-            .maybeSingle() as any)
-
-          if (profileData?.role === 'admin') {
-            redirectUrl = '/admin'
-          } else {
-            // Fallback check
-            const { data: userData } = await (supabase
-              .from('users')
-              .select('role')
-              .eq('id', userId)
-              .maybeSingle() as any)
-
-            if (userData?.role === 'admin') {
-              redirectUrl = '/admin'
-            }
-          }
+        if (result?.success && result?.redirectUrl) {
+          window.location.href = result.redirectUrl
         }
-
-        // Hard redirect to pick up new session cookie in middleware
-        window.location.href = redirectUrl
       }
     } catch (err: any) {
       setError(err.message)
