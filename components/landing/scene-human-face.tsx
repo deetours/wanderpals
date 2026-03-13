@@ -1,63 +1,75 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useRef } from "react"
+import { motion, useScroll, useTransform } from "framer-motion"
 import Image from "next/image"
 
 export function SceneHumanFace() {
-  const [isVisible, setIsVisible] = useState(false)
   const sectionRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.3 },
-    )
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  })
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current)
-    }
-
-    return () => observer.disconnect()
-  }, [])
+  const imgScale = useTransform(scrollYProgress, [0.0, 0.5], [1.1, 1.0])
+  const imgOpacity = useTransform(scrollYProgress, [0.05, 0.3, 0.8, 1.0], [0, 1, 1, 0])
+  const textOpacity = useTransform(scrollYProgress, [0.15, 0.4, 0.8, 1.0], [0, 1, 1, 0])
+  const textX = useTransform(scrollYProgress, [0.15, 0.4], [40, 0])
+  const quoteMark = useTransform(scrollYProgress, [0.2, 0.45], [0, 1])
 
   return (
-    <section ref={sectionRef} className="relative px-6 py-32 md:px-16 lg:px-24">
-      <div className="mx-auto max-w-5xl">
-        <div className="grid gap-12 md:grid-cols-2 items-center">
-          {/* Image */}
-          <div
-            className={`relative aspect-square overflow-hidden rounded-lg transition-all duration-800 ease-out ${isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
-              }`}
+    <section ref={sectionRef} className="relative px-6 py-40 md:px-16 lg:px-24">
+      <div className="mx-auto max-w-6xl">
+        <div className="grid gap-16 md:gap-24 md:grid-cols-2 items-center">
+          {/* Cinematic Portrait */}
+          <motion.div
+            style={{ opacity: imgOpacity }}
+            className="relative aspect-[3/4] overflow-hidden rounded-[3rem] inner-glow"
           >
-            <Image
-              src="/traveller-testimonial-aisha.png"
-              alt="Aisha, a Wanderpals traveller"
-              fill
-              className="object-cover"
-            />
+            <motion.div style={{ scale: imgScale }} className="absolute inset-0">
+              <Image
+                src="/traveller-testimonial-aisha.png"
+                alt="Aisha, a Wanderpals traveller"
+                fill
+                className="object-cover grayscale-[0.2]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+            </motion.div>
 
-          </div>
+            {/* Name overlay at bottom */}
+            <div className="absolute bottom-8 left-8 z-10">
+              <p className="font-sans text-[10px] uppercase tracking-[0.4em] text-white/40 mb-1">The Story</p>
+              <p className="font-serif text-2xl text-white">Aisha</p>
+              <p className="font-sans text-xs uppercase tracking-widest text-white/30 mt-1">
+                Mumbai → Spiti Valley
+              </p>
+            </div>
+          </motion.div>
 
           {/* Testimony */}
-          <div
-            className={`transition-all duration-700 ease-out ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
-            style={{ transitionDelay: isVisible ? "200ms" : "0ms" }}
-          >
-            <blockquote className="space-y-6">
-              <p className="font-serif text-2xl md:text-3xl lg:text-4xl text-foreground leading-relaxed">
-                "I booked 6 days. I stayed 3 weeks. I still don't know why I left."
+          <motion.div style={{ opacity: textOpacity, x: textX }}>
+            <motion.div
+              style={{ opacity: quoteMark }}
+              className="font-serif text-[120px] leading-none text-primary/10 -mb-8 select-none"
+              aria-hidden
+            >
+              "
+            </motion.div>
+            <blockquote className="space-y-8">
+              <p className="font-serif text-[clamp(1.8rem,4vw,3.5rem)] text-foreground leading-[1.2] tracking-tightest">
+                I booked 6 days.{" "}
+                <span className="italic text-foreground/60">I stayed 3 weeks.</span>
               </p>
-              <footer className="font-sans text-muted-foreground">
-                <p className="font-medium text-foreground">Aisha</p>
-                <p className="text-sm">Mumbai → Spiti Valley</p>
-              </footer>
+              <p className="font-serif text-2xl md:text-3xl text-foreground/40 italic">
+                I still don't know why I left.
+              </p>
+              <div className="h-px w-16 bg-primary/20" />
+              <p className="font-sans text-xs uppercase tracking-[0.4em] text-muted-foreground/30">
+                Real traveller. Real experience. Not curated.
+              </p>
             </blockquote>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

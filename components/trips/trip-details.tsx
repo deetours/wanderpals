@@ -1,11 +1,11 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect, useRef } from "react"
+import { motion, useScroll, useSpring, useTransform } from "framer-motion"
 import { Navbar } from "../ui/navbar"
-import { Check, Users, Calendar, Mountain } from "lucide-react"
+import { Check, Users, Calendar, Mountain, ArrowDown } from "lucide-react"
 import Link from "next/link"
+import { Magnetic } from "../ui/magnetic"
 
 interface Trip {
   id: string
@@ -26,251 +26,284 @@ interface TripDetailsProps {
   trip: Trip
 }
 
-export function TripDetails({ trip }: TripDetailsProps) {
-  const [mounted, setMounted] = useState(false)
-  const [selectedDate, setSelectedDate] = useState(0)
+const transition = {
+  duration: 1,
+  ease: [0.23, 1, 0.32, 1] as any,
+}
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+export function TripDetails({ trip }: TripDetailsProps) {
+  const [selectedDate, setSelectedDate] = useState(0)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  })
+  
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  })
 
   return (
-    <main className="grain min-h-screen bg-background">
+    <main ref={containerRef} className="grain min-h-screen bg-background relative selection:bg-primary/30">
+      {/* Scroll Progress Indicator - The Elevation Wire */}
+      <motion.div 
+        className="fixed top-0 left-0 right-0 h-[2px] bg-primary z-[60] origin-left"
+        style={{ scaleX }}
+      />
+      
       <Navbar visible={true} />
 
-      {/* Hero */}
-      <section className="relative h-[80vh] min-h-[600px] overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${trip.heroImage}')` }} />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
-
-        <div className="absolute inset-0 flex flex-col justify-end px-6 pb-16 md:px-16 lg:px-24">
+      {/* Hero: Cinematic Entrance */}
+      <section className="relative h-screen overflow-hidden">
+        <motion.div 
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 2, ease: [0.23, 1, 0.32, 1] }}
+          className="absolute inset-0 bg-cover bg-center grayscale-[0.2]" 
+          style={{ backgroundImage: `url('${trip.heroImage}')` }} 
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+        
+        <div className="absolute inset-0 flex flex-col justify-end px-6 pb-24 md:px-16 lg:px-24">
           <div className="mx-auto w-full max-w-5xl">
-            <p
-              className={`text-sm uppercase tracking-widest text-primary transition-all duration-700 ease-out ${
-                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-              }`}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={transition}
             >
-              {trip.duration} Journey
-            </p>
-            <h1
-              className={`mt-4 font-serif text-5xl md:text-7xl lg:text-8xl text-foreground transition-all duration-700 ease-out ${
-                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
-              style={{ transitionDelay: "100ms" }}
-            >
-              {trip.name}
-            </h1>
-            <p
-              className={`mt-4 font-serif text-xl md:text-2xl text-foreground/80 italic transition-all duration-700 ease-out ${
-                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-              }`}
-              style={{ transitionDelay: "200ms" }}
-            >
-              {trip.tagline}
-            </p>
+              <span className="text-xs uppercase tracking-[0.4em] text-primary font-semibold">
+                {trip.duration} Journey
+              </span>
+              <h1 className="mt-6 font-serif text-[clamp(3.5rem,10vw,8rem)] leading-[0.9] text-foreground tracking-tighter">
+                {trip.name}
+              </h1>
+              <p className="mt-8 font-serif text-xl md:text-3xl text-foreground/70 lowercase italic max-w-2xl">
+                {trip.tagline}
+              </p>
+            </motion.div>
           </div>
         </div>
+
+        {/* Scroll Prompt */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.4 }}
+          transition={{ delay: 1, duration: 2 }}
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4"
+        >
+          <span className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground">The Narrative</span>
+          <motion.div
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <ArrowDown className="h-4 w-4 text-muted-foreground" />
+          </motion.div>
+        </motion.div>
       </section>
 
-      {/* ACT 1: Why this trip exists */}
-      <RevealSection className="px-6 py-24 md:px-16 lg:px-24">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="font-serif text-xl md:text-2xl lg:text-3xl text-foreground leading-relaxed">{trip.why}</p>
-        </div>
-      </RevealSection>
+      {/* ACT 1: The Soul of the Journey */}
+      <section className="px-6 py-64 md:px-16 lg:px-24 flex items-center justify-center">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.98 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, margin: "-20%" }}
+          transition={transition}
+          className="mx-auto max-w-4xl text-center"
+        >
+          <h2 className="font-serif text-3xl md:text-5xl lg:text-6xl text-foreground leading-[1.2] tracking-tight">
+            {trip.why}
+          </h2>
+        </motion.div>
+      </section>
 
-      {/* ACT 2: The Flow */}
-      <section className="py-12">
-        <div className="px-6 md:px-16 lg:px-24">
-          <div className="mx-auto max-w-5xl">
-            <h2 className="font-serif text-2xl md:text-3xl text-muted-foreground mb-12">The Journey</h2>
-          </div>
-        </div>
-
-        <div className="space-y-24">
+      {/* ACT 2: The Elevation Timeline */}
+      <section className="py-32 relative">
+        {/* Timeline Line */}
+        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/5 md:block hidden" />
+        
+        <div className="space-y-64">
           {trip.acts.map((act, index) => (
             <ActSection key={index} act={act} index={index} />
           ))}
         </div>
       </section>
 
-      {/* ACT 3: The People */}
-      <RevealSection className="px-6 py-24 md:px-16 lg:px-24 text-center">
-        <div className="mx-auto max-w-2xl">
-          <Users className="h-8 w-8 text-primary mx-auto mb-6" />
-          <p className="font-serif text-xl md:text-2xl text-foreground">{trip.groupInfo}</p>
-          <p className="mt-4 text-muted-foreground">You'll return with fewer goodbyes.</p>
-        </div>
-      </RevealSection>
+      {/* ACT 3: The Common Ground */}
+      <section className="px-6 py-64 md:px-16 lg:px-24 text-center border-t border-white/5">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={transition}
+          className="mx-auto max-w-3xl"
+        >
+          <Users className="h-10 w-10 text-primary mx-auto mb-10 opacity-50" />
+          <p className="font-serif text-3xl md:text-5xl text-foreground tracking-tight">{trip.groupInfo}</p>
+          <p className="mt-8 text-muted-foreground font-serif text-xl italic lowercase">You'll return with fewer goodbyes.</p>
+        </motion.div>
+      </section>
 
-      {/* ACT 4: Practicals (late reveal) */}
-      <RevealSection className="px-6 py-24 md:px-16 lg:px-24">
-        <div className="mx-auto max-w-3xl">
-          <div className="rounded-xl bg-card p-6 md:p-10">
-            {/* Quick info */}
-            <div className="grid grid-cols-3 gap-6 pb-8 border-b border-border">
-              <div className="text-center">
-                <Calendar className="h-5 w-5 text-primary mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">Duration</p>
-                <p className="font-medium text-foreground">{trip.duration}</p>
-              </div>
-              <div className="text-center">
-                <Mountain className="h-5 w-5 text-primary mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">Difficulty</p>
-                <p className="font-medium text-foreground">{trip.difficulty}</p>
-              </div>
-              <div className="text-center">
-                <Users className="h-5 w-5 text-primary mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">Group size</p>
-                <p className="font-medium text-foreground">8-10</p>
-              </div>
-            </div>
-
-            {/* Date selection */}
-            <div className="py-8 border-b border-border">
-              <h3 className="font-serif text-xl text-foreground mb-4">Choose your dates</h3>
-              <div className="space-y-3">
-                {trip.dates.map((date, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedDate(index)}
-                    disabled={date.spots === 0}
-                    className={`w-full rounded-lg border p-4 text-left transition-all duration-300 ${
-                      selectedDate === index
-                        ? "border-primary bg-primary/10"
-                        : date.spots === 0
-                          ? "border-border bg-secondary/50 opacity-50 cursor-not-allowed"
-                          : "border-border bg-secondary hover:border-primary/50"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-foreground">
-                        {date.start} — {date.end}
-                      </span>
-                      <span className={`text-sm ${date.spots <= 3 ? "text-primary" : "text-muted-foreground"}`}>
-                        {date.spots === 0 ? "Full" : `${date.spots} spots left`}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Inclusions */}
-            <div className="py-8 border-b border-border">
-              <h3 className="font-serif text-xl text-foreground mb-4">What's included</h3>
-              <div className="grid gap-3 md:grid-cols-2">
-                {trip.inclusions.map((item, index) => (
-                  <div key={index} className="flex items-center gap-2 text-muted-foreground">
-                    <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                    <span className="text-sm">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Price and CTA */}
-            <div className="pt-8">
-              <div className="flex items-end justify-between mb-6">
+      {/* ACT 4: Dossier Application (Practicals) */}
+      <section className="px-6 py-32 md:px-16 lg:px-24 pb-64 bg-black/20">
+        <div className="mx-auto max-w-4xl">
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={transition}
+            className="rounded-[2.5rem] glass inner-glow p-10 md:p-16 shadow-2xl overflow-hidden relative"
+          >
+            {/* Background Texture */}
+            <div className="noise-overlay grayscale" />
+            
+            <div className="relative">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16">
                 <div>
-                  <p className="text-sm text-muted-foreground">Starting from</p>
-                  <p className="font-serif text-4xl text-foreground">₹{trip.price.toLocaleString()}</p>
-                  <p className="text-xs text-muted-foreground">per person</p>
+                  <h3 className="font-serif text-4xl md:text-5xl text-foreground">The Details</h3>
+                  <p className="mt-2 text-muted-foreground font-serif italic text-lg lowercase">Everything you need to know.</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground/40 mb-2">Contribution</p>
+                  <p className="font-serif text-5xl text-foreground">₹{trip.price.toLocaleString()}</p>
                 </div>
               </div>
 
-              <Link
-                href={`/booking/trip/${trip.id}?date=${selectedDate}`}
-                className="block w-full rounded-lg bg-primary py-4 text-center font-medium text-primary-foreground transition-all duration-300 hover:bg-primary/90"
-              >
-                Join this journey
+              {/* Specs Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-10 mb-20">
+                <div className="space-y-2">
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-primary/60 font-medium">Duration</p>
+                  <p className="font-serif text-2xl text-foreground">{trip.duration}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-primary/60 font-medium">Character</p>
+                  <p className="font-serif text-2xl text-foreground">{trip.difficulty}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-primary/60 font-medium">Intensity</p>
+                  <p className="font-serif text-2xl text-foreground">8 Travellers</p>
+                </div>
+              </div>
+
+              {/* Date Selection: The Selection Slot */}
+              <div className="space-y-6 mb-20">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground/40 text-center mb-8">Available Departures</p>
+                <div className="grid gap-4">
+                  {trip.dates.map((date, index) => (
+                    <motion.button
+                      key={index}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
+                      onClick={() => setSelectedDate(index)}
+                      disabled={date.spots === 0}
+                      className={`w-full rounded-2xl border px-8 py-6 text-left transition-all duration-500 flex items-center justify-between ${
+                        selectedDate === index
+                          ? "border-primary bg-primary/5 shadow-[0_0_30px_rgba(var(--primary-rgb),0.1)]"
+                          : date.spots === 0
+                            ? "border-white/5 opacity-30 cursor-not-allowed"
+                            : "border-white/10 hover:border-white/20 hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="font-serif text-xl md:text-2xl text-foreground">
+                        {date.start} — {date.end}
+                      </span>
+                      <div className="text-right">
+                        <span className={`text-xs uppercase tracking-widest font-medium ${date.spots <= 3 && date.spots > 0 ? "text-orange-400" : "text-muted-foreground/60"}`}>
+                          {date.spots === 0 ? "Exhausted" : `${date.spots} spots remaining`}
+                        </span>
+                      </div>
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Inclusions Bento */}
+              <div className="grid md:grid-cols-2 gap-12 items-start mb-20">
+                <div className="p-8 rounded-3xl bg-white/[0.02] border border-white/5">
+                  <h4 className="font-serif text-lg text-foreground mb-6">The Inclusion</h4>
+                  <div className="space-y-4">
+                    {trip.inclusions.map((item, index) => (
+                      <div key={index} className="flex items-center gap-4 text-muted-foreground/80">
+                        <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                        <span className="text-sm font-sans tracking-wide">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="px-4">
+                    <p className="font-serif text-muted-foreground leading-relaxed lowercase italic">
+                      Price includes all curated logistics so you can focus on the connection. No hidden fees. Just shared roads and silent nights.
+                    </p>
+                </div>
+              </div>
+
+              {/* Final Apply CTA */}
+              <Link href={`/booking/trip/${trip.id}?date=${selectedDate}`}>
+                <Magnetic strength={0.2}>
+                  <div className="group relative overflow-hidden rounded-2xl bg-primary px-8 py-6 text-center shadow-2xl transition-all hover:shadow-primary/20">
+                    <motion.span 
+                      className="relative z-10 font-sans text-xs uppercase tracking-[0.5em] font-bold text-primary-foreground"
+                    >
+                      Apply for this Journey
+                    </motion.span>
+                    <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
+                  </div>
+                </Magnetic>
               </Link>
             </div>
-          </div>
+          </motion.div>
         </div>
-      </RevealSection>
+      </section>
     </main>
   )
 }
 
-// Act Section component
+// Act Section: The Cinematic Frame
 function ActSection({ act, index }: { act: { title: string; description: string; image: string }; index: number }) {
-  const [isVisible, setIsVisible] = useState(false)
-  const sectionRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.3 },
-    )
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current)
-    }
-
-    return () => observer.disconnect()
-  }, [])
+  const isEven = index % 2 === 0;
 
   return (
-    <div
-      ref={sectionRef}
-      className={`transition-all duration-700 ease-out ${
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-      }`}
-    >
-      <div className={`grid items-center gap-8 md:grid-cols-2 ${index % 2 === 1 ? "md:flex-row-reverse" : ""}`}>
-        {/* Image */}
-        <div className={`${index % 2 === 1 ? "md:order-2" : ""}`}>
-          <div className="relative aspect-[4/3] overflow-hidden rounded-lg mx-6 md:mx-0 md:ml-16 lg:ml-24">
-            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${act.image}')` }} />
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className={`px-6 md:px-16 lg:px-24 ${index % 2 === 1 ? "md:order-1 md:text-right" : ""}`}>
-          <p className="text-sm uppercase tracking-widest text-primary mb-2">
-            {["One", "Two", "Three", "Four"][index]}
+    <div className="relative px-6 md:px-16 lg:px-24">
+      <div className={`grid md:grid-cols-12 items-center gap-16 md:gap-24`}>
+        {/* Content Frame */}
+        <motion.div 
+          initial={{ opacity: 0, x: isEven ? -50 : 50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-10%" }}
+          transition={transition}
+          className={`md:col-span-5 ${isEven ? 'md:order-1' : 'md:order-2 md:text-right'}`}
+        >
+          <span className="text-[10px] uppercase tracking-[0.5em] text-primary/60 font-medium mb-4 block">
+            Phase {index + 1}
+          </span>
+          <h3 className="font-serif text-4xl md:text-6xl text-foreground tracking-tight leading-[1.1]">
+            {act.title}
+          </h3>
+          <p className="mt-8 text-xl text-muted-foreground leading-relaxed font-serif italic lowercase">
+            {act.description}
           </p>
-          <h3 className="font-serif text-3xl md:text-4xl text-foreground">{act.title}</h3>
-          <p className="mt-4 text-lg text-muted-foreground">{act.description}</p>
-        </div>
+        </motion.div>
+
+        {/* Visual Frame */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 1.1, y: 50 }}
+          whileInView={{ opacity: 1, scale: 1, y: 0 }}
+          viewport={{ once: true, margin: "-10%" }}
+          transition={{ ...transition, duration: 1.5 }}
+          className={`md:col-span-7 ${isEven ? 'md:order-2' : 'md:order-1'}`}
+        >
+          <div className="relative aspect-[16/10] overflow-hidden rounded-[2rem] glass inner-glow group">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 2 }}
+              className="absolute inset-0 bg-cover bg-center grayscale-[0.2]" 
+              style={{ backgroundImage: `url('${act.image}')` }} 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
+        </motion.div>
       </div>
     </div>
-  )
-}
-
-// Reveal section component
-function RevealSection({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  const [isVisible, setIsVisible] = useState(false)
-  const sectionRef = useRef<HTMLElement>(null)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.2 },
-    )
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current)
-    }
-
-    return () => observer.disconnect()
-  }, [])
-
-  return (
-    <section
-      ref={sectionRef}
-      className={`transition-all duration-700 ease-out ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"} ${className}`}
-    >
-      {children}
-    </section>
   )
 }

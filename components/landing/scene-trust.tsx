@@ -1,113 +1,103 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { CheckCircle2 } from "lucide-react"
+import { useRef } from "react"
+import { motion, useScroll, useTransform } from "framer-motion"
 
 const trustPoints = [
   {
-    icon: "🎯",
+    num: "01",
     title: "Instant WhatsApp Confirmation",
-    description: "No long emails. No waiting. Confirmation arrives on your phone in minutes.",
+    description:
+      "No long emails. No waiting. Confirmation arrives on your phone in minutes.",
   },
   {
-    icon: "🤝",
-    title: "Chat with Hosts Directly",
-    description: "Message your host before you arrive. Ask questions. Get travel tips. Build friendship.",
+    num: "02",
+    title: "Direct Host Access",
+    description:
+      "Message your host before you arrive. Ask questions. Build friendship before the trip begins.",
   },
   {
-    icon: "💯",
+    num: "03",
     title: "Money-Back Guarantee",
-    description: "Not feeling it? Full refund up to 48 hours before arrival. We're confident you'll love it.",
+    description:
+      "Full refund up to 48 hours before. We are that confident you'll love it.",
   },
   {
-    icon: "🛡️",
-    title: "Trusted by 4,800+ Travellers",
-    description: "98% return rate. Thousands of friendships that started with us. We're battle-tested.",
+    num: "04",
+    title: "4,800+ Travellers. 98% Return",
+    description:
+      "Battle-tested since 2019. Thousands of journeys. Not a single generic tour.",
   },
 ]
 
 export function SceneTrust() {
-  const [mounted, setMounted] = useState(false)
   const sectionRef = useRef<HTMLDivElement>(null)
-  const [isVisible, setIsVisible] = useState(false)
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  })
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.1 },
-    )
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current)
-    }
-
-    return () => observer.disconnect()
-  }, [])
-
-  if (!mounted) return null
+  const headerOpacity = useTransform(scrollYProgress, [0.05, 0.2], [0, 1])
+  const headerY = useTransform(scrollYProgress, [0.05, 0.2], [30, 0])
 
   return (
-    <section ref={sectionRef} className="px-6 py-24 md:px-16 lg:px-24">
-      <div className="mx-auto max-w-4xl">
+    <section ref={sectionRef} className="relative px-6 py-40 md:px-16 lg:px-24">
+      <div className="mx-auto max-w-5xl">
+
         {/* Header */}
-        <div
-          className={`mb-16 text-center transition-all duration-700 ease-out ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+        <motion.div style={{ opacity: headerOpacity, y: headerY }} className="mb-24">
+          <span className="text-[10px] uppercase tracking-[0.6em] text-primary/50 font-bold block mb-6">
+            The Guarantee
+          </span>
+          <h2 className="font-serif text-5xl md:text-7xl text-foreground tracking-tightest leading-tight">
+            Why trust us?
+          </h2>
+        </motion.div>
+
+        {/* Trust Points — each has its own scroll reveal */}
+        <div className="space-y-0">
+          {trustPoints.map((point, i) => {
+            const startIn = 0.1 + i * 0.1
+            const endIn = startIn + 0.15
+            const ptOpacity = useTransform(scrollYProgress, [startIn, endIn, 0.85, 0.98], [0, 1, 1, 0])
+            const ptX = useTransform(scrollYProgress, [startIn, endIn], [-30, 0])
+
+            return (
+              <motion.div
+                key={i}
+                style={{ opacity: ptOpacity, x: ptX }}
+                className="group grid md:grid-cols-[80px_1fr] gap-8 items-start py-14 border-b border-white/5 hover:border-primary/10 transition-colors duration-700"
+              >
+                <span className="font-sans text-[60px] leading-none text-foreground/5 font-bold group-hover:text-foreground/10 transition-colors duration-700 select-none">
+                  {point.num}
+                </span>
+                <div className="pt-2">
+                  <h3 className="font-serif text-2xl md:text-3xl text-foreground mb-4 group-hover:text-primary transition-colors duration-500">
+                    {point.title}
+                  </h3>
+                  <p className="font-serif italic text-muted-foreground/50 text-lg leading-relaxed lowercase">
+                    {point.description}
+                  </p>
+                </div>
+              </motion.div>
+            )
+          })}
+        </div>
+
+        {/* Final Note */}
+        <motion.div
+          style={{ opacity: useTransform(scrollYProgress, [0.55, 0.7], [0, 1]) }}
+          className="mt-20 px-8 py-12 rounded-[2rem] bg-primary/5 border border-primary/10"
         >
-          <h2 className="font-serif text-4xl md:text-5xl text-foreground mb-4">Why trust us?</h2>
-          <p className="font-sans text-lg text-muted-foreground max-w-2xl mx-auto">
-            We've removed the friction from booking. No hidden fees. No corporate speak. Just real reassurance.
+          <p className="font-serif text-lg md:text-xl text-foreground/60 italic lowercase text-center">
+            Popular dates sell out weeks in advance. Most peaks have waitlists.
+            <span className="block mt-4 text-primary/60 not-italic font-sans text-[10px] uppercase tracking-[0.5em] font-bold">
+              Message us now to check availability.
+            </span>
           </p>
-        </div>
+        </motion.div>
 
-        {/* Trust points grid */}
-        <div className="grid md:grid-cols-2 gap-8">
-          {trustPoints.map((point, index) => (
-            <div
-              key={index}
-              className={`transition-all duration-700 ease-out ${
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
-              style={{ transitionDelay: isVisible ? `${index * 100}ms` : "0ms" }}
-            >
-              <div className="space-y-3">
-                <div className="text-4xl">{point.icon}</div>
-                <h3 className="font-serif text-xl text-foreground">{point.title}</h3>
-                <p className="font-sans text-muted-foreground leading-relaxed">{point.description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Urgency note */}
-        <div
-          className={`mt-16 p-6 rounded-lg bg-primary/5 border border-primary/20 transition-all duration-700 ease-out ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
-          style={{ transitionDelay: isVisible ? "400ms" : "0ms" }}
-        >
-          <div className="flex items-start gap-3">
-            <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
-            <div>
-              <p className="font-sans text-sm text-foreground font-medium mb-1">
-                Popular stays and trips fill fast
-              </p>
-              <p className="font-sans text-sm text-muted-foreground">
-                Especially in peak season (Oct-Mar). Most dates have waitlists. Message us now to check availability—
-                we keep spots reserved for serious travellers.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   )

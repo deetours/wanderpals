@@ -1,63 +1,79 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { ChevronDown } from "lucide-react"
+import { useRef } from "react"
+import { motion, useScroll, useTransform } from "framer-motion"
 
 export function ScenePause() {
-  const [isVisible, setIsVisible] = useState(false)
-  const sectionRef = useRef<HTMLElement>(null)
+  const sectionRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.3 },
-    )
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end end"],
+  })
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current)
-    }
+  // Fixed: proper string interpolation for filter – avoids .get() glitch
+  const filter = useTransform(
+    scrollYProgress,
+    [0, 0.3],
+    ["blur(6px)", "blur(0px)"]
+  )
 
-    return () => observer.disconnect()
-  }, [])
+  // Wider visibility window – text stays ON screen longer before fading
+  const opacity = useTransform(
+    scrollYProgress,
+    [0.0, 0.2, 0.8, 1.0],
+    [0, 1, 1, 0]
+  )
+  const scale = useTransform(scrollYProgress, [0.0, 0.25], [0.95, 1])
+
+  // Underline and subtitle reveal
+  const lineWidth = useTransform(scrollYProgress, [0.15, 0.5], [0, 120])
+  const subOpacity = useTransform(scrollYProgress, [0.25, 0.45], [0, 1])
+
+  // Background glow – gentle breathing
+  const glowOpacity = useTransform(
+    scrollYProgress,
+    [0.0, 0.3, 0.7, 1.0],
+    [0, 0.07, 0.07, 0]
+  )
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative flex min-h-[60vh] flex-col items-center justify-center px-6 text-center"
-    >
-      <div className="space-y-6">
-        <p
-          className={`max-w-xl font-sans text-lg md:text-xl text-muted-foreground leading-relaxed transition-all duration-700 ease-out ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
-        >
-          For travellers who value people over plans.
-        </p>
+    // Reduced from 150vh → 120vh to eliminate the black gap below
+    <div ref={sectionRef} className="relative min-h-[120vh]">
+      <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden px-6 text-center">
 
-        <p
-          className={`font-sans text-sm text-muted-foreground/60 tracking-wide transition-all duration-700 ease-out ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}
-          style={{ transitionDelay: "400ms" }}
-        >
-          Since 2019. Independently run.
-        </p>
-      </div>
+        {/* Background breathing glow */}
+        <motion.div
+          style={{ opacity: glowOpacity }}
+          className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,rgba(230,184,115,1)_0%,transparent_100%)] pointer-events-none"
+        />
 
-      {/* Scroll indicator - appears slowly */}
-      <div
-        className={`absolute bottom-12 flex flex-col items-center gap-2 transition-all duration-1000 ease-out ${
-          isVisible ? "opacity-100" : "opacity-0"
-        }`}
-        style={{ transitionDelay: "1000ms" }}
-      >
-        <span className="text-xs uppercase tracking-widest text-muted-foreground/60">Scroll</span>
-        <ChevronDown className="h-5 w-5 text-muted-foreground/60 animate-slow-pulse" />
+        {/* Top/bottom fades so the section blends into neighbors cleanly */}
+        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-background to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+
+        <motion.div style={{ opacity, scale, filter }} className="max-w-3xl">
+          <p className="font-serif text-[clamp(2rem,6vw,4rem)] text-foreground/90 leading-[1.2] lowercase italic">
+            For travellers who value{" "}
+            <span className="text-foreground not-italic">people</span>{" "}
+            over{" "}
+            <span className="text-foreground/30 not-italic">plans.</span>
+          </p>
+
+          {/* Animated underline */}
+          <motion.div
+            style={{ width: lineWidth }}
+            className="h-px bg-primary/30 mt-12 mx-auto"
+          />
+
+          <motion.p
+            style={{ opacity: subOpacity }}
+            className="mt-8 font-sans text-[10px] uppercase tracking-[0.6em] text-muted-foreground/30 font-bold"
+          >
+            Since 2019. Independently run.
+          </motion.p>
+        </motion.div>
       </div>
-    </section>
+    </div>
   )
 }

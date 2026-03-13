@@ -1,49 +1,62 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useRef } from "react"
+import { motion, useScroll, useTransform } from "framer-motion"
 import { SceneHeroVisual } from "./scene-hero-visual"
 
-export function SceneArrival() {
-  const [mounted, setMounted] = useState(false)
+const transition = {
+  duration: 1.2,
+  ease: [0.23, 1, 0.32, 1] as any, // apple-ease
+}
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+export function SceneArrival() {
+  const sectionRef = useRef<HTMLElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  })
+
+  // Parallax offsets
+  const yBg = useTransform(scrollYProgress, [0, 1], ["0%", "20%"])
+  const yText = useTransform(scrollYProgress, [0, 1], ["0%", "-30%"])
+  const opacityText = useTransform(scrollYProgress, [0, 0.8], [1, 0])
 
   return (
-    <section className="relative flex min-h-screen items-center justify-start px-6 md:px-16 lg:px-24 overflow-hidden">
-      <SceneHeroVisual />
+    <section 
+      ref={sectionRef}
+      className="relative flex min-h-screen items-center justify-start px-6 md:px-16 lg:px-24 overflow-hidden"
+    >
+      <SceneHeroVisual scrollYProgress={scrollYProgress} />
       
       {/* Fade gradient overlay - blends carousel into next section */}
-      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-b from-transparent via-transparent to-background pointer-events-none z-5" />
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-b from-transparent via-transparent to-background pointer-events-none z-[5]" />
       
-      <div className="relative z-10 max-w-3xl">
+      <motion.div 
+        style={{ y: yText, opacity: opacityText }}
+        className="relative z-10 max-w-4xl"
+      >
         {/* Main title */}
-        <h1
-          className={`font-serif text-6xl md:text-8xl lg:text-9xl font-medium tracking-tight text-foreground transition-all duration-[900ms] ease-out ${
-            mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
-          style={{
-            animationDelay: "200ms",
-            letterSpacing: mounted ? "0.02em" : "0.1em",
-            transition: "opacity 800ms ease-out, transform 800ms ease-out, letter-spacing 900ms ease-out",
-          }}
+        <motion.div
+          initial={{ opacity: 0, y: 30, letterSpacing: "0.1em" }}
+          animate={{ opacity: 1, y: 0, letterSpacing: "normal" }}
+          transition={{ ...transition, delay: 0.2 }}
         >
-          Wanderpals
-        </h1>
+          <h1 className="font-serif text-[clamp(4rem,12vw,10rem)] leading-[0.9] font-medium text-foreground tracking-tightest">
+            Wanderpals
+          </h1>
+        </motion.div>
 
         {/* Tagline - delayed */}
-        <p
-          className={`mt-6 font-serif text-xl md:text-2xl lg:text-3xl text-muted-foreground transition-all duration-[800ms] ease-out ${
-            mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-          }`}
-          style={{ transitionDelay: "400ms" }}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...transition, delay: 0.6 }}
+          className="mt-8 font-serif text-xl md:text-3xl text-muted-foreground/80 lowercase italic"
         >
           Travel slower. Stay longer.
-        </p>
-      </div>
-
-      {/* No scroll cue yet - builds anticipation */}
+        </motion.p>
+      </motion.div>
     </section>
   )
 }
+

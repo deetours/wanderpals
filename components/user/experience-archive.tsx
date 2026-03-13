@@ -9,6 +9,7 @@ import { UserOnboarding } from './user-onboarding'
 import { WhatsappRequirement } from './whatsapp-requirement'
 import { motion } from 'framer-motion'
 import { isAfter, isBefore, isWithinInterval, parseISO, addDays, formatDistanceToNow } from 'date-fns'
+import { Magnetic } from '../ui/magnetic'
 
 interface Journey {
   id: string
@@ -123,44 +124,66 @@ export function ExperienceArchive({ userId }: ExperienceArchiveProps) {
 
   if (loading) {
     return (
-      <div className="py-24 text-center">
-        <div className="inline-block w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin mb-4" />
-        <p className="text-muted-foreground font-sans text-sm tracking-widest uppercase">Syncing your timeline...</p>
+      <div className="py-48 text-center">
+        <motion.div 
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="inline-block w-8 h-8 rounded-full border-2 border-primary/20 border-t-primary mb-8" 
+        />
+        <p className="text-[10px] text-muted-foreground/30 font-bold tracking-[0.4em] uppercase">Syncing your timeline</p>
       </div>
     )
   }
 
+
   return (
-    <div className="space-y-24 pb-24">
+    <div className="space-y-40 pb-40">
       {userId && (
-        <>
+        <div className="space-y-12">
           <UserOnboarding userId={userId} />
           <WhatsappRequirement userId={userId} />
-        </>
+        </div>
       )}
 
       {/* ═══ 1. COMMAND CENTER (Upcoming / Current) ═══ */}
       {(journeys.upcoming.length > 0 || journeys.current.length > 0) && (
-        <section className="relative -mt-12 px-2">
-
+        <section className="space-y-8">
           {journeys.current.map((trip, i) => (
             <motion.div
               key={`curr-${trip.id}-${i}`}
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              className="relative overflow-hidden rounded-3xl bg-card border border-primary/20 shadow-[0_0_40px_rgba(230,184,115,0.1)] p-1 mb-8"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="relative overflow-hidden rounded-[3rem] glass p-1 shadow-2xl"
             >
               <div className="absolute inset-0 bg-primary/5 animate-pulse" />
-              <div className="relative bg-background/80 backdrop-blur-xl rounded-[22px] p-6 md:p-10 flex flex-col md:flex-row gap-8 items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-3 mb-4">
+              <div className="relative bg-background/40 backdrop-blur-3xl rounded-[2.8rem] p-10 md:p-16 flex flex-col md:flex-row gap-12 items-center justify-between overflow-hidden">
+                <div className="noise-overlay grayscale" />
+                
+                <div className="relative z-10 flex-1">
+                  <div className="flex items-center gap-4 mb-8">
                     <span className="relative flex h-3 w-3">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.5)]"></span>
                     </span>
-                    <span className="text-primary font-bold tracking-widest uppercase text-xs">Happening Now</span>
+                    <span className="text-primary text-[10px] font-bold tracking-[0.4em] uppercase">Living Narrative</span>
                   </div>
-                  <h2 className="font-serif text-3xl md:text-5xl text-foreground mb-4">{trip.title}</h2>
-                  <p className="text-muted-foreground font-sans max-w-md">You are currently immersed in this journey. Disconnect, explore, and soak it all in. We'll be here when you get back.</p>
+                  <h2 className="font-serif text-5xl md:text-7xl text-foreground mb-6 tracking-tightest leading-[0.9]">{trip.title}</h2>
+                  <p className="text-muted-foreground/60 font-serif italic text-xl lowercase max-w-lg leading-relaxed">
+                    You are existing within this story right now. Every mile is a sentence, every person a new character. Breathe it in.
+                  </p>
+                </div>
+
+                <div className="relative z-10 w-full md:w-auto">
+                    <Magnetic strength={0.1}>
+                        <Link 
+                            href={`/return/memories/${trip.id}`}
+                            className="group flex flex-col items-center justify-center p-12 rounded-full border border-white/5 bg-white/[0.02] backdrop-blur-xl hover:bg-white/[0.05] transition-all duration-700 aspect-square min-w-[240px]"
+                        >
+                            <span className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground/40 mb-2 font-bold group-hover:-translate-y-1 transition-transform">Contribute to</span>
+                            <span className="font-serif text-3xl text-foreground">The Feed</span>
+                            <ArrowRight className="h-5 w-5 mt-4 text-primary group-hover:translate-x-2 transition-transform" />
+                        </Link>
+                    </Magnetic>
                 </div>
               </div>
             </motion.div>
@@ -169,26 +192,43 @@ export function ExperienceArchive({ userId }: ExperienceArchiveProps) {
           {journeys.upcoming.map((trip, i) => (
             <motion.div
               key={`up-${trip.id}-${i}`}
-              initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 * i }}
-              className="group relative overflow-hidden rounded-3xl border border-muted-foreground/20 hover:border-primary/30 transition-all duration-500 min-h-[400px] flex items-end p-6 md:p-10 mb-8"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 * i, duration: 1, ease: [0.23, 1, 0.32, 1] }}
+              className="group relative overflow-hidden rounded-[3rem] border border-white/5 bg-background shadow-2xl min-h-[500px] flex items-end p-10 md:p-16"
             >
               {/* Parallax Background */}
-              <Image src={trip.image} alt={trip.title} fill className="object-cover transition-transform duration-1000 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+              <div className="absolute inset-0 overflow-hidden">
+                <Image 
+                    src={trip.image} 
+                    alt={trip.title} 
+                    fill 
+                    className="object-cover transition-transform duration-[3s] group-hover:scale-110 grayscale-[0.5] group-hover:grayscale-0" 
+                    unoptimized
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+              </div>
 
-              <div className="relative w-full flex flex-col md:flex-row items-end justify-between gap-6">
-                <div className="max-w-xl">
-                  <span className="inline-block px-3 py-1 bg-primary/20 text-primary backdrop-blur-md rounded-full text-[10px] font-bold tracking-widest uppercase mb-4">Upcoming Expedition</span>
-                  <h2 className="font-serif text-4xl md:text-6xl text-foreground mb-4 leading-tight">{trip.title}</h2>
-                  <div className="flex flex-wrap gap-4 text-sm font-sans text-muted-foreground">
-                    <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4" /> {trip.date}</span>
-                    <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> {trip.duration} Days</span>
+              <div className="relative w-full flex flex-col md:flex-row items-end justify-between gap-12 z-10">
+                <div className="max-w-2xl">
+                  <span className="inline-block px-4 py-1.5 bg-primary/10 backdrop-blur-md border border-primary/20 rounded-full text-[10px] font-bold tracking-[0.4em] uppercase text-primary mb-6">Upcoming Expedition</span>
+                  <h2 className="font-serif text-5xl md:text-8xl text-foreground mb-8 leading-[0.85] tracking-tightest">{trip.title}</h2>
+                  <div className="flex flex-wrap gap-8 text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/30">
+                    <span className="flex items-center gap-2"><Calendar className="h-4 w-4" /> {trip.date}</span>
+                    <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> {trip.duration} Days</span>
+                    <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /> Multiple Points</span>
                   </div>
                 </div>
 
-                <div className="w-full md:w-auto p-6 rounded-2xl bg-card/60 backdrop-blur-xl border border-muted-foreground/20 flex flex-col items-center justify-center min-w-[200px]">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mb-2">Starts In</p>
-                  <p className="font-serif text-4xl text-primary">{formatDistanceToNow(parseISO(trip.rawDate), { addSuffix: false }).replace('about ', '')}</p>
+                <div className="w-full md:w-auto p-12 rounded-[2.5rem] glass shadow-2xl border border-white/5 flex flex-col items-center justify-center min-w-[280px]">
+                  <p className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.4em] font-bold mb-4">Countdown</p>
+                  <p className="font-serif text-5xl text-primary tracking-tighter">
+                    {formatDistanceToNow(parseISO(trip.rawDate), { addSuffix: false }).replace('about ', '')}
+                  </p>
+                  <div className="mt-8 pt-8 border-t border-white/5 w-full text-center">
+                    <Link href={`/trips/${trip.id}`} className="text-[10px] uppercase tracking-[0.3em] font-bold text-muted-foreground/20 hover:text-foreground transition-colors">Review Dossier</Link>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -198,85 +238,105 @@ export function ExperienceArchive({ userId }: ExperienceArchiveProps) {
 
 
       {/* ═══ 2. ARCHIVED MEMORIES (Past) ═══ */}
-      <section className="relative">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-12">
-            <h2 className="font-serif text-3xl text-foreground mb-2">The Archive</h2>
-            <p className="font-sans text-muted-foreground">Stories written in miles and memories.</p>
-          </div>
-
-          {journeys.past.length === 0 ? (
-            <div className="py-20 text-center border-2 border-dashed border-muted-foreground/10 rounded-3xl">
-              <p className="font-serif text-xl text-muted-foreground mb-2">No past journeys yet.</p>
-              <p className="font-sans text-sm text-muted-foreground/60 max-w-sm mx-auto">Once you complete an expedition with us, your memories, photos, and campfire stories will live here forever.</p>
+      <section className="space-y-16">
+        <div className="flex items-end justify-between border-b border-white/5 pb-12">
+            <div>
+                <p className="text-[10px] uppercase tracking-[0.4em] text-primary/60 font-bold mb-4">Chronicle</p>
+                <h2 className="font-serif text-5xl md:text-7xl text-foreground tracking-tightest">The <span className="text-foreground/30 italic">Archive</span></h2>
+                <p className="mt-6 text-muted-foreground/40 font-serif italic text-xl lowercase">Stories written in miles and quiet epiphanies.</p>
             </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {journeys.past.map((exp, i) => (
-                <motion.div
-                  key={`past-${exp.id}-${i}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ delay: i * 0.1 }}
-                  className="group flex flex-col bg-card border border-muted-foreground/10 hover:border-primary/20 rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-primary/5 transition-all"
-                >
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <Image src={exp.image} alt={exp.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" unoptimized />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                    {/* Social Hover Overlay */}
-                    <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
-                      <Link href={`/return/memories/${exp.id}`} className="w-full px-4 py-3 bg-primary/90 backdrop-blur-md text-background rounded-xl text-xs font-bold tracking-widest uppercase hover:bg-primary transition-colors flex items-center justify-center gap-2">
-                        <MessageCircle className="h-4 w-4" /> Campfire Feed
-                      </Link>
-                    </div>
-                  </div>
-
-                  <div className="p-5 flex-1 flex flex-col justify-between">
-                    <div>
-                      <h3 className="font-serif text-xl text-foreground mb-1 group-hover:text-primary transition-colors">{exp.title}</h3>
-                      <p className="font-sans text-xs text-muted-foreground uppercase tracking-wider mb-4">
-                        {exp.date} &nbsp;•&nbsp; {exp.duration} Days
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
         </div>
+
+        {journeys.past.length === 0 ? (
+          <div className="py-40 text-center rounded-[3rem] border border-dashed border-white/5 bg-white/[0.01]">
+            <p className="font-serif text-2xl text-muted-foreground/20 mb-2 lowercase italic">Empty pages awaiting ink.</p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {journeys.past.map((exp, i) => (
+              <motion.div
+                key={`past-${exp.id}-${i}`}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ delay: i * 0.1, duration: 1, ease: [0.23, 1, 0.32, 1] }}
+                className="group relative flex flex-col bg-background border border-white/5 hover:border-primary/20 rounded-[2.5rem] overflow-hidden transition-all duration-700 hover:shadow-[0_40px_80px_rgba(0,0,0,0.4)]"
+              >
+                <div className="relative aspect-[4/5] overflow-hidden">
+                  <Image 
+                    src={exp.image} 
+                    alt={exp.title} 
+                    fill 
+                    className="object-cover transition-transform duration-[4s] group-hover:scale-110 grayscale-[0.3] group-hover:grayscale-0" 
+                    unoptimized 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-black/40 to-transparent opacity-60" />
+                  
+                  {/* Metadata Overlay */}
+                  <div className="absolute inset-0 flex flex-col justify-end p-8">
+                    <p className="text-[9px] uppercase tracking-[0.4em] text-white/40 font-bold mb-2">{exp.date}</p>
+                    <h3 className="font-serif text-3xl text-foreground mb-6 leading-tight group-hover:text-primary transition-colors">{exp.title}</h3>
+                    
+                    <div className="overflow-hidden">
+                        <motion.div 
+                            initial={{ y: 20, opacity: 0 }}
+                            whileHover={{ y: 0, opacity: 1 }}
+                            className="flex items-center gap-4"
+                        >
+                            <Link href={`/return/memories/${exp.id}`} className="flex-1 px-6 py-4 glass border-white/10 text-[9px] font-bold uppercase tracking-[0.3em] rounded-full text-center hover:bg-white/10 transition-all">
+                                Revisit Journey
+                            </Link>
+                        </motion.div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ═══ 3. UPSELL FOR NEXT BOOKING ═══ */}
-      <section className="py-12 border-t border-muted-foreground/10">
-        <div className="mx-auto max-w-6xl">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-            <div>
-              <h3 className="font-serif text-2xl md:text-3xl text-foreground mb-2">Where to next?</h3>
-              <p className="font-sans text-muted-foreground">Curated based on your travel style</p>
-            </div>
-            <Link href="/all-trips" className="inline-flex items-center gap-2 text-primary hover:gap-3 transition-all">
-              <span className="font-sans text-sm font-semibold tracking-wider uppercase">Explore all journeys</span>
-              <ArrowRight className="h-4 w-4" />
+      <section className="pt-40 border-t border-white/5">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-20">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-primary/60 font-bold mb-4">Continuance</p>
+            <h3 className="font-serif text-5xl text-foreground tracking-tightest">Where to <span className="text-foreground/30 italic">next?</span></h3>
+            <p className="mt-4 text-muted-foreground/40 font-serif italic text-xl lowercase">Curated for your evolving travel style.</p>
+          </div>
+          <Magnetic strength={0.2}>
+            <Link href="/all-trips" className="group flex items-center gap-6 px-10 py-6 rounded-full border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] transition-all">
+                <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-muted-foreground/60 group-hover:text-primary transition-colors">Explore World</span>
+                <ArrowRight className="h-4 w-4 text-primary group-hover:translate-x-2 transition-transform" />
             </Link>
-          </div>
+          </Magnetic>
+        </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            {recommendedTrips.map((trip) => (
-              <Link href={`/trips/${trip.id}`} key={trip.id} className="group flex flex-col md:flex-row gap-4 p-4 rounded-xl border border-muted-foreground/5 hover:border-primary/20 hover:bg-card transition-all">
-                <div className="relative w-full md:w-32 aspect-[4/3] rounded-lg overflow-hidden shrink-0">
-                  <Image src={trip.image_url || "/highlights/spiti-sunset.jpg"} alt={trip.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" unoptimized />
+        <div className="grid md:grid-cols-2 gap-8">
+          {recommendedTrips.map((trip) => (
+            <Link 
+                href={`/trips/${trip.id}`} 
+                key={trip.id} 
+                className="group relative flex flex-col md:flex-row gap-8 p-10 rounded-[2.5rem] border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] hover:border-primary/20 transition-all duration-700 overflow-hidden"
+            >
+              <div className="noise-overlay grayscale" />
+              <div className="relative w-full md:w-48 aspect-square rounded-3xl overflow-hidden shrink-0 shadow-2xl">
+                <Image src={trip.image_url || "/highlights/spiti-sunset.jpg"} alt={trip.name} fill className="object-cover transition-transform duration-1000 group-hover:scale-110" unoptimized />
+              </div>
+              <div className="flex flex-col justify-center items-start gap-4">
+                <span className="text-[9px] text-primary/40 uppercase tracking-[0.3em] font-bold">{trip.region}</span>
+                <h4 className="font-serif text-3xl text-foreground group-hover:text-primary transition-colors tracking-tightest leading-none">{trip.name}</h4>
+                <div className="flex items-center gap-4 text-[9px] uppercase tracking-[0.2em] text-muted-foreground/20 font-bold">
+                    <span>{trip.duration} Days</span>
+                    <span className="w-1 h-1 rounded-full bg-white/5" />
+                    <span>Open Dossier</span>
                 </div>
-                <div className="flex flex-col justify-center gap-1">
-                  <h4 className="font-serif text-lg text-foreground group-hover:text-primary transition-colors">{trip.name}</h4>
-                  <p className="text-xs text-muted-foreground uppercase tracking-widest">{trip.duration} Days • {trip.region}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
     </div>
   )
 }
+

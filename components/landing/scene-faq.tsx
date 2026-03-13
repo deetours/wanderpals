@@ -1,7 +1,13 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown } from "lucide-react"
+
+const transition = {
+  duration: 1,
+  ease: [0.23, 1, 0.32, 1] as any,
+}
 
 const faqs = [
   {
@@ -37,102 +43,94 @@ const faqs = [
 ]
 
 export function SceneFAQ() {
-  const [mounted, setMounted] = useState(false)
   const [openIndex, setOpenIndex] = useState<number | null>(null)
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const [isVisible, setIsVisible] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.1 },
-    )
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current)
-    }
-
-    return () => observer.disconnect()
-  }, [])
-
-  if (!mounted) return null
 
   return (
-    <section ref={sectionRef} className="px-6 py-24 md:px-16 lg:px-24 bg-card/30">
-      <div className="mx-auto max-w-3xl">
+    <section className="px-6 py-32 md:px-16 lg:px-24 bg-card/20 relative overflow-hidden">
+      <div className="mx-auto max-w-3xl relative z-10">
         {/* Header */}
-        <div
-          className={`mb-16 transition-all duration-700 ease-out ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-10%" }}
+          transition={transition}
+          className="mb-20"
         >
-          <h2 className="font-serif text-4xl md:text-5xl text-foreground mb-4">Questions, answered.</h2>
-          <p className="font-sans text-lg text-muted-foreground">
+          <h2 className="font-serif text-5xl md:text-7xl text-foreground mb-6 tracking-tight">Questions, answered.</h2>
+          <p className="font-sans text-xl text-muted-foreground/80 lowercase italic">
             Everything you need to know before you book.
           </p>
-        </div>
+        </motion.div>
 
         {/* FAQs */}
         <div className="space-y-4">
           {faqs.map((faq, index) => (
-            <div
+            <motion.div
               key={index}
-              className={`transition-all duration-700 ease-out ${
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
-              style={{ transitionDelay: isVisible ? `${index * 50}ms` : "0ms" }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ ...transition, delay: index * 0.1 }}
             >
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full text-left p-4 rounded-lg border border-muted-foreground/10 hover:border-muted-foreground/30 transition-colors duration-300 group"
+                className="w-full text-left p-6 rounded-2xl glass inner-glow hover:bg-white/5 transition-colors duration-500 group"
               >
-                <div className="flex items-center justify-between gap-4">
-                  <h3 className="font-sans text-base md:text-lg text-foreground font-medium group-hover:text-primary transition-colors duration-300">
+                <div className="flex items-center justify-between gap-6">
+                  <h3 className="font-sans text-lg md:text-xl text-foreground font-medium group-hover:text-primary transition-colors duration-500">
                     {faq.question}
                   </h3>
-                  <ChevronDown
-                    className={`h-5 w-5 text-muted-foreground flex-shrink-0 transition-transform duration-300 ${
-                      openIndex === index ? "rotate-180" : ""
-                    }`}
-                  />
+                  <motion.div
+                    animate={{ rotate: openIndex === index ? 180 : 0 }}
+                    transition={transition}
+                    className="flex-shrink-0"
+                  >
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                  </motion.div>
                 </div>
 
                 {/* Answer */}
-                {openIndex === index && (
-                  <p className="mt-4 font-sans text-sm md:text-base text-muted-foreground leading-relaxed">
-                    {faq.answer}
-                  </p>
-                )}
+                <AnimatePresence>
+                  {openIndex === index && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                      animate={{ height: "auto", opacity: 1, marginTop: 24 }}
+                      exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                      transition={transition}
+                      className="overflow-hidden"
+                    >
+                      <p className="font-sans text-base md:text-lg text-muted-foreground/80 leading-relaxed border-t border-white/5 pt-6">
+                        {faq.answer}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </button>
-            </div>
+            </motion.div>
           ))}
         </div>
 
         {/* CTA */}
-        <div
-          className={`mt-12 text-center transition-all duration-700 ease-out ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
-          style={{ transitionDelay: isVisible ? `${faqs.length * 50 + 100}ms` : "0ms" }}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ ...transition, delay: 0.8 }}
+          className="mt-20 text-center"
         >
-          <p className="font-sans text-muted-foreground mb-4">Still have questions?</p>
-          <a
+          <p className="font-sans text-muted-foreground/60 mb-8 lowercase italic">Still have questions?</p>
+          <motion.a
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
             href="https://wa.me/919876543210"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-sans text-sm font-medium"
+            className="inline-flex px-10 py-4 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors font-sans text-sm font-semibold tracking-widest uppercase"
           >
             Message us on WhatsApp
-          </a>
-        </div>
+          </motion.a>
+        </motion.div>
       </div>
     </section>
   )

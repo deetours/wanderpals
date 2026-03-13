@@ -1,7 +1,7 @@
-"use client"
-
-import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import { motion } from "framer-motion"
+import { ArrowUpRight, MapPin } from "lucide-react"
+import { Magnetic } from "../ui/magnetic"
 
 interface Stay {
   id: string
@@ -24,105 +24,78 @@ interface StayCardProps {
   featured?: boolean
 }
 
+const transition = {
+  duration: 1,
+  ease: [0.23, 1, 0.32, 1] as any,
+}
+
 export function StayCard({ stay, index, featured = false }: StayCardProps) {
-  const [isVisible, setIsVisible] = useState(false)
-  const [isHovered, setIsHovered] = useState(false)
-  const cardRef = useRef<HTMLAnchorElement>(null)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.1 },
-    )
-
-    if (cardRef.current) {
-      observer.observe(cardRef.current)
-    }
-
-    return () => observer.disconnect()
-  }, [])
-
   return (
-    <Link
-      ref={cardRef}
-      href={`/stays/${stay.id}`}
-      className={`group relative block overflow-hidden rounded-lg bg-card transition-all ease-out ${
-        featured ? "duration-900" : "duration-700"
-      } ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"}`}
-      style={{ transitionDelay: `${index * 100}ms` }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ ...transition, delay: (index % 3) * 0.05 }}
+      className="h-full"
     >
-      <div className={`relative overflow-hidden ${featured ? "aspect-[4/6]" : "aspect-[4/5]"}`}>
-        {/* Image */}
-        <div
-          className={`absolute inset-0 bg-cover bg-center transition-transform ease-out ${
-            featured ? "duration-900" : "duration-700"
-          } ${isHovered ? "scale-[1.02]" : "scale-100"}`}
-          style={{
-            backgroundImage: `url('${stay.image}')`,
-          }}
-        />
+      <Magnetic strength={0.05}>
+        <Link href={`/stays/${stay.id}`} className="group block h-full">
+          <div className="relative h-full overflow-hidden rounded-[2.5rem] glass shadow-2xl transition-all duration-700 group-hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.5)]">
+            {/* Image Layer */}
+            <div className="relative h-full overflow-hidden">
+              <motion.div
+                whileHover={{ scale: 1.08 }}
+                transition={{ duration: 2, ease: [0.23, 1, 0.32, 1] as any }}
+                className="absolute inset-0 bg-cover bg-center grayscale-[0.1] group-hover:grayscale-0 transition-all duration-1000"
+                style={{ backgroundImage: `url('${stay.image}')` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
 
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+              {/* Arrow Indicator */}
+              <div className="absolute top-8 right-8 p-3 rounded-full glass text-white/20 group-hover:text-primary group-hover:rotate-45 transition-all duration-700">
+                <ArrowUpRight className="h-4 w-4" />
+              </div>
 
-        {/* Soft glow on hover */}
-        <div
-          className={`absolute inset-0 bg-primary/5 transition-opacity duration-500 ${
-            isHovered ? "opacity-100" : "opacity-0"
-          }`}
-        />
+              {/* Type Badge */}
+              <div className="absolute top-8 left-8 flex items-center gap-2 px-4 py-1.5 rounded-full glass inner-glow">
+                <span className="text-[10px] uppercase tracking-[0.3em] text-primary/60 font-bold">
+                  {stay.type}
+                </span>
+              </div>
 
-        {/* Content */}
-        <div className="absolute inset-0 flex flex-col justify-end p-6">
-          <h3
-            className={`font-serif text-2xl text-foreground transition-colors duration-500 ${
-              isHovered ? "text-primary" : ""
-            }`}
-          >
-            {stay.name}
-          </h3>
-          <p className="mt-1 text-sm text-muted-foreground">{stay.location}</p>
+              {/* Content Overlay */}
+              <div className="absolute inset-x-0 bottom-0 p-8 md:p-12">
+                <div className="flex items-center gap-2 text-primary/40 mb-3">
+                  <MapPin className="h-3 w-3" />
+                  <span className="text-[10px] uppercase tracking-[0.4em] font-bold">
+                    {stay.location}
+                  </span>
+                </div>
+                
+                <h3 className="font-serif text-3xl md:text-5xl text-foreground tracking-tightest leading-[1.1] group-hover:text-primary transition-colors duration-500">
+                  {stay.name}
+                </h3>
+                
+                <p className="mt-4 text-base md:text-lg text-muted-foreground/60 font-serif italic lowercase line-clamp-1 group-hover:text-muted-foreground transition-colors duration-500">
+                  {stay.tagline}
+                </p>
 
-          {/* Tagline fades up on hover */}
-          <p
-            className={`mt-3 font-serif text-base text-foreground/80 italic transition-all duration-500 ${
-              isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
-            }`}
-          >
-            {stay.tagline}
-          </p>
-
-          <p className="mt-2 font-sans text-xs text-muted-foreground/50">{stay.memoryCue}</p>
-
-          <p
-            className={`mt-2 font-sans text-xs text-primary/70 italic transition-all duration-500 ${
-              isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1"
-            }`}
-          >
-            "{stay.stayStory}"
-          </p>
-
-          {/* Pricing and availability */}
-          <div className="mt-3 flex items-center justify-between pt-3 border-t border-muted-foreground/10">
-            {stay.price && (
-              <span className="font-sans text-xs text-primary">
-                From ₹{stay.price.toLocaleString()}
-              </span>
-            )}
-            {stay.availability && (
-              <span className="font-sans text-xs text-muted-foreground/60">
-                {stay.availability}
-              </span>
-            )}
+                <div className="mt-8 flex items-center justify-between opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-700">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground/30 font-bold">The Scene</span>
+                    <span className="text-xs text-muted-foreground/60 font-serif italic lowercase">"{stay.stayStory}"</span>
+                  </div>
+                  {stay.price && (
+                    <span className="font-serif text-2xl text-foreground">
+                      ₹{stay.price.toLocaleString()}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </Link>
+        </Link>
+      </Magnetic>
+    </motion.div>
   )
 }

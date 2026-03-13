@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useRef } from "react"
+import { motion, useScroll, useTransform } from "framer-motion"
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowUpRight, Clock, Users } from "lucide-react"
 
 interface Journey {
   id: string
@@ -11,6 +12,8 @@ interface Journey {
   duration: string
   images: string[]
   groupSize: string
+  terrain?: string
+  price?: number
 }
 
 interface JourneyCardProps {
@@ -19,102 +22,112 @@ interface JourneyCardProps {
 }
 
 export function JourneyCard({ journey, index }: JourneyCardProps) {
-  const [isVisible, setIsVisible] = useState(false)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [isHovered, setIsHovered] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
+  const isEven = index % 2 === 0
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.2 },
-    )
+  const { scrollYProgress } = useScroll({
+    target: cardRef,
+    offset: ["start end", "end start"],
+  })
 
-    if (cardRef.current) {
-      observer.observe(cardRef.current)
-    }
+  // Per-card Ken Burns — image scales as it scrolls into view
+  const imgScale = useTransform(scrollYProgress, [0, 0.5], [1.1, 1.0])
+  const cardOpacity = useTransform(scrollYProgress, [0.0, 0.2, 0.85, 1.0], [0, 1, 1, 0.6])
+  const textX = useTransform(
+    scrollYProgress,
+    [0.05, 0.3],
+    [isEven ? -40 : 40, 0]
+  )
+  const textOpacity = useTransform(scrollYProgress, [0.05, 0.3], [0, 1])
 
-    return () => observer.disconnect()
-  }, [])
-
-  // Auto-cycle through images when visible
-  useEffect(() => {
-    if (isVisible && !isHovered) {
-      const interval = setInterval(() => {
-        setCurrentImageIndex((prev) => (prev + 1) % journey.images.length)
-      }, 3000)
-      return () => clearInterval(interval)
-    }
-  }, [isVisible, isHovered, journey.images.length])
+  const image = journey.images?.[0] || "/placeholder.jpg"
 
   return (
-    <div
+    <motion.div
       ref={cardRef}
-      className={`transition-all duration-700 ease-out ${
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-      }`}
-      style={{ transitionDelay: `${index * 150}ms` }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      style={{ opacity: cardOpacity }}
+      className="group"
     >
-      <Link href={`/trips/${journey.id}`} className="group block">
-        {/* Image strip - scrolls like chapters */}
-        <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
-          {journey.images.map((image, imgIndex) => (
-            <div
-              key={imgIndex}
-              className={`absolute inset-0 bg-cover bg-center transition-all duration-1000 ease-out ${
-                currentImageIndex === imgIndex ? "opacity-100 scale-100" : "opacity-0 scale-105"
-              }`}
-              style={{ backgroundImage: `url('${image}')` }}
-            />
-          ))}
+      <Link href={`/trips/${journey.id}`} className="block">
+        <div className={`grid md:grid-cols-12 gap-8 md:gap-16 items-center ${isEven ? "" : "md:grid-flow-dense"}`}>
 
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+          {/* ── Image Column ────────────────────────────────── */}
+          <div className={`relative md:col-span-7 ${isEven ? "" : "md:col-start-6"}`}>
+            <div className="relative aspect-[16/10] overflow-hidden rounded-[2.5rem] inner-glow">
+              {/* Ken Burns parallax */}
+              <motion.div style={{ scale: imgScale }} className="absolute inset-0">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 2.5, ease: [0.23, 1, 0.32, 1] }}
+                  className="absolute inset-0 bg-cover bg-center grayscale-[0.1] group-hover:grayscale-0 transition-all duration-[3s]"
+                  style={{ backgroundImage: `url('${image}')` }}
+                />
+              </motion.div>
 
-          {/* Image indicators */}
-          <div className="absolute bottom-4 left-4 flex gap-2">
-            {journey.images.map((_, imgIndex) => (
-              <button
-                key={imgIndex}
-                onClick={(e) => {
-                  e.preventDefault()
-                  setCurrentImageIndex(imgIndex)
-                }}
-                className={`h-1 rounded-full transition-all duration-300 ${
-                  currentImageIndex === imgIndex ? "w-8 bg-primary" : "w-4 bg-foreground/30"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
+              {/* Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
 
-        {/* Content below image */}
-        <div className="mt-6 flex items-end justify-between">
-          <div>
-            <h2 className="font-serif text-3xl md:text-4xl text-foreground group-hover:text-primary transition-colors duration-300">
-              {journey.name}
-            </h2>
-            <p className="mt-2 font-serif text-lg text-muted-foreground italic">{journey.tagline}</p>
-            <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground">
-              <span>{journey.duration}</span>
-              <span className="h-1 w-1 rounded-full bg-muted-foreground" />
-              <span>{journey.groupSize} travellers</span>
+              {/* Border glow */}
+              <div className="absolute inset-0 rounded-[2.5rem] border border-white/5 group-hover:border-primary/10 transition-colors duration-700 pointer-events-none" />
+
+              {/* Arrow badge */}
+              <div className="absolute top-6 right-6 w-11 h-11 rounded-full glass flex items-center justify-center text-white/20 group-hover:text-primary group-hover:rotate-45 group-hover:bg-primary/10 transition-all duration-700">
+                <ArrowUpRight className="h-4 w-4" />
+              </div>
+
+              {/* Index number overlay */}
+              <div className="absolute bottom-6 left-8 font-serif text-[80px] leading-none text-white/5 select-none pointer-events-none font-bold">
+                {String(index + 1).padStart(2, "0")}
+              </div>
             </div>
           </div>
 
-          {/* CTA */}
-          <div className="flex items-center gap-2 text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <span className="text-sm">See the journey</span>
-            <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
-          </div>
+          {/* ── Text Column ─────────────────────────────────── */}
+          <motion.div
+            style={{ opacity: textOpacity, x: textX }}
+            className={`md:col-span-5 ${isEven ? "" : "md:col-start-1 md:row-start-1"}`}
+          >
+            {/* Meta */}
+            <div className="flex items-center gap-6 mb-8">
+              <span className="flex items-center gap-2 text-[9px] uppercase tracking-[0.5em] text-muted-foreground/30 font-bold">
+                <Clock className="w-3 h-3" />
+                {journey.duration}
+              </span>
+              <span className="flex items-center gap-2 text-[9px] uppercase tracking-[0.5em] text-muted-foreground/30 font-bold">
+                <Users className="w-3 h-3" />
+                {journey.groupSize} souls
+              </span>
+            </div>
+
+            {/* Name */}
+            <h2 className="font-serif text-[clamp(2rem,5vw,4rem)] text-foreground leading-[0.95] tracking-tightest group-hover:text-primary transition-colors duration-700">
+              {journey.name}
+            </h2>
+
+            {/* Tagline */}
+            <p className="mt-6 font-serif text-xl text-muted-foreground/50 italic lowercase leading-relaxed group-hover:text-muted-foreground/70 transition-colors duration-700">
+              {journey.tagline}
+            </p>
+
+            {/* Expanding line reveal */}
+            <motion.div
+              initial={{ width: 0 }}
+              whileInView={{ width: "30%" }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.5, delay: 0.4, ease: [0.23, 1, 0.32, 1] }}
+              className="h-px bg-primary/20 mt-10"
+            />
+
+            {/* CTA */}
+            <div className="mt-10 flex items-center gap-3 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-700">
+              <span className="text-[9px] uppercase tracking-[0.5em] text-primary font-bold">
+                Explore journey
+              </span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-primary" />
+            </div>
+          </motion.div>
         </div>
       </Link>
-    </div>
+    </motion.div>
   )
 }

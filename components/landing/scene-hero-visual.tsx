@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
+import { motion, AnimatePresence, useTransform, MotionValue, useScroll } from "framer-motion"
 
 const heroImages = [
   {
@@ -9,7 +10,7 @@ const heroImages = [
     alt: "Strangers laughing around a campfire at 4AM in Spiti Valley",
   },
   {
-    src: "/hero-campfire-spiti1.jpg", // Switched to optimized jpg
+    src: "/hero-campfire-spiti1.jpg",
     alt: "Two strangers becoming friends on a Kerala houseboat at sunrise",
   },
   {
@@ -18,42 +19,64 @@ const heroImages = [
   },
 ]
 
-export function SceneHeroVisual() {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [mounted, setMounted] = useState(false)
+interface SceneHeroVisualProps {
+  scrollYProgress?: MotionValue<number>
+}
+
+export function SceneHeroVisual({ scrollYProgress }: SceneHeroVisualProps) {
+  const [index, setIndex] = useState(0)
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length)
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % heroImages.length)
     }, 8000)
-    return () => clearInterval(interval)
+    return () => clearInterval(timer)
   }, [])
+
+  // Parallax offset
+  const { scrollYProgress: defaultScroll } = useScroll()
+  const activeScroll = scrollYProgress || defaultScroll
+  
+  const y = useTransform(activeScroll, [0, 1], ["0%", "20%"])
+  const scale = useTransform(activeScroll, [0, 1], [1, 1.1])
 
   return (
-    <div className="absolute inset-0 overflow-hidden">
-      {heroImages.map((image, index) => (
-        <div
-          key={image.src}
-          className={`absolute inset-0 transition-opacity duration-1500 ease-in-out ${index === currentImageIndex ? "opacity-100" : "opacity-0"
-            }`}
+    <motion.div 
+      style={{ y, scale }}
+      className="absolute inset-0 z-0"
+    >
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={heroImages[index].src}
+          initial={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
+          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+          exit={{ opacity: 0, scale: 0.95, filter: "blur(20px)" }}
+          transition={{ duration: 2.5, ease: [0.23, 1, 0.32, 1] }}
+          className="absolute inset-0"
         >
           <Image
-            src={image.src}
-            alt={image.alt}
+            src={heroImages[index].src}
+            alt={heroImages[index].alt}
             fill
-            sizes="100vw"
+            priority
             className="object-cover"
-            priority={index === 0}
-            quality={90}
+            quality={100}
           />
-          {/* Dark overlay for text readability */}
-          <div className="absolute inset-0 bg-black/40" />
-        </div>
-      ))}
-    </div>
+          {/* Enhanced cinematic overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-black/10" />
+        </motion.div>
+      </AnimatePresence>
+      
+      {/* Constant breathing effect layer */}
+      <motion.div 
+        animate={{ scale: [1, 1.02, 1] }}
+        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        className="absolute inset-0 opacity-10 pointer-events-none"
+      >
+        <div className="absolute inset-0 bg-primary/5 mix-blend-overlay" />
+      </motion.div>
+    </motion.div>
   )
 }
+
