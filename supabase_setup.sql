@@ -54,13 +54,17 @@ BEGIN
   VALUES (new.id, new.email, 'user')
   ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email;
 
-  INSERT INTO public.profiles (id, full_name, avatar_url)
+  INSERT INTO public.profiles (id, full_name, whatsapp_number, avatar_url)
   VALUES (
     new.id, 
     COALESCE(new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name'),
+    new.raw_user_meta_data->>'whatsapp_number',
     new.raw_user_meta_data->>'avatar_url'
   )
-  ON CONFLICT (id) DO NOTHING;
+  ON CONFLICT (id) DO UPDATE SET 
+    full_name = EXCLUDED.full_name,
+    whatsapp_number = EXCLUDED.whatsapp_number,
+    avatar_url = EXCLUDED.avatar_url;
 
   RETURN new;
 END;

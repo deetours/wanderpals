@@ -195,7 +195,7 @@ export function ExploreStaysDynamic({ initialStays = [] }: { initialStays?: any[
       </motion.section>
 
       {/* ── Search & Filter Bar ───────────────────────────────── */}
-      <section className="px-6 pb-8 md:px-16 lg:px-24 sticky top-[72px] z-40">
+      <section className="px-6 pb-8 md:px-16 lg:px-24 sticky top-20 z-30">
         <div className="mx-auto max-w-6xl">
           <Magnetic strength={0.08}>
             <motion.div

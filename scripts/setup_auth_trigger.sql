@@ -5,26 +5,28 @@
 CREATE OR REPLACE FUNCTION public.handle_new_user() 
 RETURNS trigger AS $$
 BEGIN
-  -- Insert into profiles
-  INSERT INTO public.profiles (id, role, full_name, whatsapp_number)
+  -- Insert into profiles table
+  INSERT INTO public.profiles (id, full_name, whatsapp_number, avatar_url)
   VALUES (
     new.id, 
-    'user', 
     new.raw_user_meta_data->>'full_name',
-    new.raw_user_meta_data->>'whatsapp_number'
+    new.raw_user_meta_data->>'whatsapp_number',
+    new.raw_user_meta_data->>'avatar_url'
   )
   ON CONFLICT (id) DO UPDATE SET
     full_name = EXCLUDED.full_name,
-    whatsapp_number = EXCLUDED.whatsapp_number;
+    whatsapp_number = EXCLUDED.whatsapp_number,
+    avatar_url = EXCLUDED.avatar_url;
 
-  -- Insert into users (fallback table)
-  INSERT INTO public.users (id, role, email)
+  -- Insert into users table 
+  INSERT INTO public.users (id, email, role)
   VALUES (
     new.id, 
-    'user', 
-    new.email
+    new.email,
+    'user'
   )
-  ON CONFLICT (id) DO NOTHING;
+  ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email;
 
   RETURN new;
 END;
@@ -39,11 +41,11 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
 -- 4. Sync any existing users that might have been missed
-INSERT INTO public.profiles (id, role, full_name)
+INSERT INTO public.profiles (id, full_name, whatsapp_number)
 SELECT 
   id, 
-  'user',
-  raw_user_meta_data->>'full_name'
+  raw_user_meta_data->>'full_name',
+  raw_user_meta_data->>'whatsapp_number'
 FROM auth.users
 WHERE id NOT IN (SELECT id FROM public.profiles)
 ON CONFLICT DO NOTHING;

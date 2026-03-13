@@ -7,7 +7,8 @@ import { StaysManager } from './stays-manager'
 import { BookingsViewer } from './bookings-viewer'
 import { LeadsManager } from './leads-manager'
 import { AnalyticsDashboard } from './analytics-dashboard'
-import { MapPin, BookOpen, Users, BarChart3, MessageSquare, Zap } from 'lucide-react'
+import { UsersManager } from './users-manager'
+import { MapPin, BookOpen, Users, BarChart3, MessageSquare, Zap, UserCheck } from 'lucide-react'
 
 const tabs = [
   { id: 'analytics', label: 'Analytics', icon: BarChart3, desc: 'Performance at a glance' },
@@ -15,6 +16,7 @@ const tabs = [
   { id: 'stays', label: 'Stays', icon: BookOpen, desc: 'Manage properties' },
   { id: 'bookings', label: 'Bookings', icon: Users, desc: 'Track reservations' },
   { id: 'leads', label: 'Leads', icon: MessageSquare, desc: 'Incoming inquiries' },
+  { id: 'users', label: 'Users', icon: UserCheck, desc: 'Manage user accounts' },
 ]
 
 export function AdminDashboard() {
@@ -98,6 +100,7 @@ export function AdminDashboard() {
             {activeTab === 'stays' && <StaysManager />}
             {activeTab === 'bookings' && <BookingsViewer />}
             {activeTab === 'leads' && <LeadsManager />}
+            {activeTab === 'users' && <UsersManager />}
           </motion.div>
         </AnimatePresence>
       </div>

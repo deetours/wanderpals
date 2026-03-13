@@ -107,21 +107,52 @@ export async function signup(email: string, password: string, fullName: string, 
             return { error: signUpError.message }
         }
 
-        if (data.user) {
-            await (supabase
-                .from('profiles')
-                .update({
-                    full_name: fullName,
-                    whatsapp_number: whatsapp
-                })
-                .eq('id', data.user.id) as any)
+        if (!data.user?.id) {
+            console.error('No user ID returned from signup')
+            return { error: 'Signup failed - no user ID returned' }
         }
 
+        console.log(`User created successfully: ${data.user.id}`)
+
+        // Wait a moment for the trigger to complete
+        await new Promise(resolve => setTimeout(resolve, 500))
+
+        // Verify and update profile with whatsapp_number via upsert
+        const { error: profileError } = await (supabase
+            .from('profiles')
+            .upsert({
+                id: data.user.id,
+                full_name: fullName,
+                whatsapp_number: whatsapp,
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'id' }) as any)
+
+        if (profileError) {
+            console.error('Profile update warning (non-blocking):', profileError.message)
+            // Don't fail the signup for profile update errors
+        } else {
+            console.log('Profile updated successfully')
+        }
+
+        // Also verify users table has the entry
+        const { error: usersCheckError } = await (supabase
+            .from('users')
+            .upsert({
+                id: data.user.id,
+                email: email,
+                role: 'user'
+            }, { onConflict: 'id' }) as any)
+
+        if (usersCheckError) {
+            console.error('Users table update warning (non-blocking):', usersCheckError.message)
+        }
+
+        console.log('Signup process completed successfully')
         return { success: true, redirectUrl: '/return' }
 
     } catch (err: any) {
         console.error('UNEXPECTED SIGNUP ACTION ERROR:', err)
-        return { error: 'An unexpected server error occurred during sign up.' }
+        return { error: err.message || 'An unexpected server error occurred during sign up.' }
     } finally {
         console.log('--- SIGNUP ACTION END ---')
     }
