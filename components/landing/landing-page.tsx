@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { motion, useScroll, useSpring, useTransform } from "framer-motion"
 import { SceneArrival } from "./scene-arrival"
 import { SceneVillain } from "./scene-villain"
+import { SceneEarlyGateways } from "./scene-early-gateways"
 import { SceneThreeLines } from "./scene-three-lines"
 import { SceneHumanFace } from "./scene-human-face"
 import { ScenePause } from "./scene-pause"
@@ -75,6 +76,7 @@ export function LandingPage() {
       <div className="relative z-10">
         <SceneArrival />
         <SceneVillain />
+        <SceneEarlyGateways />
         <SceneThreeLines />
         <SceneHumanFace />
         <ScenePause />
