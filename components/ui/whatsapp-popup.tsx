@@ -38,7 +38,7 @@ export function WhatsAppPopup() {
       }).catch(err => console.warn('Lead logging failed:', err))
 
       // 2. WhatsApp link redirect
-      const message = `Hi Wanderpals! I'm interested in your trips and stays. My phone: ${phoneNumber}`
+      const message = `I've been wandering through your collection. I'm ready to find a place where I actually belong. Could you guide me?`
       const whatsappLink = `https://wa.me/917629877144?text=${encodeURIComponent(message)}`
       window.open(whatsappLink, "_blank")
       setIsOpen(false)
