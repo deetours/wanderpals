@@ -39,6 +39,12 @@ export function AnalyticsDashboard() {
         client.from('leads').select('*', { count: 'exact', head: true }),
       ])
 
+      if (profilesRes.error) console.warn(`[ANALYTICS] profiles: ${profilesRes.error.message}`)
+      if (bookingsRes.error) console.warn(`[ANALYTICS] bookings: ${bookingsRes.error.message}`)
+      if (tripsRes.error) console.warn(`[ANALYTICS] trips: ${tripsRes.error.message}`)
+      if (staysRes.error) console.warn(`[ANALYTICS] stays: ${staysRes.error.message}`)
+      if (leadsRes.error) console.warn(`[ANALYTICS] leads: ${leadsRes.error.message}`)
+
       const bookingRows = bookingsRes.data || []
       const confirmed = bookingRows.filter((b: any) => b.status === 'confirmed')
       const revenue = confirmed.reduce((sum: number, b: any) => sum + (b.total_amount || 0), 0)
@@ -52,8 +58,14 @@ export function AnalyticsDashboard() {
         totalRevenue: revenue,
         totalLeads: leadsRes.count || 0,
       })
-    } catch (err) {
-      console.error('Analytics fetch error:', err)
+    } catch (err: any) {
+      console.error('Analytics fetch error:', {
+        message: err.message,
+        details: err.details,
+        hint: err.hint,
+        code: err.code,
+        fullError: err
+      })
     } finally {
       setLoading(false)
     }

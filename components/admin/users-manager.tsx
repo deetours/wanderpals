@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClientComponentClient } from '@/lib/supabase-client'
 import { Users, ShieldCheck, RefreshCcw, Search, Shield, User } from 'lucide-react'
 
 interface Profile {
@@ -9,7 +8,7 @@ interface Profile {
   full_name: string
   whatsapp_number: string
   role: string
-  created_at: string
+  updated_at: string
   avatar_url?: string
 }
 
@@ -17,45 +16,54 @@ export function UsersManager() {
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [supabase, setSupabase] = useState<any>(null)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const client = createClientComponentClient()
-    setSupabase(client)
-    fetchProfiles(client)
+    fetchProfiles()
   }, [])
 
-  const fetchProfiles = async (client: any) => {
-    if (!client) return
+  const fetchProfiles = async () => {
     setLoading(true)
+    setError(null)
     try {
-      const { data, error } = await client
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      setProfiles(data || [])
-    } catch (err) {
-      console.error('Profiles fetch error:', err)
+      const res = await fetch('/api/admin/profiles')
+      const json = await res.json()
+      if (!res.ok) {
+        setError(json.error || 'Failed to load users')
+        console.error('[UsersManager] API error:', json.error)
+      } else {
+        setProfiles(json.data || [])
+      }
+    } catch (err: any) {
+      setError(err.message || 'Network error')
+      console.error('[UsersManager] fetch exception:', err.message)
     } finally {
       setLoading(false)
     }
   }
 
   const toggleRole = async (profile: Profile) => {
-    if (!supabase) return
     const newRole = profile.role === 'admin' ? 'user' : 'admin'
     if (newRole === 'admin' && !confirm(`Promote ${profile.full_name || 'this user'} to admin? They will have full access to the admin dashboard.`)) return
     setUpdatingId(profile.id)
-    const { error } = await supabase
-      .from('profiles')
-      .update({ role: newRole })
-      .eq('id', profile.id)
-    if (!error) {
-      setProfiles(prev => prev.map(p => p.id === profile.id ? { ...p, role: newRole } : p))
+    try {
+      const res = await fetch('/api/admin/profiles', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: profile.id, role: newRole }),
+      })
+      if (res.ok) {
+        setProfiles(prev => prev.map(p => p.id === profile.id ? { ...p, role: newRole } : p))
+      } else {
+        const json = await res.json()
+        alert(`Failed to update role: ${json.error}`)
+      }
+    } catch (err: any) {
+      alert(`Network error: ${err.message}`)
+    } finally {
+      setUpdatingId(null)
     }
-    setUpdatingId(null)
   }
 
   const filtered = profiles.filter(p =>
@@ -69,6 +77,13 @@ export function UsersManager() {
 
   return (
     <div className="space-y-6">
+      {/* Error Banner */}
+      {error && (
+        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
+          ⚠️ {error} — check that <code>SUPABASE_SERVICE_ROLE_KEY</code> is set in <code>.env.local</code>
+        </div>
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <div className="p-6 rounded-2xl border border-blue-400/10 bg-blue-400/5 text-center">
@@ -98,7 +113,7 @@ export function UsersManager() {
           />
         </div>
         <button
-          onClick={() => supabase && fetchProfiles(supabase)}
+          onClick={fetchProfiles}
           className="p-3 rounded-xl border border-white/5 bg-card hover:bg-white/[0.04] transition-all text-muted-foreground hover:text-foreground"
         >
           <RefreshCcw className="h-4 w-4" />
@@ -133,9 +148,7 @@ export function UsersManager() {
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                          {profile.role === 'admin'
-                            ? <Shield className="h-3.5 w-3.5" />
-                            : <User className="h-3.5 w-3.5" />}
+                          {profile.role === 'admin' ? <Shield className="h-3.5 w-3.5" /> : <User className="h-3.5 w-3.5" />}
                         </div>
                         <span className="text-foreground">{profile.full_name || <span className="text-muted-foreground/40 italic">No name</span>}</span>
                       </div>
@@ -148,7 +161,7 @@ export function UsersManager() {
                       </span>
                     </td>
                     <td className="px-5 py-4 text-muted-foreground text-xs">
-                      {new Date(profile.created_at).toLocaleDateString('en-IN')}
+                      {profile.updated_at ? new Date(profile.updated_at).toLocaleDateString('en-IN') : '—'}
                     </td>
                     <td className="px-5 py-4 text-right">
                       <button

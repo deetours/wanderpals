@@ -28,8 +28,14 @@ export function BookingsViewer() {
         .order('created_at', { ascending: false })
       if (error) throw error
       setBookings(data || [])
-    } catch (err) {
-      console.error('Bookings fetch error:', err)
+    } catch (err: any) {
+      console.error('Bookings fetch error:', {
+        message: err.message,
+        details: err.details,
+        hint: err.hint,
+        code: err.code,
+        fullError: err
+      })
       setBookings([])
     } finally {
       setLoading(false)

@@ -32,6 +32,23 @@ export function StayForm({ stay, onSuccess }: StayFormProps) {
     setSupabase(createClientComponentClient())
   }, [])
 
+  // Re-sync form when a different stay is passed (e.g. switching edits in drawer)
+  useEffect(() => {
+    setFormData({
+      name: stay?.name || '',
+      location: stay?.location || '',
+      tagline: stay?.tagline || '',
+      description: stay?.description || '',
+      price: stay?.price || 0,
+      room_type: stay?.room_type || 'Dorm',
+      image_url: stay?.image_url || '',
+      amenities: stay?.amenities || [''],
+      gallery: stay?.gallery || [''],
+      capacity: stay?.capacity || 4,
+      status: stay?.status || 'draft',
+    })
+  }, [stay?.id])
+
   const handleImageUpload = async (file: File, callback: (url: string) => void) => {
     if (!supabase || !file) return
     setUploading(true)

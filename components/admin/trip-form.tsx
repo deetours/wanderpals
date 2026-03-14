@@ -50,6 +50,31 @@ export function TripForm({ trip, onSuccess }: TripFormProps) {
     setSupabase(createClientComponentClient())
   }, [])
 
+  // Re-sync form when a different trip is passed (e.g. switching edits in drawer)
+  useEffect(() => {
+    setFormData({
+      name: trip?.name || '',
+      tagline: trip?.tagline || '',
+      description: trip?.description || '',
+      region: trip?.region || '',
+      terrain: trip?.terrain || '',
+      duration: trip?.duration || 5,
+      price: trip?.price || 0,
+      group_size: trip?.group_size || 12,
+      status: trip?.status || 'published',
+      image_url: trip?.image_url || '',
+      is_featured: trip?.is_featured || false,
+      show_on_all_trips: trip?.show_on_all_trips !== false,
+      show_on_journeys: trip?.show_on_journeys || trip?.is_featured || false,
+    })
+    setItinerary(trip?.itinerary || [{ day: 1, title: '', description: '', image_url: '' }])
+    setInclusions(trip?.inclusions || [''])
+    setExclusions(trip?.exclusions || [''])
+    setTerms(trip?.terms || [''])
+    setThingsToCarry(trip?.things_to_carry || [''])
+    setDates(trip?.dates || [{ start: '', end: '', spots: 10 }])
+  }, [trip?.id])
+
   // ─── Image Upload ───
   const handleImageUpload = async (file: File, callback: (url: string) => void) => {
     if (!supabase || !file) return
