@@ -98,6 +98,9 @@ DO $$ BEGIN
 END $$;
 
 -- 8. Log completion
-RAISE NOTICE '✅ Signup fix applied successfully!';
-RAISE NOTICE 'New users will now automatically get profiles created with whatsapp_number.';
-RAISE NOTICE 'Existing users have been synced to the profiles table.';
+DO $$
+BEGIN
+  RAISE NOTICE '✅ Signup fix applied successfully!';
+  RAISE NOTICE 'New users will now automatically get profiles created with whatsapp_number.';
+  RAISE NOTICE 'Existing users have been synced to the profiles table.';
+END $$;
