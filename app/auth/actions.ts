@@ -147,6 +147,25 @@ export async function signup(email: string, password: string, fullName: string, 
             console.error('Users table update warning (non-blocking):', usersCheckError.message)
         }
 
+        // Create a lead entry for this signup (capture in admin dashboard)
+        const { error: leadError } = await (supabase
+            .from('leads')
+            .insert({
+                full_name: fullName,
+                email: email,
+                phone_number: whatsapp,
+                source: 'webapp_form',
+                status: 'new',
+                notes: 'Auto-captured from signup form'
+            }) as any)
+
+        if (leadError) {
+            console.error('Lead creation warning (non-blocking):', leadError.message)
+            // Don't fail signup if lead creation has issues
+        } else {
+            console.log('Lead entry created successfully in admin dashboard')
+        }
+
         console.log('Signup process completed successfully')
         return { success: true, redirectUrl: '/return' }
 
