@@ -1,9 +1,8 @@
 "use client"
 
-import { useRef } from "react"
-import { motion, useScroll, useTransform } from "framer-motion"
+import { motion } from "framer-motion"
 import Link from "next/link"
-import { ArrowUpRight, MapPin, Users, Star } from "lucide-react"
+import { ArrowUpRight, MapPin } from "lucide-react"
 import { Magnetic } from "../ui/magnetic"
 
 interface Stay {
@@ -12,16 +11,14 @@ interface Stay {
   location: string
   tagline: string
   stayStory?: string
-  image: string
+  image?: string
   image_url?: string
-  type: string
+  type?: string
   roomType?: string
   room_type?: string
   vibe?: string
   price?: number
   altitude?: string
-  host_name?: string
-  rating?: number
 }
 
 interface StayCardProps {
@@ -30,49 +27,43 @@ interface StayCardProps {
 }
 
 export function StayCard({ stay, index }: StayCardProps) {
-  const cardRef = useRef<HTMLDivElement>(null)
-  const image = stay.image_url || stay.image || "/placeholder.jpg"
+  const image = stay.image_url || stay.image || ""
   const roomType = stay.roomType || stay.room_type
-
-  const { scrollYProgress } = useScroll({
-    target: cardRef,
-    offset: ["start end", "end start"],
-  })
-
-  // Ken Burns — image scales as it scrolls into view
-  const imgScale = useTransform(scrollYProgress, [0, 0.5], [1.08, 1.0])
-  const cardOpacity = useTransform(scrollYProgress, [0.0, 0.2, 0.85, 1.0], [0, 1, 1, 0.7])
-  const cardY = useTransform(scrollYProgress, [0.0, 0.2], [50, 0])
+  const type = stay.type || stay.vibe || "Stay"
 
   return (
-    <motion.div ref={cardRef} style={{ opacity: cardOpacity, y: cardY }} className="h-full">
+    <motion.div
+      className="h-full"
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1], delay: (index % 5) * 0.05 }}
+    >
       <Magnetic strength={0.04}>
         <Link href={`/stays/${stay.id}`} className="group block h-full">
           <div className="relative h-full overflow-hidden rounded-[2.5rem] border border-white/5 group-hover:border-primary/10 shadow-2xl group-hover:shadow-[0_60px_120px_-20px_rgba(0,0,0,0.6)] transition-all duration-700">
 
-            {/* Ken Burns Image */}
+            {/* Background Image with hover scale */}
             <div className="absolute inset-0 overflow-hidden rounded-[inherit]">
-              <motion.div style={{ scale: imgScale }} className="absolute inset-0">
+              {image ? (
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   transition={{ duration: 2.5, ease: [0.23, 1, 0.32, 1] }}
                   className="absolute inset-0 bg-cover bg-center grayscale-[0.15] group-hover:grayscale-0 transition-all duration-[3s]"
                   style={{ backgroundImage: `url('${image}')` }}
                 />
-              </motion.div>
+              ) : (
+                // Elegant gradient fallback when no image
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-background/80" />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
             </div>
 
-            {/* Type + Location badges */}
+            {/* Type badge */}
             <div className="absolute top-6 left-6 flex items-center gap-3 z-10">
               <div className="px-4 py-1.5 rounded-full glass text-[9px] uppercase tracking-[0.4em] text-primary/60 font-bold">
-                {stay.type}
+                {type}
               </div>
-              {stay.altitude && (
-                <div className="px-4 py-1.5 rounded-full glass text-[9px] uppercase tracking-[0.4em] text-muted-foreground/40 font-bold">
-                  {stay.altitude}
-                </div>
-              )}
             </div>
 
             {/* Arrow badge */}

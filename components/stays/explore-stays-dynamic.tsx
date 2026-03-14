@@ -63,6 +63,7 @@ export function ExploreStaysDynamic({ initialStays = [] }: { initialStays?: any[
       const { data } = await client
         .from('stays')
         .select('*')
+        .eq('status', 'published')
         .order('created_at', { ascending: false })
       setStays(data || [])
     } catch (err) {
@@ -73,9 +74,10 @@ export function ExploreStaysDynamic({ initialStays = [] }: { initialStays?: any[
   }
 
   const filteredStays = stays.filter((stay) => {
-    if (activeVibe !== "all" && stay.vibe?.toLowerCase() !== activeVibe) return false
-    if (filters.type !== 'all' && stay.type !== filters.type) return false
-    if (filters.roomType !== 'all' && stay.room_type !== filters.roomType && stay.room_type !== 'both') return false
+    // Only filter by vibe/type if stay actually has that field set
+    if (activeVibe !== "all" && stay.vibe && stay.vibe.toLowerCase() !== activeVibe) return false
+    if (filters.type !== 'all' && stay.type && stay.type !== filters.type) return false
+    if (filters.roomType !== 'all' && stay.room_type && stay.room_type !== filters.roomType && stay.room_type !== 'both') return false
     if (staySearch && !stay.name?.toLowerCase().includes(staySearch.toLowerCase()) && !stay.location?.toLowerCase().includes(staySearch.toLowerCase())) return false
     return true
   })
@@ -317,10 +319,8 @@ export function ExploreStaysDynamic({ initialStays = [] }: { initialStays?: any[
                       key={stay.id}
                       layout
                       className={gridClass}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1], delay: (index % 5) * 0.06 }}
+                      exit={{ opacity: 0, scale: 0.96 }}
+                      transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                     >
                       <StayCard stay={stay} index={index} />
                     </motion.div>
