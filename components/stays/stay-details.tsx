@@ -251,7 +251,7 @@ export function StayDetails({ stay }: StayDetailsProps) {
               </p>
               <Magnetic strength={0.2}>
                 <Link
-                  href={`/booking?type=stay&id=${stay.id}&room=${encodeURIComponent(stay.roomTypes[selectedRoom]?.name)}`}
+                  href={`/booking/stay?id=${stay.id}&room=${encodeURIComponent(stay.roomTypes[selectedRoom]?.name)}`}
                   className="group relative inline-flex items-center justify-center overflow-hidden px-14 py-6 rounded-full bg-primary text-background font-bold text-[11px] uppercase tracking-[0.4em] transition-all duration-500 hover:shadow-[0_0_40px_rgba(230,184,115,0.3)] hover:scale-[1.02]"
                 >
                   <span className="relative z-10">Request Availability</span>
