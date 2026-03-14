@@ -21,6 +21,7 @@ export async function getStays() {
     const { data, error } = await supabase
         .from('stays')
         .select('*')
+        .eq('status', 'published')
         .order('created_at', { ascending: false })
 
     if (error) {
