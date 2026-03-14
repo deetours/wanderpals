@@ -53,13 +53,51 @@ export function StayBookingFlow({ stay }: StayBookingFlowProps) {
 
   const totalPrice = stay.roomTypes[bookingData.roomType].price * nights * bookingData.guests
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step < 3) {
       setStep(step + 1)
     } else {
-      router.push(
-        `/payment?type=stay&id=${stay.id}&room=${bookingData.roomType}&checkin=${bookingData.checkIn}&checkout=${bookingData.checkOut}&guests=${bookingData.guests}&total=${totalPrice}`,
-      )
+      // 1. Log the lead
+      try {
+        await fetch('/api/leads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            first_name: bookingData.firstName,
+            last_name: bookingData.lastName,
+            email: bookingData.email,
+            phone_number: bookingData.phone,
+            source: 'stay_booking_flow',
+            details: {
+              stay_id: stay.id,
+              stay_name: stay.name,
+              room_type: stay.roomTypes[bookingData.roomType].name,
+              check_in: bookingData.checkIn,
+              check_out: bookingData.checkOut,
+              guests: bookingData.guests,
+              total_price: totalPrice
+            }
+          })
+        })
+      } catch (err) {
+        console.warn('Lead logging failed:', err)
+      }
+
+      // 2. WhatsApp redirect
+      const message = `Hi Wanderpals! I'd like to book a stay.
+
+Sanctuary: ${stay.name}
+Room: ${stay.roomTypes[bookingData.roomType].name}
+Dates: ${bookingData.checkIn} to ${bookingData.checkOut}
+Guests: ${bookingData.guests}
+Total Contribution: ₹${totalPrice.toLocaleString()}
+
+My Name: ${bookingData.firstName} ${bookingData.lastName}
+Email: ${bookingData.email}
+Phone: ${bookingData.phone}`
+
+      const whatsappLink = `https://wa.me/917629877144?text=${encodeURIComponent(message)}`
+      window.open(whatsappLink, "_blank")
     }
   }
 
@@ -370,7 +408,7 @@ export function StayBookingFlow({ stay }: StayBookingFlowProps) {
                   className="w-full relative group overflow-hidden flex items-center justify-center gap-4 rounded-full bg-primary py-5 font-bold text-primary-foreground shadow-2xl transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-10 disabled:grayscale disabled:cursor-not-allowed"
                 >
                   <span className="relative z-10 uppercase tracking-[0.5em] text-[10px]">
-                    {step === 3 ? "Proceed to Checkout" : "Continue Journey"}
+                    {step === 3 ? "Connect via WhatsApp" : "Continue Journey"}
                   </span>
                   <ArrowRight className="relative z-10 h-3 w-3 group-hover:translate-x-1 transition-transform" />
                   <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />

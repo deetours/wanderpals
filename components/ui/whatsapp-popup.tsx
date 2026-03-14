@@ -39,7 +39,7 @@ export function WhatsAppPopup() {
 
       // 2. WhatsApp link redirect
       const message = `Hi Wanderpals! I'm interested in your trips and stays. My phone: ${phoneNumber}`
-      const whatsappLink = `https://wa.me/919876543210?text=${encodeURIComponent(message)}`
+      const whatsappLink = `https://wa.me/917629877144?text=${encodeURIComponent(message)}`
       window.open(whatsappLink, "_blank")
       setIsOpen(false)
     }
