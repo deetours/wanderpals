@@ -239,18 +239,28 @@ export function TripDetails({ trip }: TripDetailsProps) {
               </div>
 
               {/* Final Apply CTA */}
-              <Link href={`/booking/trip/${trip.id}?date=${selectedDate}`}>
-                <Magnetic strength={0.2}>
-                  <div className="group relative overflow-hidden rounded-2xl bg-primary px-8 py-6 text-center shadow-2xl transition-all hover:shadow-primary/20">
-                    <motion.span 
-                      className="relative z-10 font-sans text-xs uppercase tracking-[0.5em] font-bold text-primary-foreground"
-                    >
-                      Apply for this Journey
-                    </motion.span>
-                    <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
-                  </div>
-                </Magnetic>
-              </Link>
+              <div className="flex flex-col items-center">
+                <Link href={`/booking/trip/${trip.id}?date=${selectedDate}`} className="w-full">
+                  <Magnetic strength={0.2}>
+                    <div className="group relative overflow-hidden rounded-2xl bg-primary px-8 py-6 text-center shadow-2xl transition-all hover:shadow-primary/20">
+                      <motion.span 
+                        className="relative z-10 font-sans text-xs uppercase tracking-[0.5em] font-bold text-primary-foreground"
+                      >
+                        Apply for this Journey
+                      </motion.span>
+                      <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
+                    </div>
+                  </Magnetic>
+                </Link>
+
+                <Link 
+                  href={`https://wa.me/917629877144?text=${encodeURIComponent(`Hi! I'm interested in the ${trip.name} journey (${trip.dates[selectedDate]?.start}). Can you tell me more?`)}`}
+                  target="_blank"
+                  className="mt-8 text-[10px] uppercase tracking-[0.4em] text-white/20 hover:text-primary transition-colors font-bold"
+                >
+                  Chat with Concierge
+                </Link>
+              </div>
             </div>
           </motion.div>
         </div>

@@ -375,6 +375,14 @@ export function StayDetails({ stay }: StayDetailsProps) {
                     </div>
                   </Link>
                 </Magnetic>
+
+                <Link 
+                  href={`https://wa.me/917629877144?text=${encodeURIComponent(`Hi! I'm looking at ${stay.name} (${stay.roomTypes[selectedRoom]?.name}). Can you help me with a booking?`)}`}
+                  target="_blank"
+                  className="mt-8 text-[10px] uppercase tracking-[0.4em] text-white/20 hover:text-primary transition-colors font-bold"
+                >
+                  Chat with Concierge
+                </Link>
               </div>
 
             </div>
