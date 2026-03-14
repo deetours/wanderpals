@@ -10,7 +10,7 @@ RETURNS boolean AS $$
 BEGIN
   RETURN EXISTS (
     SELECT 1 FROM public.users 
-    WHERE id = auth.uid() AND role IN ('admin'::user_role, 'superadmin'::user_role)
+    WHERE id = auth.uid() AND role::text IN ('admin', 'superadmin')
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -67,7 +67,7 @@ DECLARE
   v_admin_count integer;
 BEGIN
   SELECT COUNT(*) INTO v_lead_count FROM public.leads;
-  SELECT COUNT(*) INTO v_admin_count FROM public.users WHERE role IN ('admin'::user_role, 'superadmin'::user_role);
+  SELECT COUNT(*) INTO v_admin_count FROM public.users WHERE role::text IN ('admin', 'superadmin');
   
   RAISE NOTICE '✅ LEADS FIX COMPLETED!';
   RAISE NOTICE 'Total leads in database: %', v_lead_count;
