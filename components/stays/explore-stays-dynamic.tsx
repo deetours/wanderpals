@@ -274,7 +274,7 @@ export function ExploreStaysDynamic({ initialStays = [] }: { initialStays?: any[
             )}
           </motion.div>
 
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence mode="wait">
             {loading ? (
               <motion.div key="loading" className="grid gap-6 md:grid-cols-12 auto-rows-[420px]">
                 {[...Array(4)].map((_, i) => (
@@ -318,7 +318,7 @@ export function ExploreStaysDynamic({ initialStays = [] }: { initialStays?: any[
                     <motion.div
                       key={stay.id}
                       layout
-                      className={gridClass}
+                      className={`${gridClass} h-full`}
                       exit={{ opacity: 0, scale: 0.96 }}
                       transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                     >
