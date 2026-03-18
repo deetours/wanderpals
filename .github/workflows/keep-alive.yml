@@ -1,0 +1,66 @@
+name: Keep Wanderpals Backend Alive
+
+# Run every 5 minutes to keep Supabase connection active
+# Prevents cold starts and database idle timeouts
+on:
+  schedule:
+    # Every 5 minutes
+    - cron: '*/5 * * * *'
+  # Allow manual triggering for testing
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    name: Ping Backend Health Check
+    
+    steps:
+      - name: Ping Health Endpoint
+        run: |
+          echo "🔄 Pinging Wanderpals backend..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" https://wanderpals.netlify.app/api/health)
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -1)
+          
+          echo "📊 Response Code: $HTTP_CODE"
+          echo "📄 Response Body:"
+          echo "$BODY" | python3 -m json.tool 2>/dev/null || echo "$BODY"
+          
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Backend is healthy!"
+            exit 0
+          else
+            echo "❌ Backend health check failed with status $HTTP_CODE"
+            exit 1
+          fi
+        timeout-minutes: 5
+
+  # Alternative: Ping the actual database with a query
+  keep-db-alive:
+    runs-on: ubuntu-latest
+    name: Check Database Connection
+    if: always()
+    
+    steps:
+      - name: Database Connectivity Check
+        run: |
+          echo "🔄 Checking Supabase database connection..."
+          # This endpoint ensures the database connection stays warm
+          curl -s -X GET \
+            -H "Content-Type: application/json" \
+            https://wanderpals.netlify.app/api/health \
+            -w "\nStatus: %{http_code}\n"
+        timeout-minutes: 5
+
+  # Log results
+  notify:
+    runs-on: ubuntu-latest
+    name: Log Keep-Alive Status
+    if: always()
+    needs: [keep-alive]
+    
+    steps:
+      - name: Summary
+        run: |
+          echo "✅ Keep-alive check completed at $(date)"
+          echo "Next check will run in 5 minutes"

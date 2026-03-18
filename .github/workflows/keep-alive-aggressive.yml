@@ -1,0 +1,49 @@
+name: Aggressive Backend Keep-Alive (Production)
+
+# More aggressive schedule for production
+# Runs every 3 minutes during business hours
+# Runs every 15 minutes outside business hours
+on:
+  schedule:
+    # Every 3 minutes during business hours (9 AM - 9 PM UTC)
+    - cron: '*/3 9-20 * * *'
+    # Every 15 minutes outside business hours (9 PM - 9 AM UTC)
+    - cron: '*/15 21-8 * * *'
+  workflow_dispatch:
+
+jobs:
+  keep-alive-aggressive:
+    runs-on: ubuntu-latest
+    name: Aggressive Keep-Alive Ping
+    
+    steps:
+      - name: Multiple Endpoint Pings
+        run: |
+          set +e  # Don't exit on error
+          
+          ENDPOINTS=(
+            "https://wanderpals.netlify.app/api/health"
+            "https://wanderpals.netlify.app/api/bookings"
+            "https://wanderpals.netlify.app/api/leads"
+          )
+          
+          echo "⏰ Starting aggressive keep-alive at $(date)"
+          echo "🔄 Pinging multiple endpoints to warm up all connections..."
+          echo ""
+          
+          for endpoint in "${ENDPOINTS[@]}"; do
+            echo "📡 Pinging: $endpoint"
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X GET "$endpoint" \
+              -H "Content-Type: application/json" | tail -1)
+            
+            if [ "$RESPONSE" -eq 200 ] || [ "$RESPONSE" -eq 401 ]; then
+              echo "   ✅ Status: $RESPONSE"
+            else
+              echo "   ⚠️  Status: $RESPONSE"
+            fi
+            sleep 1
+          done
+          
+          echo ""
+          echo "✅ Keep-alive pings completed"
+        timeout-minutes: 5
