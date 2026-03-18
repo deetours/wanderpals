@@ -62,6 +62,3 @@ export async function PATCH(req: Request) {
         return NextResponse.json({ error: error?.message || 'Failed to process request' }, { status: 500 })
     }
 }
-
-    return NextResponse.json({ profile: (data as any)[0] })
-}
