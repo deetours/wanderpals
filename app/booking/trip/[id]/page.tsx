@@ -1,21 +1,66 @@
 import { TripBookingFlow } from "@/components/booking/trip-booking-flow"
 import { notFound } from "next/navigation"
-import { createSupabaseServerClient } from "@/lib/supabase/server"
 
-export const revalidate = 0
+const tripsData: Record<
+  string,
+  {
+    name: string
+    duration: string
+    price: number
+    dates: { start: string; end: string; spots: number }[]
+  }
+> = {
+  spiti: {
+    name: "Spiti Valley",
+    duration: "9 Days",
+    price: 28999,
+    dates: [
+      { start: "Jun 15", end: "Jun 23", spots: 4 },
+      { start: "Jul 6", end: "Jul 14", spots: 8 },
+      { start: "Aug 10", end: "Aug 18", spots: 2 },
+      { start: "Sep 1", end: "Sep 9", spots: 10 },
+    ],
+  },
+  ladakh: {
+    name: "Ladakh Circuit",
+    duration: "11 Days",
+    price: 38999,
+    dates: [
+      { start: "Jun 20", end: "Jun 30", spots: 6 },
+      { start: "Jul 15", end: "Jul 25", spots: 4 },
+      { start: "Aug 5", end: "Aug 15", spots: 8 },
+    ],
+  },
+  kerala: {
+    name: "Kerala Backwaters",
+    duration: "6 Days",
+    price: 22999,
+    dates: [
+      { start: "Oct 10", end: "Oct 15", spots: 8 },
+      { start: "Nov 5", end: "Nov 10", spots: 6 },
+      { start: "Dec 20", end: "Dec 25", spots: 4 },
+    ],
+  },
+  meghalaya: {
+    name: "Meghalaya Trails",
+    duration: "7 Days",
+    price: 25999,
+    dates: [
+      { start: "Oct 15", end: "Oct 21", spots: 6 },
+      { start: "Nov 10", end: "Nov 16", spots: 8 },
+      { start: "Mar 5", end: "Mar 11", spots: 10 },
+    ],
+  },
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  try {
-    const supabase = await createSupabaseServerClient()
-    const { data: trip } = await supabase.from('trips').select('name').eq('id', id).single()
-    if (!trip) return { title: "Booking | Wanderpals" }
-    return {
-      title: `Join ${trip.name} | Wanderpals`,
-      description: `Reserve your spot on the ${trip.name} journey`,
-    }
-  } catch {
-    return { title: "Booking | Wanderpals" }
+  const trip = tripsData[id]
+  if (!trip) return { title: "Booking | Wanderpals" }
+
+  return {
+    title: `Join ${trip.name} | Wanderpals`,
+    description: `Reserve your spot on the ${trip.name} journey`,
   }
 }
 
@@ -28,38 +73,25 @@ export default async function TripBookingPage({
 }) {
   const { id } = await params
   const { date } = await searchParams
+  const trip = tripsData[id]
 
-  const supabase = await createSupabaseServerClient()
-  const { data: trip, error } = await supabase
-    .from('trips')
-    .select('id, name, duration, price, dates, group_size')
-    .eq('id', id)
-    .single()
-
-  if (error || !trip) {
-    notFound()
+  if (!trip) {
+    // For Supabase trips, show a temporary booking page with default dates
+    // This is a fallback - ideally the trip would exist in tripsData
+    return (
+      <div className="min-h-screen bg-background p-6 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="font-serif text-4xl text-foreground mb-4">Booking Dates Coming Soon</h1>
+          <p className="text-muted-foreground mb-8">
+            This trip&apos;s booking dates are being arranged. Please check back soon!
+          </p>
+          <a href="/all-trips" className="text-primary hover:text-primary/80">
+            ← Back to all trips
+          </a>
+        </div>
+      </div>
+    )
   }
 
-  // Normalise dates — may come from Supabase as JSONB array or may be null
-  const rawDates = Array.isArray(trip.dates) ? trip.dates : []
-  const dates = rawDates.length > 0
-    ? rawDates.map((d: any) => ({
-        start: d.start || d.date || 'TBA',
-        end: d.end || d.date || 'TBA',
-        spots: typeof d.spots === 'number' ? d.spots : (trip.group_size || 12),
-      }))
-    : [
-        // Fallback when no dates are configured yet
-        { start: 'Next Available', end: 'Flexible', spots: trip.group_size || 12 },
-      ]
-
-  const tripForFlow = {
-    id: trip.id,
-    name: trip.name,
-    duration: trip.duration ? `${trip.duration}` : 'Custom',
-    price: trip.price || 0,
-    dates,
-  }
-
-  return <TripBookingFlow trip={tripForFlow} initialDateIndex={date ? parseInt(date) : 0} />
+  return <TripBookingFlow trip={{ id, ...trip }} initialDateIndex={date ? Number.parseInt(date) : 0} />
 }

@@ -360,7 +360,7 @@ export function TripDetailsDynamic({ tripId, initialTrip }: TripDetailsDynamicPr
             transition={transition}
             className="rounded-[2.5rem] glass inner-glow p-10 md:p-16 shadow-2xl overflow-hidden relative"
           >
-            <div className="noise-overlay grayscale" />
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none grayscale" style={{ backgroundImage: "url('/noise.png')" }} />
             
             <div className="relative">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16">

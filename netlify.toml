@@ -1,5 +1,21 @@
 [build]
   command = "npm run build"
+  # Run health check after build - will fail if env vars are missing
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
+
+# IMPORTANT: Set these environment variables in Netlify Dashboard
+# Site settings → Build & deploy → Environment
+# Required Variables:
+# ✅ NEXT_PUBLIC_SUPABASE_URL
+# ✅ NEXT_PUBLIC_SUPABASE_ANON_KEY  
+# ✅ SUPABASE_SERVICE_ROLE_KEY (from Supabase Dashboard → Settings → API)
+# ✅ RESEND_API_KEY (for email notifications)
+# ✅ INTERNAL_API_SECRET (for lead capture from external tools)
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200

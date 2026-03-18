@@ -185,6 +185,10 @@ function CalendarDayButton({
     if (modifiers.focused) ref.current?.focus()
   }, [modifiers.focused])
 
+  // Filter out incompatible props from DayButton
+  const { onDrag, ...safeBut
+tonProps } = props as any
+
   return (
     <Button
       ref={ref}
@@ -205,7 +209,7 @@ function CalendarDayButton({
         defaultClassNames.day,
         className,
       )}
-      {...(props as any)}
+      {...safeButtonProps}
     />
   )
 }

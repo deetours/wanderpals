@@ -157,7 +157,7 @@ export function ExperienceArchive({ userId }: ExperienceArchiveProps) {
             >
               <div className="absolute inset-0 bg-primary/5 animate-pulse" />
               <div className="relative bg-background/40 backdrop-blur-3xl rounded-[2.8rem] p-10 md:p-16 flex flex-col md:flex-row gap-12 items-center justify-between overflow-hidden">
-                <div className="noise-overlay grayscale" />
+                <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: "url('/noise.png')" }} />
                 
                 <div className="relative z-10 flex-1">
                   <div className="flex items-center gap-4 mb-8">
@@ -319,7 +319,7 @@ export function ExperienceArchive({ userId }: ExperienceArchiveProps) {
                 key={trip.id} 
                 className="group relative flex flex-col md:flex-row gap-8 p-10 rounded-[2.5rem] border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] hover:border-primary/20 transition-all duration-700 overflow-hidden"
             >
-              <div className="noise-overlay grayscale" />
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-[0.03] pointer-events-none grayscale" style={{ backgroundImage: "url('/noise.png')" }} />
               <div className="relative w-full md:w-48 aspect-square rounded-3xl overflow-hidden shrink-0 shadow-2xl">
                 <Image src={trip.image_url || "/highlights/spiti-sunset.jpg"} alt={trip.name} fill className="object-cover transition-transform duration-1000 group-hover:scale-110" unoptimized />
               </div>

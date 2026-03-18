@@ -35,7 +35,7 @@ export function SceneHeroVisual({ scrollYProgress }: SceneHeroVisualProps) {
 
   // Parallax offset
   const { scrollYProgress: defaultScroll } = useScroll()
-  const activeScroll = scrollYProgress || defaultScroll
+  const activeScroll = (scrollYProgress || defaultScroll) as MotionValue<number>
   
   const y = useTransform(activeScroll, [0, 1], ["0%", "20%"])
   const scale = useTransform(activeScroll, [0, 1], [1, 1.1])

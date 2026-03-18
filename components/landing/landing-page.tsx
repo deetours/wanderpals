@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react"
 import { motion, useScroll, useSpring, useTransform } from "framer-motion"
 import { SceneArrival } from "./scene-arrival"
 import { SceneVillain } from "./scene-villain"
-import { SceneEarlyGateways } from "./scene-early-gateways"
 import { SceneThreeLines } from "./scene-three-lines"
 import { SceneHumanFace } from "./scene-human-face"
 import { ScenePause } from "./scene-pause"
@@ -17,6 +16,7 @@ import { SceneFAQ } from "./scene-faq"
 import { SceneExit } from "./scene-exit"
 import { TravellerStories } from "../community/traveller-stories"
 import { HighlightsGallery } from "../community/highlights-gallery"
+import { PostTripJourney } from "../community/post-trip-journey"
 import { Navbar } from "../ui/navbar"
 
 export function LandingPage() {
@@ -57,7 +57,7 @@ export function LandingPage() {
         style={{ scaleX }}
       />
       
-      <div className="fixed top-1/2 right-4 -translate-y-1/2 flex flex-col gap-4 z-40 mix-blend-difference hidden md:flex">
+      <div className="fixed top-1/2 right-4 -translate-y-1/2 flex-col gap-4 z-40 mix-blend-difference hidden md:flex">
         {[...Array(16)].map((_, i) => (
           <motion.div 
             key={i}
@@ -76,7 +76,6 @@ export function LandingPage() {
       <div className="relative z-10">
         <SceneArrival />
         <SceneVillain />
-        <SceneEarlyGateways />
         <SceneThreeLines />
         <SceneHumanFace />
         <ScenePause />
@@ -87,6 +86,7 @@ export function LandingPage() {
         <SceneTrust />
         <TravellerStories />
         <HighlightsGallery />
+        <PostTripJourney />
         <SceneFAQ />
         <SceneExit />
       </div>

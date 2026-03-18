@@ -3,17 +3,18 @@ import { createClient } from '@supabase/supabase-js'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 
 function getServiceClient() {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY!
-    if (!url || !key) throw new Error('Missing Supabase service role config')
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!url) throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL')
+    if (!key) throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY - ensure it is set in your environment')
     return createClient(url, key, { auth: { persistSession: false } })
 }
 
 export async function GET() {
     try {
         const supabase = await createSupabaseServerClient()
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        if (userError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
         const serviceClient = getServiceClient()
         const { data, error } = await serviceClient

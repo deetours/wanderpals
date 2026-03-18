@@ -37,9 +37,9 @@ export async function POST(req: Request) {
         if (error) throw error
 
         return NextResponse.json({ message: 'Lead captured', lead: data }, { status: 201 })
-    } catch (err) {
+    } catch (err: any) {
         console.error('Lead capture error:', err)
-        return NextResponse.json({ error: 'Failed to capture lead' }, { status: 500 })
+        return NextResponse.json({ error: err?.message || 'Failed to capture lead' }, { status: 500 })
     }
 }
 
@@ -66,7 +66,10 @@ export async function GET() {
         .select('*')
         .order('created_at', { ascending: false })
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) {
+        console.error('Error fetching leads:', error)
+        return NextResponse.json({ error: error.message || 'Failed to fetch leads' }, { status: 500 })
+    }
 
     return NextResponse.json({ leads })
 }
